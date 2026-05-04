@@ -180,12 +180,12 @@ public class Game
     }
 
     /**
-     * Clones the current board (returned by {@code getBoard()}) and moves the piece occupying the
-     * <b>from</b> square to the <b>to</b> square. Also handles the following special moves (if
+     * Clones the current board (as returned by {@code getBoard()}) and moves the piece occupying
+     * the <b>from</b> square to the <b>to</b> square. Also handles the following special moves (if
      * applicable):
      * <ul>
      * <li>Castling – Moves the corresponding rook to the square adjacent to the king.</li>
-     * <li>En passant – Removes the corresponding pawn.</li>
+     * <li>En passant – Removes the captured pawn.</li>
      * <li>Promotion – Replaces the piece with a new piece of the given type.</li>
      * </ul>
      * 
@@ -196,7 +196,7 @@ public class Game
      * @throws UnoccupiedSquareException if the <b>from</b> square is unoccupied
      * @throws IllegalMoveException      if the piece cannot legally move to the <b>to</b> square
      * @throws InvalidPromotionException if <b>newType</b> is null and promotion is mandatory, or
-     *                                   <b>newType</b> is non-null and either
+     *                                   <b>newType</b> is non-null and either:
      *                                   <ul>
      *                                   <li>the piece occupying <b>from</b> is not a pawn,</li>
      *                                   <li><b>to</b> is not on the player's last rank, or</li>

@@ -2,6 +2,7 @@ package main.java.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -13,6 +14,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +41,8 @@ import main.java.player.Player.Colour;
 
 public class GUI extends JFrame
 {
+    private static final int DRAG_ACTIVATION_DELAY_MILLIS = 200;
+
     // ============================================================================================
     // Components and Layouts
     // ============================================================================================
@@ -56,6 +61,8 @@ public class GUI extends JFrame
 
     private final JButton previousMoveButton = new JButton( "Previous Move" );
     private final JButton nextMoveButton = new JButton( "Next Move" );
+
+    private boolean showingHistoricalBoardState;
 
     // ============================================================================================
 
@@ -91,7 +98,7 @@ public class GUI extends JFrame
     private SquareComp to;
     private SquareComp check;
 
-    private List<PieceComp> pieceComps;
+    private final List<PieceComp> pieceComps = new ArrayList<>();
 
     // ============================================================================================
     // Non-Component Fields
@@ -100,22 +107,20 @@ public class GUI extends JFrame
     private Game game;
 
     /**
-     * An integer representing the index of the board currently displayed in the GUI. For example, a
-     * value of {@code 0} represents the board state at the beginning of the game, a value of
-     * {@code 10} represents the board state after ten turns have been taken, etc. A special case is
-     * {@code -1}, which indicates a move preview.
+     * An integer representing the index of the board currently displayed in the GUI.
+     * <p>
+     * For example, a value of {@code 0} represents the board state at the beginning of the game, a
+     * value of {@code 10} represents the board state after ten turns have been taken, etc. A
+     * special case is {@code -1}, which indicates a move preview.
+     * <p>
+     * We therefore have the following inequalities (which are always true):
+     * <ul>
+     * <li>{@code boardIndex >= -1}</li>
+     * <li>{@code numberOfTurnsTaken >= 0}</li>
+     * <li>{@code boardIndex <= numberOfTurnsTaken}</li>
+     * </ul>
      */
     private int boardIndex;
-
-    private Game getGame()
-    {
-        return this.game;
-    }
-
-    private void setGame( Game game )
-    {
-        this.game = game;
-    }
 
     // ============================================================================================
     // Map Methods
@@ -147,22 +152,22 @@ public class GUI extends JFrame
 
     private Board getBoard()
     {
-        return getGame().getBoard();
+        return game.getBoard();
     }
 
     private Board getBoard( int index )
     {
-        return getGame().getBoard( index );
+        return game.getBoard( index );
     }
 
     private int getNumberOfTurnsTaken()
     {
-        return getGame().getNumberOfTurnsTaken();
+        return game.getNumberOfTurnsTaken();
     }
 
     private Player getActivePlayer()
     {
-        return getGame().getActivePlayer();
+        return game.getActivePlayer();
     }
 
     private List<Square> getMoves( SquareComp squareComp )
@@ -182,9 +187,9 @@ public class GUI extends JFrame
         addComponentsToFrame();
         configureLayouts();
 
-        addSquareClickedListeners();
-        addMenuButtonClickedListeners();
-        addKeyPressedListener();
+        addSquareMouseListeners();
+        addMenuButtonActionListeners();
+        registerMoveConfirmationInput();
         addFrameResizedListener();
 
         newGame();
@@ -251,94 +256,119 @@ public class GUI extends JFrame
         capturedPiecesPaneBlack.setLayout( capturedPiecesLayoutBlack );
     }
 
-    private void addSquareClickedListeners()
+    private void addSquareMouseListeners()
     {
-        for ( SquareComp squareComp : squareComps )
+        for ( SquareComp pressed : squareComps )
         {
-            squareComp.addMouseListener( new MouseAdapter()
+            pressed.addMouseListener( new MouseAdapter()
             {
+                LocalDateTime lastPressed;
+
+                @Override
+                public void mousePressed( MouseEvent e )
+                {
+                    if ( showingHistoricalBoardState )
+                        return;
+
+                    // If a 'from' square is preselected (but a 'to' square isn't) and the 'from' square was pressed
+                    // again, then return – we don't want to deselect the 'from' square (unless it is released again
+                    // shortly afterwards, which will be handled by the mouse released event)
+                    if ( pressed == from && to == null )
+                        return;
+
+                    lastPressed = LocalDateTime.now();
+
+                    doSquareClickedAction( pressed );
+                }
+
                 @Override
                 public void mouseReleased( MouseEvent e )
                 {
-                    if ( 0 <= boardIndex && boardIndex < getNumberOfTurnsTaken() )
+                    if ( showingHistoricalBoardState )
                         return;
 
-                    if ( !squareComp.contains( e.getPoint() ) )
+                    long pressDuration = ChronoUnit.MILLIS.between( lastPressed, LocalDateTime.now() );
+
+                    int x = pressed.getX() + e.getX();
+                    int y = pressed.getY() + e.getY();
+
+                    // Find the component on which the mouse was released
+                    Component released = chessboardPane.getComponentAt( x, y );
+
+                    // If a 'from' square is preselected and a valid 'to' square was pressed but the mouse was
+                    // released somewhere else, then deselect both squares
+                    if ( pressed == to && released != to )
+                        doSquareClickedAction( from );
+
+                    if ( from == null || to != null )
                         return;
 
-                    doSquareClickedAction( squareComp );
+                    // If the mouse was released somewhere on the board (i.e. on a square)
+                    if ( released instanceof SquareComp )
+                    {
+                        // If a square was pressed and released again quickly enough (less than 0.2 seconds), then
+                        // return – we only want to select (or deselect) the pressed square
+                        if ( pressed == released && pressDuration <= DRAG_ACTIVATION_DELAY_MILLIS )
+                            return;
+
+                        // If the mouse was released on a square the dragged piece can legally move to
+                        if ( getMoves( from ).contains( getSquare( (SquareComp) released ) ) )
+                            doSquareClickedAction( (SquareComp) released );
+                        else
+                            doSquareClickedAction( from );
+                    }
+                    // If the mouse was released somewhere not on the board, then deselect both squares
+                    else
+                    {
+                        doSquareClickedAction( from );
+                    }
                 }
             } );
         }
     }
 
-    private void addMenuButtonClickedListeners()
+    private void addMenuButtonActionListeners()
     {
-        newGameButton.addMouseListener( new MouseAdapter()
+        newGameButton.addActionListener( e ->
         {
-            @Override
-            public void mouseReleased( MouseEvent e )
-            {
-                int i = JOptionPane.showConfirmDialog( rootPane,
-                                                       "Are you sure you want to start a new game?",
-                                                       "New Game",
-                                                       JOptionPane.YES_NO_OPTION );
+            int i = JOptionPane.showConfirmDialog( rootPane,
+                                                   "Are you sure you want to start a new game?",
+                                                   "New Game",
+                                                   JOptionPane.YES_NO_OPTION );
 
-                if ( i == JOptionPane.YES_OPTION )
-                    newGame();
-            }
+            if ( i == JOptionPane.YES_OPTION )
+                newGame();
         } );
 
-        flipBoardButton.addMouseListener( new MouseAdapter()
+        flipBoardButton.addActionListener( e ->
         {
-            @Override
-            public void mouseReleased( MouseEvent e )
-            {
-                if ( tabletopPane.getLayout() == tabletopLayoutWhite )
-                    orientBoard( Colour.BLACK );
-                else if ( tabletopPane.getLayout() == tabletopLayoutBlack )
-                    orientBoard( Colour.WHITE );
-            }
+            if ( tabletopPane.getLayout() == tabletopLayoutWhite )
+                orientBoard( Colour.BLACK );
+            else
+                orientBoard( Colour.WHITE );
         } );
 
-        previousMoveButton.addMouseListener( new MouseAdapter()
+        previousMoveButton.addActionListener( e ->
         {
-            @Override
-            public void mouseReleased( MouseEvent e )
-            {
-                if ( boardIndex == 0 || getNumberOfTurnsTaken() == 0 )
-                    return;
+            if ( from != null )
+                doSquareClickedAction( from );
 
-                if ( from != null )
-                    doSquareClickedAction( from );
-
-                positionPieces( getBoard( --boardIndex ) );
-            }
+            updateBoardState( getBoard( --boardIndex ) );
         } );
 
-        nextMoveButton.addMouseListener( new MouseAdapter()
-        {
-            @Override
-            public void mouseReleased( MouseEvent e )
-            {
-                if ( boardIndex == -1 || boardIndex == getNumberOfTurnsTaken() )
-                    return;
-
-                positionPieces( getBoard( ++boardIndex ) );
-            }
-        } );
+        nextMoveButton.addActionListener( e -> updateBoardState( getBoard( ++boardIndex ) ) );
     }
 
-    private void addKeyPressedListener()
+    private void registerMoveConfirmationInput()
     {
         KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher( e ->
         {
             if ( e.getKeyCode() == KeyEvent.VK_SPACE &&
-                 e.getID() == KeyEvent.KEY_RELEASED &&
+                 e.getID() == KeyEvent.KEY_PRESSED &&
                  to != null )
             {
                 makeMove();
-                postMove();
+                checkGameStatus();
                 orientBoard();
                 updateCheckBorder();
             }
@@ -373,27 +403,24 @@ public class GUI extends JFrame
         if ( check != null )
             check = check.resetBorder();
 
-        if ( pieceComps != null )
+        // Remove all existing PieceComps from the GUI
+        for ( PieceComp pieceComp : pieceComps )
         {
-            // Remove all existing PieceComps from the GUI
-            for ( PieceComp pieceComp : pieceComps )
-            {
-                Container parent = pieceComp.getParent();
+            Container parent = pieceComp.getParent();
 
-                if ( parent != null )
-                    parent.remove( pieceComp );
-            }
+            if ( parent != null )
+                parent.remove( pieceComp );
         }
 
-        pieceComps = new ArrayList<>();
+        pieceComps.clear();
 
-        setGame( new Game() );
+        game = new Game();
 
         for ( Piece piece : getBoard().getPieces() )
             createPieceComp( piece );
 
         orientBoard();
-        positionPieces();
+        updateBoardState();
     }
 
     // ============================================================================================
@@ -408,8 +435,10 @@ public class GUI extends JFrame
     private void doSquareClickedAction( SquareComp squareComp )
     {
         if ( from != null && to == null )
+        {
             for ( SquareComp sqComp : squareComps )
                 sqComp.showCircle( false );
+        }
 
         Square square = getSquare( squareComp );
 
@@ -454,13 +483,15 @@ public class GUI extends JFrame
         // If 'to' was selected (or unselected), preview the selected move (or undo the preview)
         if ( to != toBefore )
         {
-            positionPieces();
+            updateBoardState();
             updateCheckBorder();
         }
 
         if ( from != null && to == null )
+        {
             for ( Square sq : getMoves( from ) )
                 getSquareComp( sq ).showCircle( true );
+        }
     }
 
     /**
@@ -528,32 +559,28 @@ public class GUI extends JFrame
                                                   Typ.PROMOTION_TYPES,
                                                   null );
 
-            Typ newType;
+            Typ newType = i == JOptionPane.CLOSED_OPTION ? Typ.QUEEN
+                                                         : Typ.PROMOTION_TYPES[ i ];
 
-            if ( i == JOptionPane.CLOSED_OPTION )
-                newType = Typ.QUEEN;
-            else
-                newType = Typ.PROMOTION_TYPES[ i ];
-
-            Piece newPiece = getGame().makeMove( fromSquare, toSquare, newType );
+            Piece newPiece = game.makeMove( fromSquare, toSquare, newType );
 
             createPieceComp( newPiece );
         }
         else
         {
-            getGame().makeMove( fromSquare, toSquare );
+            game.makeMove( fromSquare, toSquare );
         }
 
         from = from.deselect();
         to = to.deselect();
 
         // TODO: This can be removed once promoted pieces are included in move previews
-        positionPieces();
+        updateBoardState();
     }
 
-    private void postMove()
+    private void checkGameStatus()
     {
-        Status status = getGame().getStatus();
+        Status status = game.getStatus();
 
         if ( status == Status.CHECK ||
              status == Status.CHECKMATE )
@@ -561,16 +588,12 @@ public class GUI extends JFrame
         else
             check = null;
 
-        if ( getGame().isGameOver() )
+        if ( game.isGameOver() )
         {
-            Icon icon;
+            Icon icon = status == Status.CHECKMATE ? Images.createIcon( getActivePlayer().getColour().transpose(), Typ.KING )
+                                                   : null;
 
-            if ( status == Status.CHECKMATE )
-                icon = Images.createIcon( getActivePlayer().getColour().transpose(), Typ.KING );
-            else
-                icon = null;
-
-            JOptionPane.showMessageDialog( this, getGame().getGameOverMessage(), "Game Over", JOptionPane.PLAIN_MESSAGE, icon );
+            JOptionPane.showMessageDialog( this, game.getGameOverMessage(), "Game Over", JOptionPane.PLAIN_MESSAGE, icon );
         }
     }
 
@@ -615,11 +638,12 @@ public class GUI extends JFrame
         capturedPiecesLayoutWhite.setVgap( gap );
         capturedPiecesLayoutBlack.setVgap( gap );
 
+        // Horizontal space between pieces
         capturedPiecesLayoutWhite.setHgap( -gap );
         capturedPiecesLayoutBlack.setHgap( -gap );
     }
 
-    private void positionPieces()
+    private void updateBoardState()
     {
         Board board;
 
@@ -634,15 +658,16 @@ public class GUI extends JFrame
             boardIndex = -1;
         }
 
-        positionPieces( board );
+        updateBoardState( board );
     }
 
-    private void positionPieces( Board board )
+    private void updateBoardState( Board board )
     {
         for ( PieceComp pieceComp : pieceComps )
         {
             SquareComp squareComp = getSquareComp( board, pieceComp.getPiece() );
 
+            // If the piece is no longer on the board (i.e. it has been captured)
             if ( squareComp == null )
             {
                 switch ( pieceComp.getPiece().getColour() )
@@ -669,6 +694,11 @@ public class GUI extends JFrame
          * 'from' and 'to' square during move previews.
          */
         contentPane.repaint();
+
+        showingHistoricalBoardState = 0 <= boardIndex && boardIndex < getNumberOfTurnsTaken();
+
+        previousMoveButton.setEnabled( boardIndex != 0 && getNumberOfTurnsTaken() > 0 );
+        nextMoveButton.setEnabled( showingHistoricalBoardState );
     }
 
     private void updateCheckBorder()
