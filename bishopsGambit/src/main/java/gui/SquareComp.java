@@ -21,7 +21,7 @@ public class SquareComp extends JLayeredPane
 {
     private static final Color DARK = new Color( 209, 139, 71 );
     private static final Color LIGHT = new Color( 254, 206, 157 );
-    private static final Color HIGHLIGHT = ColorUtils.blend( Color.yellow, Color.white );
+    private static final Color HIGHLIGHT = ColorUtils.blend( Color.YELLOW, Color.WHITE );
 
     private static final Font ROBOTO_MEDIUM = Fonts.importFont( "Roboto", Weight.MEDIUM );
 
@@ -38,7 +38,7 @@ public class SquareComp extends JLayeredPane
 
     private final JLabel fileLbl;
     private final JLabel rankLbl;
-    private final CircleComp circleComp;
+    private final MoveMarker moveMarker;
 
     protected char getFile()
     {
@@ -70,26 +70,23 @@ public class SquareComp extends JLayeredPane
         rankLbl.setForeground( defaultFg );
         rankLbl.setFont( ROBOTO_MEDIUM );
 
-        this.circleComp = new CircleComp();
+        this.moveMarker = new MoveMarker();
 
         add( fileLbl, DEFAULT_LAYER );
         add( rankLbl, DEFAULT_LAYER );
-        add( circleComp, MODAL_LAYER );
+        add( moveMarker, MODAL_LAYER );
 
         resetBackground();
-        showCircle( false );
+        showMoveMarker( false );
 
         setOpaque( true );
     }
 
     protected void addPieceComp( PieceComp pieceComp )
     {
-        add( pieceComp, PALETTE_LAYER );
+        add( pieceComp, PALETTE_LAYER, 0 );
 
-        /*
-         * Necessary to prevent UI issues. Without this, the selected piece may be positioned outside
-         * the bounds of the square it occupies when a move preview is undone.
-         */
+        // Ensures the piece is positioned within the bounds of the square
         pieceComp.setLocation( 0, 0 );
     }
 
@@ -108,42 +105,38 @@ public class SquareComp extends JLayeredPane
         rankLbl.setVisible( this.file == file );
     }
 
-    protected void showCircle( boolean b )
+    protected void showMoveMarker( boolean b )
     {
-        circleComp.setVisible( b );
+        moveMarker.setVisible( b );
+    }
+
+    protected boolean hasMoveMarker()
+    {
+        return moveMarker.isVisible();
     }
 
     /**
      * Changes the background color of this component to its highlighted color.
-     * 
-     * @return {@code this}
      */
-    protected SquareComp select()
+    protected void select()
     {
         setBackground( ColorUtils.blend( defaultBg, HIGHLIGHT, 1, 3 ) );
-        return this;
     }
 
     /**
      * Changes the background color of this button to its default color.
-     * 
-     * @return {@code null}
      */
-    protected SquareComp deselect()
+    protected void deselect()
     {
         resetBackground();
-        return null;
     }
 
     /**
      * Sets the border of this button to an empty border.
-     * 
-     * @return {@code null}
      */
-    protected SquareComp resetBorder()
+    protected void resetBorder()
     {
         setBorder( BorderFactory.createEmptyBorder() );
-        return null;
     }
 
     protected void setScale( int scale )
@@ -155,7 +148,7 @@ public class SquareComp extends JLayeredPane
 
         fileLbl.setSize( dimension );
         rankLbl.setSize( dimension );
-        circleComp.setSize( dimension );
+        moveMarker.setSize( dimension );
 
         int x = scale / 20;
         int y = scale / 40;
@@ -172,11 +165,29 @@ public class SquareComp extends JLayeredPane
         return Square.getIndex( file, rank );
     }
 
-    private class CircleComp extends JComponent
+    protected void debugLayeringIssues()
     {
-        private static final Color BLACK_TRANSLUCENT = ColorUtils.changeAlpha( Color.black, 63 );
+        int totalCount = getComponentCount();
 
-        private CircleComp()
+        int defaultCount = getComponentCountInLayer( DEFAULT_LAYER );
+        int paletteCount = getComponentCountInLayer( PALETTE_LAYER );
+        int modalCount = getComponentCountInLayer( MODAL_LAYER );
+
+        if ( defaultCount + paletteCount + modalCount < totalCount )
+            System.err.println( String.format( "Total number of components (%d) does not equal the sum of the number of components in each layer (%d default, %d palette, %d modal) for square '%s%s'",
+                                               totalCount,
+                                               defaultCount,
+                                               paletteCount,
+                                               modalCount,
+                                               getFile(),
+                                               getRank() ) );
+    }
+
+    private class MoveMarker extends JComponent
+    {
+        private static final Color BLACK_TRANSLUCENT = ColorUtils.changeAlpha( Color.BLACK, 64 );
+
+        private MoveMarker()
         {
             setBackground( null );
         }
