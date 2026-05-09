@@ -95,7 +95,7 @@ public class Square
      * <i>not</i> belonging to the given player.
      * 
      * @param player the player
-     * @param board  the chess board
+     * @param board  the chessboard
      * @return {@code true} if this square is being targeted by a piece <i>not</i> belonging to the
      *         given player; {@code false} otherwise
      */

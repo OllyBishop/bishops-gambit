@@ -47,16 +47,12 @@ public class Rook extends Piece
                     Square s = square.travel( board, n * x * y, n * (1 - x) * y );
 
                     if ( s == null )
-                    {
                         break;
-                    }
 
                     if ( s.isOccupied() )
                     {
                         if ( s.isOccupiedByOpponent( piece.getPlayer() ) )
-                        {
                             targets.add( s );
-                        }
 
                         break;
                     }

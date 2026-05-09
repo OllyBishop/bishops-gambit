@@ -47,16 +47,12 @@ public class Bishop extends Piece
                     Square s = square.travel( board, n * x, n * y );
 
                     if ( s == null )
-                    {
                         break;
-                    }
 
                     if ( s.isOccupied() )
                     {
                         if ( s.isOccupiedByOpponent( piece.getPlayer() ) )
-                        {
                             targets.add( s );
-                        }
 
                         break;
                     }

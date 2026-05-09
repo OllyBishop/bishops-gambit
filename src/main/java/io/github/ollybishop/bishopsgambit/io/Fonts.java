@@ -22,9 +22,7 @@ public class Fonts
             font = Font.createFont( Font.TRUETYPE_FONT, Fonts.class.getResourceAsStream( fontPath ) );
 
             if ( !fontFamilyNames.contains( font.getFontName() ) )
-            {
                 graphicsEnvironment.registerFont( font );
-            }
         }
         catch ( FontFormatException | IOException e )
         {

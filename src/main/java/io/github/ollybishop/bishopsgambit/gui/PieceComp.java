@@ -4,9 +4,9 @@ import javax.swing.JLabel;
 
 import io.github.ollybishop.bishopsgambit.io.Images;
 import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.util.Orderable;
+import io.github.ollybishop.bishopsgambit.util.Sortable;
 
-public class PieceComp extends JLabel implements Orderable
+public class PieceComp extends JLabel implements Sortable
 {
     private final Piece piece;
 
@@ -27,16 +27,7 @@ public class PieceComp extends JLabel implements Orderable
     }
 
     @Override
-    public int compareTo( Orderable o )
-    {
-        if ( !(o instanceof PieceComp) )
-            throw new IllegalArgumentException( "The object being compared must be an instance of PieceComp." );
-
-        return Integer.compare( o.ordinal(), ordinal() );
-    }
-
-    @Override
-    public int ordinal()
+    public int sortKey()
     {
         return piece.getType().ordinal();
     }

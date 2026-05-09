@@ -46,7 +46,7 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Creates an ArrayList of 64 squares, comprising the chess board.
+     * Constructs a chessboard containing 64 unoccupied squares.
      */
     public Board()
     {

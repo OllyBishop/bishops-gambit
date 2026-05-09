@@ -126,7 +126,7 @@ public class Player
     /**
      * Returns a boolean indicating whether this player is in check.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return {@code true} if this player is in check; {@code false} otherwise
      */
     public boolean isInCheck( Board board )
@@ -137,7 +137,7 @@ public class Player
     /**
      * Returns a boolean indicating whether this player is checkmated.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return {@code true} if this player is checkmated; {@code false} otherwise
      */
     public boolean isCheckmated( Board board )
@@ -148,7 +148,7 @@ public class Player
     /**
      * Returns a boolean indicating whether this player is stalemated.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return {@code true} if this player is stalemated; {@code false} otherwise
      */
     public boolean isStalemated( Board board )
@@ -159,7 +159,7 @@ public class Player
     /**
      * Calculates the number of legal moves this player can make.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return the number of legal moves this player can make
      */
     public int getNumberOfLegalMoves( Board board )
@@ -173,7 +173,7 @@ public class Player
     /**
      * Returns a boolean indicating whether this player has any legal moves.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return {@code true} if this player has no legal moves; {@code false} otherwise
      */
     private boolean hasNoLegalMoves( Board board )

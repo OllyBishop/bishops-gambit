@@ -42,9 +42,7 @@ public class Knight extends Piece
                     Square s = square.travel( board, n * x, (3 - n) * y );
 
                     if ( s != null && !s.isOccupiedBy( getPlayer() ) )
-                    {
                         targets.add( s );
-                    }
                 }
             }
         }

@@ -75,8 +75,8 @@ public class GUI extends JFrame
     private final GridBagLayout chessboardLayoutWhite = new GridBagLayout();
     private final GridBagLayout chessboardLayoutBlack = new GridBagLayout();
 
-    private final JPanel capturedPiecesPaneWhite = new OrderedJPanel();
-    private final JPanel capturedPiecesPaneBlack = new OrderedJPanel();
+    private final JPanel capturedPiecesPaneWhite = new SortedJPanel();
+    private final JPanel capturedPiecesPaneBlack = new SortedJPanel();
     private final FlowLayout capturedPiecesLayoutWhite = new FlowLayout();
     private final FlowLayout capturedPiecesLayoutBlack = new FlowLayout();
 
@@ -264,12 +264,12 @@ public class GUI extends JFrame
 
                     alreadySelected = pressed == from || pressed == to;
 
-                    boolean squareIsOccupiedByActivePlayer = getSquare( pressed ).isOccupiedBy( getActivePlayer() );
+                    boolean ownPieceSelected = getSquare( pressed ).isOccupiedBy( getActivePlayer() );
 
                     // If no squares were preselected
                     if ( from == null )
                     {
-                        if ( squareIsOccupiedByActivePlayer )
+                        if ( ownPieceSelected )
                             selectFromSquare( pressed );
                     }
                     // If only a 'from' square was preselected
@@ -282,7 +282,7 @@ public class GUI extends JFrame
                             {
                                 deselectFromSquare();
 
-                                if ( squareIsOccupiedByActivePlayer )
+                                if ( ownPieceSelected )
                                     selectFromSquare( pressed );
                             }
                     }
@@ -293,19 +293,14 @@ public class GUI extends JFrame
                         {
                             deselectFromSquare();
 
-                            if ( pressed != fromBefore && squareIsOccupiedByActivePlayer )
+                            if ( pressed != fromBefore && ownPieceSelected )
                                 selectFromSquare( pressed );
                         }
 
                         deselectToSquare();
                     }
 
-                    if ( from != fromBefore || to != toBefore )
-                    {
-                        updateMoveMarkers();
-                        updateBoardState();
-                        updateCheckBorder();
-                    }
+                    afterMouseEvent( fromBefore, toBefore );
                 }
 
                 @Override
@@ -352,9 +347,18 @@ public class GUI extends JFrame
                             deselectFromAndToSquares();
                     }
 
-                    if ( from != fromBefore || to != toBefore )
+                    afterMouseEvent( fromBefore, toBefore );
+                }
+
+                private void afterMouseEvent( SquareComp fromBefore, SquareComp toBefore )
+                {
+                    if ( from == fromBefore && to == toBefore )
+                        return;
+
+                    updateMoveMarkers();
+
+                    if ( to != toBefore )
                     {
-                        updateMoveMarkers();
                         updateBoardState();
                         updateCheckBorder();
                     }
@@ -377,20 +381,20 @@ public class GUI extends JFrame
 
     private void deselectFromSquare()
     {
-        if ( from == null )
-            return;
-
-        from.deselect();
-        from = null;
+        if ( from != null )
+        {
+            from.deselect();
+            from = null;
+        }
     }
 
     private void deselectToSquare()
     {
-        if ( to == null )
-            return;
-
-        to.deselect();
-        to = null;
+        if ( to != null )
+        {
+            to.deselect();
+            to = null;
+        }
     }
 
     private void deselectFromAndToSquares()
@@ -483,7 +487,6 @@ public class GUI extends JFrame
             @Override
             public void componentResized( ComponentEvent e )
             {
-                rescalePieces();
                 rescalePieceContainers();
                 updateCheckBorder();
             }
@@ -493,6 +496,12 @@ public class GUI extends JFrame
     private void newGame()
     {
         deselectFromAndToSquares();
+
+        if ( check != null )
+        {
+            check.resetBorder();
+            check = null;
+        }
 
         // Remove all existing PieceComps from the GUI
         for ( PieceComp pieceComp : pieceComps )
@@ -513,7 +522,6 @@ public class GUI extends JFrame
             createPieceComp( piece );
 
         updateBoardState();
-        updateCheckSquare();
         updatePieceCursors();
         orientTabletop();
     }
@@ -524,55 +532,8 @@ public class GUI extends JFrame
     }
 
     // ============================================================================================
-    // Other Methods
+    // Methods for handling changes to the underlying game state
     // ============================================================================================
-
-    /**
-     * Orients the tabletop to the active player's perspective, provided the 'Lock View' button is
-     * not selected.
-     */
-    private void orientTabletop()
-    {
-        if ( !lockViewButton.isSelected() )
-            orientTabletop( getActivePlayer().getColour() );
-    }
-
-    /**
-     * Orients the tabletop to the perspective of the player with the given colour. For example, if
-     * {@code colour == Colour.WHITE}, the board is oriented with 'a1' in the lower-left corner and
-     * Black's captured pieces displayed below.
-     * 
-     * @param colour the colour of the player whose perspective the tabletop is oriented to
-     */
-    private void orientTabletop( Colour colour )
-    {
-        switch ( colour )
-        {
-            case WHITE:
-                tabletopPane.setLayout( tabletopLayoutWhite );
-                chessboardPane.setLayout( chessboardLayoutWhite );
-
-                for ( SquareComp squareComp : squareComps )
-                {
-                    squareComp.showRank( 'a' );
-                    squareComp.showFile( '1' );
-                }
-
-                break;
-
-            case BLACK:
-                tabletopPane.setLayout( tabletopLayoutBlack );
-                chessboardPane.setLayout( chessboardLayoutBlack );
-
-                for ( SquareComp squareComp : squareComps )
-                {
-                    squareComp.showRank( 'h' );
-                    squareComp.showFile( '8' );
-                }
-
-                break;
-        }
-    }
 
     private void makeMove()
     {
@@ -610,17 +571,6 @@ public class GUI extends JFrame
         updateBoardState();
     }
 
-    private void updateCheckSquare()
-    {
-        if ( game.getStatus() == Status.CHECK ||
-             game.getStatus() == Status.CHECKMATE )
-            check = getSquareComp( getBoard(), getActivePlayer().getKing() );
-        else
-            check = null;
-
-        updateCheckBorder();
-    }
-
     private void checkIfGameIsOver()
     {
         if ( game.isGameOver() )
@@ -636,51 +586,9 @@ public class GUI extends JFrame
         }
     }
 
-    private int getUIScale()
-    {
-        int min = Math.min( contentPane.getWidth(), contentPane.getHeight() );
-        return Math.max( 10, min / 8 );
-    }
-
-    private void rescalePieces()
-    {
-        int scale = getUIScale();
-
-        for ( PieceComp pieceComp : pieceComps )
-        {
-            if ( pieceComp.getParent() instanceof SquareComp )
-                pieceComp.setScale( scale );
-            else
-                pieceComp.setScale( scale * 3 / 5 );
-        }
-    }
-
-    private void rescalePieceContainers()
-    {
-        int scale = getUIScale();
-
-        for ( SquareComp squareComp : squareComps )
-            squareComp.setScale( scale );
-
-        Dimension dimension = new Dimension( scale * 8, scale );
-
-        capturedPiecesPaneWhite.setPreferredSize( dimension );
-        capturedPiecesPaneBlack.setPreferredSize( dimension );
-
-        /*
-         * The FlowLayout class does not have an option to set the vertical alignment of its components.
-         * To achieve this, we set the vertical gap to half of the remaining vertical space in the pane.
-         * vgap = (paneHeight - compHeight) / 2 = (scale - scale * 3 / 5) / 2 = scale / 5
-         */
-        int gap = scale / 5;
-
-        capturedPiecesLayoutWhite.setVgap( gap );
-        capturedPiecesLayoutBlack.setVgap( gap );
-
-        // Horizontal space between pieces
-        capturedPiecesLayoutWhite.setHgap( -gap );
-        capturedPiecesLayoutBlack.setHgap( -gap );
-    }
+    // ============================================================================================
+    // Methods for managing the position, size and visibility of UI components
+    // ============================================================================================
 
     private void updateBoardState()
     {
@@ -728,6 +636,65 @@ public class GUI extends JFrame
             squareComp.debugLayeringIssues();
     }
 
+    private void rescalePieceContainers()
+    {
+        int scale = getUIScale();
+
+        for ( SquareComp squareComp : squareComps )
+            squareComp.setScale( scale );
+
+        Dimension dimension = new Dimension( scale * 8, scale );
+
+        capturedPiecesPaneWhite.setPreferredSize( dimension );
+        capturedPiecesPaneBlack.setPreferredSize( dimension );
+
+        /*
+         * The FlowLayout class does not have an option to set the vertical alignment of its components.
+         * To achieve this, we set the vertical gap to half of the remaining vertical space in the pane.
+         * vgap = (paneHeight - compHeight) / 2 = (scale - scale * 3 / 5) / 2 = scale / 5
+         */
+        int gap = scale / 5;
+
+        capturedPiecesLayoutWhite.setVgap( gap );
+        capturedPiecesLayoutBlack.setVgap( gap );
+
+        // Horizontal space between pieces
+        capturedPiecesLayoutWhite.setHgap( -gap );
+        capturedPiecesLayoutBlack.setHgap( -gap );
+
+        rescalePieces();
+    }
+
+    private void rescalePieces()
+    {
+        int scale = getUIScale();
+
+        for ( PieceComp pieceComp : pieceComps )
+        {
+            if ( pieceComp.getParent() instanceof SquareComp )
+                pieceComp.setScale( scale );
+            else
+                pieceComp.setScale( scale * 3 / 5 );
+        }
+    }
+
+    private int getUIScale()
+    {
+        int min = Math.min( contentPane.getWidth(), contentPane.getHeight() );
+        return Math.max( 10, min / 8 );
+    }
+
+    private void updateCheckSquare()
+    {
+        if ( game.getStatus() == Status.CHECK ||
+             game.getStatus() == Status.CHECKMATE )
+            check = getSquareComp( getBoard(), getActivePlayer().getKing() );
+        else
+            check = null;
+
+        updateCheckBorder();
+    }
+
     private void updateCheckBorder()
     {
         if ( check == null )
@@ -756,15 +723,60 @@ public class GUI extends JFrame
      */
     private void updatePieceCursors()
     {
-        Player player = getActivePlayer();
-
         for ( PieceComp pieceComp : pieceComps )
         {
             if ( boardIndex == latestBoardIndex &&
-                 pieceComp.getPiece().getPlayer() == player )
+                 pieceComp.getPiece().getPlayer() == getActivePlayer() )
                 pieceComp.setCursor( HAND_CURSOR );
             else
                 pieceComp.setCursor( DEFAULT_CURSOR );
+        }
+    }
+
+    /**
+     * Orients the tabletop to the active player's perspective, provided the 'Lock View' button is
+     * not selected.
+     */
+    private void orientTabletop()
+    {
+        if ( !lockViewButton.isSelected() )
+            orientTabletop( getActivePlayer().getColour() );
+    }
+
+    /**
+     * Orients the tabletop to the perspective of the player with the given colour. For example, if
+     * {@code colour == Colour.WHITE}, the board is oriented with 'a1' in the lower-left corner and
+     * Black's captured pieces displayed below.
+     * 
+     * @param colour the colour of the player whose perspective the tabletop is oriented to
+     */
+    private void orientTabletop( Colour colour )
+    {
+        switch ( colour )
+        {
+            case WHITE:
+                tabletopPane.setLayout( tabletopLayoutWhite );
+                chessboardPane.setLayout( chessboardLayoutWhite );
+
+                for ( SquareComp squareComp : squareComps )
+                {
+                    squareComp.showRank( 'a' );
+                    squareComp.showFile( '1' );
+                }
+
+                break;
+
+            case BLACK:
+                tabletopPane.setLayout( tabletopLayoutBlack );
+                chessboardPane.setLayout( chessboardLayoutBlack );
+
+                for ( SquareComp squareComp : squareComps )
+                {
+                    squareComp.showRank( 'h' );
+                    squareComp.showFile( '8' );
+                }
+
+                break;
         }
     }
 }

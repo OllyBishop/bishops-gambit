@@ -40,9 +40,7 @@ public class King extends Piece
                 Square s = square.travel( board, x, y );
 
                 if ( s != null && !s.isOccupiedBy( getPlayer() ) )
-                {
                     targets.add( s );
-                }
             }
         }
 
@@ -67,16 +65,14 @@ public class King extends Piece
 
                     Square k1 = k.travel( board, x, 0 ); // One square adjacent to king (rook moves here)
                     Square k2 = k.travel( board, 2 * x, 0 ); // Two squares adjacent to king (king moves here)
-                    Square r1 = r.travel( board, -x, 0 ); // One square adjacent to rook (same as 'k2' on kingside)
+                    Square r1 = r.travel( board, -x, 0 ); // One square adjacent to rook (same as 'k2' when castling kingside)
 
                     if ( !k1.isOccupied() &&
                          !k2.isOccupied() &&
                          !r1.isOccupied() &&
                          !k1.isTargeted( getPlayer(), board ) &&
                          !k2.isTargeted( getPlayer(), board ) )
-                    {
                         moves.add( k2 );
-                    }
                 }
             }
         }

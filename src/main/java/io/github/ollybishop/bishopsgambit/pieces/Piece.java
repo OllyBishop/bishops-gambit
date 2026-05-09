@@ -67,7 +67,7 @@ public abstract class Piece
 
     public char toChar()
     {
-        return (char) ('\u2654' + 6 * getColour().ordinal() + getType().ordinal());
+        return (char) ('\u2654' + 6 * getColour().ordinal() + 5 - getType().ordinal());
     }
 
     public abstract Typ getType();
@@ -83,7 +83,7 @@ public abstract class Piece
      * Returns a list of all squares this piece is currently targeting; i.e., all squares this piece
      * could move to if checks are ignored.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return a list of all squares this piece could move to if checks are ignored
      */
     protected abstract List<Square> getTargets( Board board );
@@ -92,7 +92,7 @@ public abstract class Piece
      * Returns a list of all squares this piece can legally move to. The list returned is a filtered
      * version of {@code getTargets(Board)}.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return a list of all squares this piece can legally move to
      */
     public List<Square> getMoves( Board board )
@@ -111,7 +111,7 @@ public abstract class Piece
     /**
      * Finds the square this piece is occupying.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return the square this piece is occupying (if it exists); {@code null} otherwise
      */
     public Square getSquare( Board board )
@@ -126,7 +126,7 @@ public abstract class Piece
      * Returns a boolean indicating whether (the square occupied by) this piece is being targeted by
      * an enemy piece.
      * 
-     * @param board the chess board
+     * @param board the chessboard
      * @return {@code true} if this piece is being targeted; {@code false} otherwise
      */
     public boolean isTargeted( Board board )
@@ -138,7 +138,7 @@ public abstract class Piece
      * Returns a boolean indicating whether this piece is targeting the given square.
      * 
      * @param square the square
-     * @param board  the chess board
+     * @param board  the chessboard
      * @return {@code true} if this piece is targeting the given square; {@code false} otherwise
      */
     public boolean isTargeting( Square square, Board board )
@@ -182,12 +182,12 @@ public abstract class Piece
 
     public enum Typ
     {
-        KING( "King" ),
-        QUEEN( "Queen" ),
-        ROOK( "Rook" ),
-        BISHOP( "Bishop" ),
+        PAWN( "Pawn" ),
         KNIGHT( "Knight" ),
-        PAWN( "Pawn" );
+        BISHOP( "Bishop" ),
+        ROOK( "Rook" ),
+        QUEEN( "Queen" ),
+        KING( "King" );
 
         public static final Typ[] PROMOTION_TYPES = new Typ[] { KNIGHT, BISHOP, ROOK, QUEEN };
 

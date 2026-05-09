@@ -44,9 +44,7 @@ public class Pawn extends Piece
                 if ( s != null )
                 {
                     if ( s.isOccupied() )
-                    {
                         break;
-                    }
 
                     targets.add( s );
                 }

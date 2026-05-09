@@ -71,9 +71,9 @@ public class Images
 
     /**
      * Creates an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>. The
-     * width and height of the instance returned are equal to that of the original image.
+     * width and height of the new icon are equal to that of the original image.
      * 
-     * @param colour the piece colour (i.e. the colour of the player the piece belongs to)
+     * @param colour the piece colour (i.e. the colour of the player who owns the piece)
      * @param type   the piece type
      * @return an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
      */
@@ -84,11 +84,11 @@ public class Images
 
     /**
      * Creates an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>. If
-     * positive, the width and height of the instance returned are equal to the given <b>scale</b>.
-     * If negative, the original image dimensions are used. If zero, an
+     * <b>scale</b> is positive, the width and height of the new icon are equal to this value. If
+     * <b>scale</b> is negative, the original image dimensions are used. If <b>scale</b> is zero, an
      * {@code IllegalArgumentException} is thrown.
      * 
-     * @param colour the piece colour (i.e. the colour of the player the piece belongs to)
+     * @param colour the piece colour (i.e. the colour of the player who owns the piece)
      * @param type   the piece type
      * @param scale  the width and height of the icon
      * @return a scaled {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
