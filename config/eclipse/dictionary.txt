@@ -1,0 +1,11 @@
+checkmated
+chessboard
+color
+en
+kingside
+passant
+queenside
+sortable
+stalemated
+tabletop
+vgap
