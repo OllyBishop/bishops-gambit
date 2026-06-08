@@ -1,6 +1,8 @@
+accessors
 checkmated
 chessboard
 color
+deselect
 en
 kingside
 passant

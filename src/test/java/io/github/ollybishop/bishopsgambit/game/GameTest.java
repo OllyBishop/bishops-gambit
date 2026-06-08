@@ -24,10 +24,17 @@ class GameTest
 {
     private Game game;
 
-    private void makeMove( String... ucis )
+    // ============================================================================================
+
+    private void makeMove( String uci )
     {
-        for ( String uci : ucis )
-            game.makeMove( uci );
+        game.makeMove( uci );
+    }
+
+    private void makeMove( String uci1, String uci2 )
+    {
+        makeMove( uci1 );
+        makeMove( uci2 );
     }
 
     private void makeMove( Square from, Square to, Typ newType )
@@ -37,9 +44,9 @@ class GameTest
 
     // ============================================================================================
 
-    private Board getBoard()
+    private Board getActiveBoard()
     {
-        return game.getBoard();
+        return game.getActiveBoard();
     }
 
     private Player getActivePlayer()
@@ -49,7 +56,7 @@ class GameTest
 
     private Square getSquare( String coords )
     {
-        return getBoard().getSquare( coords );
+        return getActiveBoard().getSquare( coords );
     }
 
     private Piece getPiece( String coords )
@@ -59,19 +66,41 @@ class GameTest
 
     // ============================================================================================
 
-    private int getNumberOfTurnsTaken()
+    private int getNumberOfPliesPlayed()
     {
-        return game.getNumberOfTurnsTaken();
+        return game.getNumberOfPliesPlayed();
     }
 
     private int getNumberOfLegalMoves()
     {
-        return getActivePlayer().getNumberOfLegalMoves( getBoard() );
+        return getActivePlayer().getNumberOfLegalMoves( getActiveBoard() );
     }
 
     private int getMaterialDifference()
     {
-        return getBoard().getMaterialDifference();
+        return getActiveBoard().getMaterialDifference();
+    }
+
+    // ============================================================================================
+
+    private boolean isInCheck()
+    {
+        return getActivePlayer().isInCheck( getActiveBoard() );
+    }
+
+    private boolean isCheckmated()
+    {
+        return getActivePlayer().isCheckmated( getActiveBoard() );
+    }
+
+    private boolean isStalemated()
+    {
+        return getActivePlayer().isStalemated( getActiveBoard() );
+    }
+
+    private boolean hasInsufficientMaterial()
+    {
+        return getActiveBoard().hasInsufficientMaterial();
     }
 
     private Status getStatus()
@@ -79,44 +108,26 @@ class GameTest
         return game.getStatus();
     }
 
-    private boolean isInCheck()
-    {
-        return getActivePlayer().isInCheck( getBoard() );
-    }
-
-    private boolean isCheckmated()
-    {
-        return getActivePlayer().isCheckmated( getBoard() );
-    }
-
-    private boolean isStalemated()
-    {
-        return getActivePlayer().isStalemated( getBoard() );
-    }
-
-    private boolean hasInsufficientMaterial()
-    {
-        return getBoard().hasInsufficientMaterial();
-    }
+    // ============================================================================================
 
     private boolean isWhiteQueensideCastlingAllowed()
     {
-        return getBoard().isWhiteQueensideCastlingAllowed();
+        return getActiveBoard().isWhiteQueensideCastlingAllowed();
     }
 
     private boolean isWhiteKingsideCastlingAllowed()
     {
-        return getBoard().isWhiteKingsideCastlingAllowed();
+        return getActiveBoard().isWhiteKingsideCastlingAllowed();
     }
 
     private boolean isBlackQueensideCastlingAllowed()
     {
-        return getBoard().isBlackQueensideCastlingAllowed();
+        return getActiveBoard().isBlackQueensideCastlingAllowed();
     }
 
     private boolean isBlackKingsideCastlingAllowed()
     {
-        return getBoard().isBlackKingsideCastlingAllowed();
+        return getActiveBoard().isBlackKingsideCastlingAllowed();
     }
 
     // ============================================================================================
@@ -136,7 +147,7 @@ class GameTest
     @AfterEach
     void printBoard()
     {
-        getBoard().print();
+        getActiveBoard().print();
         System.out.println();
     }
 
@@ -164,7 +175,7 @@ class GameTest
         makeMove( "f2f3", "e7e5" );
         makeMove( "g2g4", "d8h4" );
 
-        assertEquals( 4, getNumberOfTurnsTaken() );
+        assertEquals( 4, getNumberOfPliesPlayed() );
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -183,7 +194,7 @@ class GameTest
         makeMove( "f1c4", "g8f6" );
         makeMove( "h5f7" );
 
-        assertEquals( 7, getNumberOfTurnsTaken() );
+        assertEquals( 7, getNumberOfPliesPlayed() );
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 1, getMaterialDifference() );
 
@@ -207,7 +218,7 @@ class GameTest
         makeMove( "f1c4", "f8c5" );
         makeMove( "e1g1", "e8g8" );
 
-        assertEquals( 8, getNumberOfTurnsTaken() );
+        assertEquals( 8, getNumberOfPliesPlayed() );
         assertEquals( 30, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -237,7 +248,7 @@ class GameTest
         makeMove( "d1d2", "d8d7" );
         makeMove( "e1c1", "e8c8" );
 
-        assertEquals( 10, getNumberOfTurnsTaken() );
+        assertEquals( 10, getNumberOfPliesPlayed() );
         assertEquals( 30, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -259,7 +270,7 @@ class GameTest
         makeMove( "d2d4", "e7e6" );
         makeMove( "d4d5", "e6e5" );
 
-        assertEquals( 4, getNumberOfTurnsTaken() );
+        assertEquals( 4, getNumberOfPliesPlayed() );
         assertEquals( 29, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -283,7 +294,7 @@ class GameTest
         makeMove( "e2e3", "h4g3" );
         makeMove( "e3e4", "d7d5" );
 
-        assertEquals( 10, getNumberOfTurnsTaken() );
+        assertEquals( 10, getNumberOfPliesPlayed() );
         assertEquals( 1, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -304,7 +315,7 @@ class GameTest
         makeMove( "f1c4", "g4e3" );
         makeMove( "d2d3", "e3f1" );
 
-        assertEquals( 8, getNumberOfTurnsTaken() );
+        assertEquals( 8, getNumberOfPliesPlayed() );
         assertEquals( 37, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -330,7 +341,7 @@ class GameTest
         makeMove( "g1f3", "c8a6" );
         makeMove( "d2d4", "a6f1" );
 
-        assertEquals( 6, getNumberOfTurnsTaken() );
+        assertEquals( 6, getNumberOfPliesPlayed() );
         assertEquals( 32, getNumberOfLegalMoves() );
         assertEquals( -3, getMaterialDifference() );
 
@@ -363,7 +374,7 @@ class GameTest
         makeMove( "b8c8", "f7g6" );
         makeMove( "c8e6" );
 
-        assertEquals( 19, getNumberOfTurnsTaken() );
+        assertEquals( 19, getNumberOfPliesPlayed() );
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 10, getMaterialDifference() );
 
@@ -390,7 +401,7 @@ class GameTest
         makeMove( "f2f3", "f5f4" ); // 11. f3, f4
         makeMove( "d4d5", "e4e3" ); // 12. d5, e3
 
-        assertEquals( 24, getNumberOfTurnsTaken() );
+        assertEquals( 24, getNumberOfPliesPlayed() );
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -422,7 +433,7 @@ class GameTest
         makeMove( "g7e7", "f8e7" );
         makeMove( "e1f2" );
 
-        assertEquals( 33, getNumberOfTurnsTaken() );
+        assertEquals( 33, getNumberOfPliesPlayed() );
         assertEquals( 8, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
@@ -455,7 +466,7 @@ class GameTest
         makeMove( "g7e7", "e6e7" );
         makeMove( "g1f3" );
 
-        assertEquals( 35, getNumberOfTurnsTaken() );
+        assertEquals( 35, getNumberOfPliesPlayed() );
         assertEquals( 8, getNumberOfLegalMoves() );
         assertEquals( 3, getMaterialDifference() );
 
@@ -487,7 +498,7 @@ class GameTest
         makeMove( "d7e7", "f8e7" );
         makeMove( "e1f2" );
 
-        assertEquals( 33, getNumberOfTurnsTaken() );
+        assertEquals( 33, getNumberOfPliesPlayed() );
         assertEquals( 17, getNumberOfLegalMoves() );
         assertEquals( -3, getMaterialDifference() );
 
@@ -519,7 +530,7 @@ class GameTest
         makeMove( "c8d7", "f6e5" );
         makeMove( "d7e7", "f8e7" );
 
-        assertEquals( 34, getNumberOfTurnsTaken() );
+        assertEquals( 34, getNumberOfPliesPlayed() );
         assertEquals( 15, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 

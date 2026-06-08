@@ -38,8 +38,12 @@ import io.github.ollybishop.bishopsgambit.pieces.Piece.Typ;
 import io.github.ollybishop.bishopsgambit.player.Player;
 import io.github.ollybishop.bishopsgambit.player.Player.Colour;
 
-public class GUI extends JFrame
+public class ApplicationFrame extends JFrame
 {
+    // ============================================================================================
+    // Cursors
+    // ============================================================================================
+
     private static final Cursor DEFAULT_CURSOR = Cursor.getDefaultCursor();
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor( Cursor.HAND_CURSOR );
 
@@ -84,7 +88,36 @@ public class GUI extends JFrame
 
     private final List<SquareComp> squareComps = createSquareComps();
 
-    private List<SquareComp> createSquareComps()
+    private final List<PieceComp> pieceComps = new ArrayList<>();
+
+    // ============================================================================================
+    // Component State
+    // ============================================================================================
+
+    private SquareComp from;
+    private SquareComp to;
+
+    private SquareComp check;
+
+    // ============================================================================================
+    // Game Context
+    // ============================================================================================
+
+    private Game game;
+
+    /**
+     * The index of the board state currently displayed in the UI.
+     * <p>
+     * A value of {@code 0} represents the initial board setup; subsequent values represent the
+     * board state after each successive ply (half-move) has been played.
+     */
+    private int boardIndex;
+
+    // ============================================================================================
+    // Factory Methods
+    // ============================================================================================
+
+    private static List<SquareComp> createSquareComps()
     {
         List<SquareComp> squareComps = new ArrayList<>();
 
@@ -95,34 +128,37 @@ public class GUI extends JFrame
         return Collections.unmodifiableList( squareComps );
     }
 
-    private SquareComp from;
-    private SquareComp to;
-    private SquareComp check;
-
-    private final List<PieceComp> pieceComps = new ArrayList<>();
-
     // ============================================================================================
-    // Non-Component Fields
+    // Package-Private Accessors
     // ============================================================================================
 
-    /**
-     * An integer representing the index of the board state currently displayed in the GUI. A value
-     * of {@code 0} represents the initial board setup; subsequent values represent the board state
-     * after each successive ply (half-move) has been completed.
-     */
-    private int boardIndex;
+    JPanel getChessboardPane()
+    {
+        return chessboardPane;
+    }
 
-    private int latestBoardIndex;
+    List<SquareComp> getSquareComps()
+    {
+        return squareComps;
+    }
 
-    private Game game;
+    SquareComp getFromSquare()
+    {
+        return from;
+    }
+
+    SquareComp getToSquare()
+    {
+        return to;
+    }
 
     // ============================================================================================
-    // Map Methods
+    // Model/UI Lookup Methods
     // ============================================================================================
 
     private Square getSquare( SquareComp squareComp )
     {
-        return getBoard().get( squareComp.getIndex() );
+        return getActiveBoard().get( squareComp.getIndex() );
     }
 
     private SquareComp getSquareComp( Square square )
@@ -141,17 +177,22 @@ public class GUI extends JFrame
     }
 
     // ============================================================================================
-    // Derived Methods
+    // Game Delegates
     // ============================================================================================
 
-    private Board getBoard()
+    private int getLatestBoardIndex()
     {
-        return game.getBoard();
+        return game.getNumberOfPliesPlayed();
     }
 
     private Board getBoard( int index )
     {
         return game.getBoard( index );
+    }
+
+    private Board getActiveBoard()
+    {
+        return game.getActiveBoard();
     }
 
     private Player getActivePlayer()
@@ -160,10 +201,10 @@ public class GUI extends JFrame
     }
 
     // ============================================================================================
-    // Constructor and Associated Methods
+    // Frame Setup
     // ============================================================================================
 
-    public GUI()
+    public ApplicationFrame()
     {
         setDefaultCloseOperation( EXIT_ON_CLOSE );
         setSize( 640, 960 );
@@ -171,7 +212,7 @@ public class GUI extends JFrame
         addComponentsToFrame();
         configureLayouts();
 
-        addSquareMouseListeners();
+        addChessboardMouseListener();
         addMenuButtonActionListeners();
         registerMoveConfirmationInput();
         addFrameResizedListener();
@@ -240,29 +281,40 @@ public class GUI extends JFrame
         capturedPiecesPaneBlack.setLayout( capturedPiecesLayoutBlack );
     }
 
-    // ============================================================================================
-
-    private void addSquareMouseListeners()
+    private void addChessboardMouseListener()
     {
-        for ( SquareComp pressed : squareComps )
+        chessboardPane.addMouseListener( new MouseAdapter()
         {
-            pressed.addMouseListener( new MouseAdapter()
-            {
-                /**
-                 * Indicates whether this square was already selected when it was last pressed.
-                 */
-                boolean alreadySelected;
+            /**
+             * The square that was most recently pressed by the user.
+             */
+            SquareComp pressed;
 
-                @Override
-                public void mousePressed( MouseEvent e )
+            /**
+             * Indicates whether the most recently pressed square was already selected before the press.
+             * <p>
+             * Used to support click-to-toggle selection without interfering with drag-and-drop behaviour.
+             * Also used to deselect the {@code from} square when a move preview is cancelled by dragging
+             * the piece back onto its original square.
+             */
+            boolean pressedSquareWasPreselected;
+
+            @Override
+            public void mousePressed( MouseEvent e )
+            {
+                if ( boardIndex < getLatestBoardIndex() )
+                    return;
+
+                Component comp = chessboardPane.getComponentAt( e.getPoint() );
+
+                if ( comp instanceof SquareComp )
                 {
-                    if ( boardIndex < latestBoardIndex )
-                        return;
+                    pressed = (SquareComp) comp;
+
+                    pressedSquareWasPreselected = pressed == from || pressed == to;
 
                     SquareComp fromBefore = from;
                     SquareComp toBefore = to;
-
-                    alreadySelected = pressed == from || pressed == to;
 
                     boolean ownPieceSelected = getSquare( pressed ).isOccupiedBy( getActivePlayer() );
 
@@ -302,36 +354,33 @@ public class GUI extends JFrame
 
                     afterMouseEvent( fromBefore, toBefore );
                 }
+            }
 
-                @Override
-                public void mouseReleased( MouseEvent e )
+            @Override
+            public void mouseReleased( MouseEvent e )
+            {
+                if ( boardIndex < getLatestBoardIndex() )
+                    return;
+
+                // If no squares were preselected
+                if ( from == null )
+                    return;
+
+                Component comp = chessboardPane.getComponentAt( e.getPoint() );
+
+                if ( comp instanceof SquareComp )
                 {
-                    if ( boardIndex < latestBoardIndex )
-                        return;
-
-                    // If no squares were preselected
-                    if ( from == null )
-                        return;
+                    SquareComp released = (SquareComp) comp;
 
                     SquareComp fromBefore = from;
                     SquareComp toBefore = to;
 
-                    int x = pressed.getX() + e.getX();
-                    int y = pressed.getY() + e.getY();
-
-                    // Find the component on which the mouse was released
-                    Component comp = chessboardPane.getComponentAt( x, y );
-                    SquareComp released = comp instanceof SquareComp ? (SquareComp) comp : null;
-
-                    // If the mouse was released somewhere not on the board
-                    if ( released == null )
-                        deselectFromAndToSquares();
                     // If only a 'from' square was preselected
-                    else if ( to == null )
+                    if ( to == null )
                     {
                         if ( released == from )
                         {
-                            if ( alreadySelected )
+                            if ( pressedSquareWasPreselected )
                                 deselectFromSquare();
                         }
                         else if ( released != pressed )
@@ -349,22 +398,31 @@ public class GUI extends JFrame
 
                     afterMouseEvent( fromBefore, toBefore );
                 }
-
-                private void afterMouseEvent( SquareComp fromBefore, SquareComp toBefore )
+                // If the mouse was released somewhere not on the board
+                else
                 {
-                    if ( from == fromBefore && to == toBefore )
-                        return;
+                    SquareComp fromBefore = from;
+                    SquareComp toBefore = to;
 
-                    updateMoveMarkers();
-
-                    if ( to != toBefore )
-                    {
-                        updateBoardState();
-                        updateCheckBorder();
-                    }
+                    deselectFromAndToSquares();
+                    afterMouseEvent( fromBefore, toBefore );
                 }
-            } );
-        }
+            }
+
+            private void afterMouseEvent( SquareComp fromBefore, SquareComp toBefore )
+            {
+                if ( from == fromBefore && to == toBefore )
+                    return;
+
+                updateMoveMarkers();
+
+                if ( to != toBefore )
+                {
+                    updateBoardState();
+                    updateCheckBorder();
+                }
+            }
+        } );
     }
 
     private void selectFromSquare( SquareComp squareComp )
@@ -410,12 +468,10 @@ public class GUI extends JFrame
 
         if ( from != null && to == null )
         {
-            for ( Square move : getSquare( from ).getPiece().getMoves( getBoard() ) )
+            for ( Square move : getSquare( from ).getPiece().getMoves( getActiveBoard() ) )
                 getSquareComp( move ).showMoveMarker( true );
         }
     }
-
-    // ============================================================================================
 
     private void addMenuButtonActionListeners()
     {
@@ -514,11 +570,11 @@ public class GUI extends JFrame
 
         pieceComps.clear();
 
-        boardIndex = latestBoardIndex = 0;
+        boardIndex = 0;
 
         game = new Game();
 
-        for ( Piece piece : getBoard().getPieces() )
+        for ( Piece piece : getActiveBoard().getPieces() )
             createPieceComp( piece );
 
         updateBoardState();
@@ -565,7 +621,7 @@ public class GUI extends JFrame
             game.makeMove( fromSquare, toSquare );
         }
 
-        boardIndex = ++latestBoardIndex;
+        boardIndex = getLatestBoardIndex();
 
         // TODO: This can be removed once promoted pieces are included in move previews
         updateBoardState();
@@ -597,7 +653,7 @@ public class GUI extends JFrame
         if ( to == null )
             board = getBoard( boardIndex );
         else
-            board = getBoard().cloneAndMove( getSquare( from ), getSquare( to ) );
+            board = getActiveBoard().cloneAndMove( getSquare( from ), getSquare( to ) );
 
         for ( PieceComp pieceComp : pieceComps )
         {
@@ -629,7 +685,7 @@ public class GUI extends JFrame
         tabletopPane.repaint();
 
         previousMoveButton.setEnabled( boardIndex > 0 );
-        nextMoveButton.setEnabled( boardIndex < latestBoardIndex );
+        nextMoveButton.setEnabled( boardIndex < getLatestBoardIndex() );
 
         // Debug SquareComp layering issues caused by incorrect indexing
         for ( SquareComp squareComp : squareComps )
@@ -638,7 +694,7 @@ public class GUI extends JFrame
 
     private void rescalePieceContainers()
     {
-        int scale = getUIScale();
+        int scale = getUiScale();
 
         for ( SquareComp squareComp : squareComps )
             squareComp.setScale( scale );
@@ -667,7 +723,7 @@ public class GUI extends JFrame
 
     private void rescalePieces()
     {
-        int scale = getUIScale();
+        int scale = getUiScale();
 
         for ( PieceComp pieceComp : pieceComps )
         {
@@ -678,7 +734,7 @@ public class GUI extends JFrame
         }
     }
 
-    private int getUIScale()
+    private int getUiScale()
     {
         int min = Math.min( contentPane.getWidth(), contentPane.getHeight() );
         return Math.max( 10, min / 8 );
@@ -688,7 +744,7 @@ public class GUI extends JFrame
     {
         if ( game.getStatus() == Status.CHECK ||
              game.getStatus() == Status.CHECKMATE )
-            check = getSquareComp( getBoard(), getActivePlayer().getKing() );
+            check = getSquareComp( getActiveBoard(), getActivePlayer().getKing() );
         else
             check = null;
 
@@ -725,7 +781,7 @@ public class GUI extends JFrame
     {
         for ( PieceComp pieceComp : pieceComps )
         {
-            if ( boardIndex == latestBoardIndex &&
+            if ( boardIndex == getLatestBoardIndex() &&
                  pieceComp.getPiece().getPlayer() == getActivePlayer() )
                 pieceComp.setCursor( HAND_CURSOR );
             else

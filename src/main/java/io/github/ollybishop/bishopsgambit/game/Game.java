@@ -14,7 +14,7 @@ import io.github.ollybishop.bishopsgambit.player.Player.Colour;
 
 public class Game
 {
-    private final List<Board> boards = new ArrayList<>();
+    private final List<Board> boardStateHistory = new ArrayList<>();
 
     private final Player white = new Player( Colour.WHITE );
     private final Player black = new Player( Colour.BLACK );
@@ -42,15 +42,16 @@ public class Game
     }
 
     /**
-     * This method is called whenever a move is made. By storing a list of board states throughout
-     * the game, we can view how the board looked on a previous turn and (potentially) undo moves.
-     * The number of boards stored is used to determine which player's turn it is.
+     * Adds the given <b>board</b> to the board state history after a ply has been played.
+     * <p>
+     * The board state history allows previous positions to be viewed and may be used to support
+     * undoing moves. The number of stored board states also determines which player's turn it is.
      * 
-     * @param board the new {@code Board} after a move was made
+     * @param board the new board state after the ply
      */
     private void addBoard( Board board )
     {
-        boards.add( board );
+        boardStateHistory.add( board );
         updateStatus( board );
 
         printBoardInfo( board );
@@ -92,38 +93,43 @@ public class Game
     }
 
     /**
-     * Returns the current board.
+     * Returns the number of plies played in this game.
+     * <p>
+     * A ply is a single move made by one player. The number of plies played is derived from the
+     * size of the board state history, excluding the initial board state.
      * 
-     * @return the current board
+     * @return the number of plies played in this game
      */
-    public Board getBoard()
+    public int getNumberOfPliesPlayed()
     {
-        return getBoard( getNumberOfTurnsTaken() );
+        return boardStateHistory.size() - 1;
     }
 
     public Board getBoard( int index )
     {
-        return boards.get( index );
+        return boardStateHistory.get( index );
     }
 
     /**
-     * Returns the number of turns taken in this game.
+     * Returns the active board state.
+     * <p>
+     * The active board state is the latest board in the board state history.
      * 
-     * @return the number of turns taken in this game
+     * @return the active board state
      */
-    public int getNumberOfTurnsTaken()
+    public Board getActiveBoard()
     {
-        return boards.size() - 1;
+        return getBoard( getNumberOfPliesPlayed() );
     }
 
     /**
      * Returns the player whose turn it currently is.
      * 
-     * @return White if the number of turns taken is even; Black if it is odd
+     * @return White if the number of plies played is even; Black if it is odd
      */
     public Player getActivePlayer()
     {
-        return getNumberOfTurnsTaken() % 2 == 0 ? white : black;
+        return getNumberOfPliesPlayed() % 2 == 0 ? white : black;
     }
 
     private String[] parseUci( String uci )
@@ -158,7 +164,7 @@ public class Game
     {
         String[] values = parseUci( uci );
 
-        Board board = getBoard();
+        Board board = getActiveBoard();
 
         Square from = board.getSquare( values[ 0 ] );
         Square to = board.getSquare( values[ 1 ] );
@@ -208,10 +214,10 @@ public class Game
         if ( !from.isOccupied() )
             throw new UnoccupiedSquareException( from );
 
-        if ( !getBoard().isLegalMove( from, to ) )
+        if ( !getActiveBoard().isLegalMove( from, to ) )
             throw new IllegalMoveException( from, to );
 
-        Board newBoard = getBoard().cloneAndMove( from, to );
+        Board newBoard = getActiveBoard().cloneAndMove( from, to );
 
         Piece piece = from.getPiece();
         Piece newPiece;

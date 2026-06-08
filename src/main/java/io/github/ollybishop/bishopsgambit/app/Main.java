@@ -2,7 +2,7 @@ package io.github.ollybishop.bishopsgambit.app;
 
 import java.awt.EventQueue;
 
-import io.github.ollybishop.bishopsgambit.gui.GUI;
+import io.github.ollybishop.bishopsgambit.gui.ApplicationFrame;
 
 public class Main
 {
@@ -15,7 +15,7 @@ public class Main
         {
             try
             {
-                GUI frame = new GUI();
+                ApplicationFrame frame = new ApplicationFrame();
                 frame.setTitle( "Bishop's Gambit" );
                 frame.setVisible( true );
             }
