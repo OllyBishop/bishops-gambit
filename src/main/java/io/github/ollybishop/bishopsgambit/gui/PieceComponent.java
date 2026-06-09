@@ -6,7 +6,7 @@ import io.github.ollybishop.bishopsgambit.io.Images;
 import io.github.ollybishop.bishopsgambit.pieces.Piece;
 import io.github.ollybishop.bishopsgambit.util.Sortable;
 
-public class PieceComp extends JLabel implements Sortable
+public class PieceComponent extends JLabel implements Sortable
 {
     private final Piece piece;
 
@@ -15,7 +15,7 @@ public class PieceComp extends JLabel implements Sortable
         return this.piece;
     }
 
-    protected PieceComp( Piece piece )
+    protected PieceComponent( Piece piece )
     {
         this.piece = piece;
     }

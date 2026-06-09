@@ -24,84 +24,84 @@ class ApplicationFrameTest
 
     private final ApplicationFrame frame = new ApplicationFrame();
 
-    private final SquareComp a1 = getSquareComp( 'a', '1' );
-    private final SquareComp a2 = getSquareComp( 'a', '2' );
-    private final SquareComp a3 = getSquareComp( 'a', '3' );
-    private final SquareComp a4 = getSquareComp( 'a', '4' );
-    private final SquareComp a5 = getSquareComp( 'a', '5' );
-    private final SquareComp a6 = getSquareComp( 'a', '6' );
-    private final SquareComp a7 = getSquareComp( 'a', '7' );
-    private final SquareComp a8 = getSquareComp( 'a', '8' );
+    private final SquareComponent a1 = getSquareComponent( 'a', '1' );
+    private final SquareComponent a2 = getSquareComponent( 'a', '2' );
+    private final SquareComponent a3 = getSquareComponent( 'a', '3' );
+    private final SquareComponent a4 = getSquareComponent( 'a', '4' );
+    private final SquareComponent a5 = getSquareComponent( 'a', '5' );
+    private final SquareComponent a6 = getSquareComponent( 'a', '6' );
+    private final SquareComponent a7 = getSquareComponent( 'a', '7' );
+    private final SquareComponent a8 = getSquareComponent( 'a', '8' );
 
-    private final SquareComp b1 = getSquareComp( 'b', '1' );
-    private final SquareComp b2 = getSquareComp( 'b', '2' );
-    private final SquareComp b3 = getSquareComp( 'b', '3' );
-    private final SquareComp b4 = getSquareComp( 'b', '4' );
-    private final SquareComp b5 = getSquareComp( 'b', '5' );
-    private final SquareComp b6 = getSquareComp( 'b', '6' );
-    private final SquareComp b7 = getSquareComp( 'b', '7' );
-    private final SquareComp b8 = getSquareComp( 'b', '8' );
+    private final SquareComponent b1 = getSquareComponent( 'b', '1' );
+    private final SquareComponent b2 = getSquareComponent( 'b', '2' );
+    private final SquareComponent b3 = getSquareComponent( 'b', '3' );
+    private final SquareComponent b4 = getSquareComponent( 'b', '4' );
+    private final SquareComponent b5 = getSquareComponent( 'b', '5' );
+    private final SquareComponent b6 = getSquareComponent( 'b', '6' );
+    private final SquareComponent b7 = getSquareComponent( 'b', '7' );
+    private final SquareComponent b8 = getSquareComponent( 'b', '8' );
 
-    private final SquareComp c1 = getSquareComp( 'c', '1' );
-    private final SquareComp c2 = getSquareComp( 'c', '2' );
-    private final SquareComp c3 = getSquareComp( 'c', '3' );
-    private final SquareComp c4 = getSquareComp( 'c', '4' );
-    private final SquareComp c5 = getSquareComp( 'c', '5' );
-    private final SquareComp c6 = getSquareComp( 'c', '6' );
-    private final SquareComp c7 = getSquareComp( 'c', '7' );
-    private final SquareComp c8 = getSquareComp( 'c', '8' );
+    private final SquareComponent c1 = getSquareComponent( 'c', '1' );
+    private final SquareComponent c2 = getSquareComponent( 'c', '2' );
+    private final SquareComponent c3 = getSquareComponent( 'c', '3' );
+    private final SquareComponent c4 = getSquareComponent( 'c', '4' );
+    private final SquareComponent c5 = getSquareComponent( 'c', '5' );
+    private final SquareComponent c6 = getSquareComponent( 'c', '6' );
+    private final SquareComponent c7 = getSquareComponent( 'c', '7' );
+    private final SquareComponent c8 = getSquareComponent( 'c', '8' );
 
-    private final SquareComp d1 = getSquareComp( 'd', '1' );
-    private final SquareComp d2 = getSquareComp( 'd', '2' );
-    private final SquareComp d3 = getSquareComp( 'd', '3' );
-    private final SquareComp d4 = getSquareComp( 'd', '4' );
-    private final SquareComp d5 = getSquareComp( 'd', '5' );
-    private final SquareComp d6 = getSquareComp( 'd', '6' );
-    private final SquareComp d7 = getSquareComp( 'd', '7' );
-    private final SquareComp d8 = getSquareComp( 'd', '8' );
+    private final SquareComponent d1 = getSquareComponent( 'd', '1' );
+    private final SquareComponent d2 = getSquareComponent( 'd', '2' );
+    private final SquareComponent d3 = getSquareComponent( 'd', '3' );
+    private final SquareComponent d4 = getSquareComponent( 'd', '4' );
+    private final SquareComponent d5 = getSquareComponent( 'd', '5' );
+    private final SquareComponent d6 = getSquareComponent( 'd', '6' );
+    private final SquareComponent d7 = getSquareComponent( 'd', '7' );
+    private final SquareComponent d8 = getSquareComponent( 'd', '8' );
 
-    private final SquareComp e1 = getSquareComp( 'e', '1' );
-    private final SquareComp e2 = getSquareComp( 'e', '2' );
-    private final SquareComp e3 = getSquareComp( 'e', '3' );
-    private final SquareComp e4 = getSquareComp( 'e', '4' );
-    private final SquareComp e5 = getSquareComp( 'e', '5' );
-    private final SquareComp e6 = getSquareComp( 'e', '6' );
-    private final SquareComp e7 = getSquareComp( 'e', '7' );
-    private final SquareComp e8 = getSquareComp( 'e', '8' );
+    private final SquareComponent e1 = getSquareComponent( 'e', '1' );
+    private final SquareComponent e2 = getSquareComponent( 'e', '2' );
+    private final SquareComponent e3 = getSquareComponent( 'e', '3' );
+    private final SquareComponent e4 = getSquareComponent( 'e', '4' );
+    private final SquareComponent e5 = getSquareComponent( 'e', '5' );
+    private final SquareComponent e6 = getSquareComponent( 'e', '6' );
+    private final SquareComponent e7 = getSquareComponent( 'e', '7' );
+    private final SquareComponent e8 = getSquareComponent( 'e', '8' );
 
-    private final SquareComp f1 = getSquareComp( 'f', '1' );
-    private final SquareComp f2 = getSquareComp( 'f', '2' );
-    private final SquareComp f3 = getSquareComp( 'f', '3' );
-    private final SquareComp f4 = getSquareComp( 'f', '4' );
-    private final SquareComp f5 = getSquareComp( 'f', '5' );
-    private final SquareComp f6 = getSquareComp( 'f', '6' );
-    private final SquareComp f7 = getSquareComp( 'f', '7' );
-    private final SquareComp f8 = getSquareComp( 'f', '8' );
+    private final SquareComponent f1 = getSquareComponent( 'f', '1' );
+    private final SquareComponent f2 = getSquareComponent( 'f', '2' );
+    private final SquareComponent f3 = getSquareComponent( 'f', '3' );
+    private final SquareComponent f4 = getSquareComponent( 'f', '4' );
+    private final SquareComponent f5 = getSquareComponent( 'f', '5' );
+    private final SquareComponent f6 = getSquareComponent( 'f', '6' );
+    private final SquareComponent f7 = getSquareComponent( 'f', '7' );
+    private final SquareComponent f8 = getSquareComponent( 'f', '8' );
 
-    private final SquareComp g1 = getSquareComp( 'g', '1' );
-    private final SquareComp g2 = getSquareComp( 'g', '2' );
-    private final SquareComp g3 = getSquareComp( 'g', '3' );
-    private final SquareComp g4 = getSquareComp( 'g', '4' );
-    private final SquareComp g5 = getSquareComp( 'g', '5' );
-    private final SquareComp g6 = getSquareComp( 'g', '6' );
-    private final SquareComp g7 = getSquareComp( 'g', '7' );
-    private final SquareComp g8 = getSquareComp( 'g', '8' );
+    private final SquareComponent g1 = getSquareComponent( 'g', '1' );
+    private final SquareComponent g2 = getSquareComponent( 'g', '2' );
+    private final SquareComponent g3 = getSquareComponent( 'g', '3' );
+    private final SquareComponent g4 = getSquareComponent( 'g', '4' );
+    private final SquareComponent g5 = getSquareComponent( 'g', '5' );
+    private final SquareComponent g6 = getSquareComponent( 'g', '6' );
+    private final SquareComponent g7 = getSquareComponent( 'g', '7' );
+    private final SquareComponent g8 = getSquareComponent( 'g', '8' );
 
-    private final SquareComp h1 = getSquareComp( 'h', '1' );
-    private final SquareComp h2 = getSquareComp( 'h', '2' );
-    private final SquareComp h3 = getSquareComp( 'h', '3' );
-    private final SquareComp h4 = getSquareComp( 'h', '4' );
-    private final SquareComp h5 = getSquareComp( 'h', '5' );
-    private final SquareComp h6 = getSquareComp( 'h', '6' );
-    private final SquareComp h7 = getSquareComp( 'h', '7' );
-    private final SquareComp h8 = getSquareComp( 'h', '8' );
+    private final SquareComponent h1 = getSquareComponent( 'h', '1' );
+    private final SquareComponent h2 = getSquareComponent( 'h', '2' );
+    private final SquareComponent h3 = getSquareComponent( 'h', '3' );
+    private final SquareComponent h4 = getSquareComponent( 'h', '4' );
+    private final SquareComponent h5 = getSquareComponent( 'h', '5' );
+    private final SquareComponent h6 = getSquareComponent( 'h', '6' );
+    private final SquareComponent h7 = getSquareComponent( 'h', '7' );
+    private final SquareComponent h8 = getSquareComponent( 'h', '8' );
 
-    private SquareComp getSquareComp( char file, char rank )
+    private SquareComponent getSquareComponent( char file, char rank )
     {
-        return frame.getSquareComps().get( Square.getIndex( file, rank ) );
+        return frame.getSquareComponents().get( Square.getIndex( file, rank ) );
     }
 
-    private void mouseEvent( SquareComp squareComp, int type, int modifiers )
+    private void mouseEvent( SquareComponent squareComponent, int type, int modifiers )
     {
         try
         {
@@ -111,8 +111,8 @@ class ApplicationFrameTest
                                                    type,
                                                    System.currentTimeMillis(),
                                                    modifiers,
-                                                   squareComp.getX(),
-                                                   squareComp.getY(),
+                                                   squareComponent.getX(),
+                                                   squareComponent.getY(),
                                                    1,
                                                    false,
                                                    MouseEvent.BUTTON1 );
@@ -134,19 +134,19 @@ class ApplicationFrameTest
         }
     }
 
-    private void press( SquareComp squareComp )
+    private void press( SquareComponent squareComponent )
     {
-        mouseEvent( squareComp, MouseEvent.MOUSE_PRESSED, MouseEvent.BUTTON1_DOWN_MASK );
+        mouseEvent( squareComponent, MouseEvent.MOUSE_PRESSED, MouseEvent.BUTTON1_DOWN_MASK );
     }
 
-    private void release( SquareComp squareComp )
+    private void release( SquareComponent squareComponent )
     {
-        mouseEvent( squareComp, MouseEvent.MOUSE_RELEASED, MouseEvent.BUTTON1 );
+        mouseEvent( squareComponent, MouseEvent.MOUSE_RELEASED, MouseEvent.BUTTON1 );
     }
 
-    private void click( SquareComp squareComp )
+    private void click( SquareComponent squareComponent )
     {
-        mouseEvent( squareComp, MouseEvent.MOUSE_CLICKED, MouseEvent.BUTTON1 );
+        mouseEvent( squareComponent, MouseEvent.MOUSE_CLICKED, MouseEvent.BUTTON1 );
     }
 
     @BeforeAll

@@ -9,7 +9,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.KeyboardFocusManager;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
@@ -19,13 +20,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.InputMap;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.KeyStroke;
+import javax.swing.LayoutFocusTraversalPolicy;
 import javax.swing.border.Border;
 
 import io.github.ollybishop.bishopsgambit.board.Board;
@@ -51,25 +58,42 @@ public class ApplicationFrame extends JFrame
     // Components and Layouts
     // ============================================================================================
 
+    /**
+     * The frame's main content panel.
+     * <p>
+     * This is the topmost layout container within the frame and acts as the root container for the
+     * application's UI components.
+     */
     private final JPanel contentPane = new JPanel();
     private final BorderLayout contentLayout = new BorderLayout();
 
-    // ============================================================================================
-
+    /**
+     * The menu panel displayed above the tabletop.
+     * <p>
+     * This panel uses a simple flow layout and contains the 'New Game', 'Flip View' and 'Lock View'
+     * buttons.
+     */
     private final JPanel topMenuPane = new JPanel();
-    private final JPanel bottomMenuPane = new JPanel();
 
     private final JButton newGameButton = new JButton( "New Game" );
     private final JButton flipViewButton = new JButton( "Flip View" );
     private final JToggleButton lockViewButton = new JToggleButton( "Lock View" );
 
+    /**
+     * The menu panel displayed below the tabletop.
+     * <p>
+     * This panel uses a simple flow layout and contains the 'Previous Move' and 'Next Move'
+     * buttons.
+     */
+    private final JPanel bottomMenuPane = new JPanel();
+
     private final JButton previousMoveButton = new JButton( "Previous Move" );
     private final JButton nextMoveButton = new JButton( "Next Move" );
 
-    // ============================================================================================
-
     /**
-     * The "tabletop" is the area containing the chessboard and both sets of captured pieces.
+     * The main game area containing the chessboard and both captured-piece panels.
+     * <p>
+     * Separate layouts are used for the White and Black board orientations.
      */
     private final JPanel tabletopPane = new JPanel();
     private final BorderLayout tabletopLayoutWhite = new BorderLayout();
@@ -84,20 +108,24 @@ public class ApplicationFrame extends JFrame
     private final FlowLayout capturedPiecesLayoutWhite = new FlowLayout();
     private final FlowLayout capturedPiecesLayoutBlack = new FlowLayout();
 
-    // ============================================================================================
+    /**
+     * The UI components representing the squares on the chessboard.
+     */
+    private final List<SquareComponent> squareComponents = createSquareComponents();
 
-    private final List<SquareComp> squareComps = createSquareComps();
-
-    private final List<PieceComp> pieceComps = new ArrayList<>();
+    /**
+     * The UI components representing the pieces in the current game.
+     */
+    private final List<PieceComponent> pieceComponents = new ArrayList<>();
 
     // ============================================================================================
     // Component State
     // ============================================================================================
 
-    private SquareComp from;
-    private SquareComp to;
+    private SquareComponent fromSquare;
+    private SquareComponent toSquare;
 
-    private SquareComp check;
+    private SquareComponent checkSquare;
 
     // ============================================================================================
     // Game Context
@@ -117,15 +145,15 @@ public class ApplicationFrame extends JFrame
     // Factory Methods
     // ============================================================================================
 
-    private static List<SquareComp> createSquareComps()
+    private static List<SquareComponent> createSquareComponents()
     {
-        List<SquareComp> squareComps = new ArrayList<>();
+        List<SquareComponent> squareComponents = new ArrayList<>();
 
         for ( char file = 'a'; file <= 'h'; file++ )
             for ( char rank = '1'; rank <= '8'; rank++ )
-                squareComps.add( new SquareComp( file, rank ) );
+                squareComponents.add( new SquareComponent( file, rank ) );
 
-        return Collections.unmodifiableList( squareComps );
+        return Collections.unmodifiableList( squareComponents );
     }
 
     // ============================================================================================
@@ -137,43 +165,43 @@ public class ApplicationFrame extends JFrame
         return chessboardPane;
     }
 
-    List<SquareComp> getSquareComps()
+    List<SquareComponent> getSquareComponents()
     {
-        return squareComps;
+        return squareComponents;
     }
 
-    SquareComp getFromSquare()
+    SquareComponent getFromSquare()
     {
-        return from;
+        return fromSquare;
     }
 
-    SquareComp getToSquare()
+    SquareComponent getToSquare()
     {
-        return to;
+        return toSquare;
     }
 
     // ============================================================================================
     // Model/UI Lookup Methods
     // ============================================================================================
 
-    private Square getSquare( SquareComp squareComp )
+    private Square getSquare( SquareComponent squareComponent )
     {
-        return getActiveBoard().get( squareComp.getIndex() );
+        return getActiveBoard().get( squareComponent.getIndex() );
     }
 
-    private SquareComp getSquareComp( Square square )
+    private SquareComponent getSquareComponent( Square square )
     {
-        return squareComps.get( square.getIndex() );
+        return squareComponents.get( square.getIndex() );
     }
 
-    private SquareComp getSquareComp( Board board, Piece piece )
+    private SquareComponent getSquareComponent( Board board, Piece piece )
     {
         Square square = piece.getSquare( board );
 
-        if ( square != null )
-            return getSquareComp( square );
+        if ( square == null )
+            return null;
 
-        return null;
+        return getSquareComponent( square );
     }
 
     // ============================================================================================
@@ -206,6 +234,16 @@ public class ApplicationFrame extends JFrame
 
     public ApplicationFrame()
     {
+        // Give the contentPane initial focus to prevent other components from receiving focus on launch
+        setFocusTraversalPolicy( new LayoutFocusTraversalPolicy()
+        {
+            @Override
+            public Component getInitialComponent( Window window )
+            {
+                return contentPane;
+            }
+        } );
+
         setDefaultCloseOperation( EXIT_ON_CLOSE );
         setSize( 640, 960 );
 
@@ -239,8 +277,8 @@ public class ApplicationFrame extends JFrame
         tabletopPane.add( capturedPiecesPaneWhite );
         tabletopPane.add( capturedPiecesPaneBlack );
 
-        for ( SquareComp squareComp : squareComps )
-            chessboardPane.add( squareComp );
+        for ( SquareComponent squareComponent : squareComponents )
+            chessboardPane.add( squareComponent );
     }
 
     private void configureLayouts()
@@ -257,13 +295,13 @@ public class ApplicationFrame extends JFrame
         tabletopLayoutBlack.addLayoutComponent( capturedPiecesPaneWhite, BorderLayout.SOUTH );
         tabletopLayoutBlack.addLayoutComponent( capturedPiecesPaneBlack, BorderLayout.NORTH );
 
-        for ( SquareComp squareComp : squareComps )
+        for ( SquareComponent squareComponent : squareComponents )
         {
             GridBagConstraints chessboardConstraintsWhite = new GridBagConstraints();
             GridBagConstraints chessboardConstraintsBlack = new GridBagConstraints();
 
-            char file = squareComp.getFile();
-            char rank = squareComp.getRank();
+            char file = squareComponent.getFile();
+            char rank = squareComponent.getRank();
 
             chessboardConstraintsWhite.gridx = file - 'a';
             chessboardConstraintsWhite.gridy = '8' - rank;
@@ -271,8 +309,8 @@ public class ApplicationFrame extends JFrame
             chessboardConstraintsBlack.gridx = 'h' - file;
             chessboardConstraintsBlack.gridy = rank - '1';
 
-            chessboardLayoutWhite.setConstraints( squareComp, chessboardConstraintsWhite );
-            chessboardLayoutBlack.setConstraints( squareComp, chessboardConstraintsBlack );
+            chessboardLayoutWhite.setConstraints( squareComponent, chessboardConstraintsWhite );
+            chessboardLayoutBlack.setConstraints( squareComponent, chessboardConstraintsBlack );
         }
 
         contentPane.setLayout( contentLayout );
@@ -288,7 +326,7 @@ public class ApplicationFrame extends JFrame
             /**
              * The square that was most recently pressed by the user.
              */
-            SquareComp pressed;
+            SquareComponent pressedSquare;
 
             /**
              * Indicates whether the most recently pressed square was already selected before the press.
@@ -307,52 +345,50 @@ public class ApplicationFrame extends JFrame
 
                 Component comp = chessboardPane.getComponentAt( e.getPoint() );
 
-                if ( comp instanceof SquareComp )
+                if ( comp instanceof SquareComponent )
                 {
-                    pressed = (SquareComp) comp;
+                    pressedSquare = (SquareComponent) comp;
 
-                    pressedSquareWasPreselected = pressed == from || pressed == to;
+                    pressedSquareWasPreselected = pressedSquare == fromSquare || pressedSquare == toSquare;
 
-                    SquareComp fromBefore = from;
-                    SquareComp toBefore = to;
-
-                    boolean ownPieceSelected = getSquare( pressed ).isOccupiedBy( getActivePlayer() );
+                    boolean ownPieceWasSelected = getSquare( pressedSquare ).isOccupiedBy( getActivePlayer() );
 
                     // If no squares were preselected
-                    if ( from == null )
+                    if ( fromSquare == null )
                     {
-                        if ( ownPieceSelected )
-                            selectFromSquare( pressed );
+                        if ( ownPieceWasSelected )
+                            selectFromSquare( pressedSquare );
                     }
                     // If only a 'from' square was preselected
-                    else if ( to == null )
+                    else if ( toSquare == null )
                     {
-                        if ( pressed != from )
-                            if ( pressed.hasMoveMarker() )
-                                selectToSquare( pressed );
+                        if ( pressedSquare != fromSquare )
+                            if ( pressedSquare.hasMoveMarker() )
+                                selectToSquare( pressedSquare );
                             else
                             {
                                 deselectFromSquare();
 
-                                if ( ownPieceSelected )
-                                    selectFromSquare( pressed );
+                                if ( ownPieceWasSelected )
+                                    selectFromSquare( pressedSquare );
                             }
                     }
                     // If both 'from' and 'to' squares were preselected
                     else
                     {
-                        if ( pressed != to )
-                        {
-                            deselectFromSquare();
-
-                            if ( pressed != fromBefore && ownPieceSelected )
-                                selectFromSquare( pressed );
-                        }
+                        if ( pressedSquare != toSquare )
+                            if ( pressedSquare != fromSquare && ownPieceWasSelected )
+                            {
+                                deselectFromSquare();
+                                selectFromSquare( pressedSquare );
+                            }
+                            else
+                                deselectFromSquare();
 
                         deselectToSquare();
                     }
 
-                    afterMouseEvent( fromBefore, toBefore );
+                    afterMouseEvent();
                 }
             }
 
@@ -363,95 +399,81 @@ public class ApplicationFrame extends JFrame
                     return;
 
                 // If no squares were preselected
-                if ( from == null )
+                if ( fromSquare == null )
                     return;
 
                 Component comp = chessboardPane.getComponentAt( e.getPoint() );
 
-                if ( comp instanceof SquareComp )
+                if ( comp instanceof SquareComponent )
                 {
-                    SquareComp released = (SquareComp) comp;
-
-                    SquareComp fromBefore = from;
-                    SquareComp toBefore = to;
+                    SquareComponent releasedSquare = (SquareComponent) comp;
 
                     // If only a 'from' square was preselected
-                    if ( to == null )
+                    if ( toSquare == null )
                     {
-                        if ( released == from )
+                        if ( releasedSquare == fromSquare )
                         {
                             if ( pressedSquareWasPreselected )
                                 deselectFromSquare();
                         }
-                        else if ( released != pressed )
-                            if ( released.hasMoveMarker() )
-                                selectToSquare( released );
+                        else if ( releasedSquare != pressedSquare )
+                            if ( releasedSquare.hasMoveMarker() )
+                                selectToSquare( releasedSquare );
                             else
                                 deselectFromSquare();
                     }
                     // If both 'from' and 'to' squares were preselected
                     else
                     {
-                        if ( released != to )
+                        if ( releasedSquare != toSquare )
                             deselectFromAndToSquares();
                     }
-
-                    afterMouseEvent( fromBefore, toBefore );
                 }
                 // If the mouse was released somewhere not on the board
                 else
                 {
-                    SquareComp fromBefore = from;
-                    SquareComp toBefore = to;
-
                     deselectFromAndToSquares();
-                    afterMouseEvent( fromBefore, toBefore );
                 }
+
+                afterMouseEvent();
             }
 
-            private void afterMouseEvent( SquareComp fromBefore, SquareComp toBefore )
+            private void afterMouseEvent()
             {
-                if ( from == fromBefore && to == toBefore )
-                    return;
-
                 updateMoveMarkers();
-
-                if ( to != toBefore )
-                {
-                    updateBoardState();
-                    updateCheckBorder();
-                }
+                updateBoardState();
+                updateCheckBorder();
             }
         } );
     }
 
-    private void selectFromSquare( SquareComp squareComp )
+    private void selectFromSquare( SquareComponent squareComponent )
     {
-        from = squareComp;
-        from.select();
+        fromSquare = squareComponent;
+        fromSquare.select();
     }
 
-    private void selectToSquare( SquareComp squareComp )
+    private void selectToSquare( SquareComponent squareComponent )
     {
-        to = squareComp;
-        to.select();
+        toSquare = squareComponent;
+        toSquare.select();
     }
 
     private void deselectFromSquare()
     {
-        if ( from != null )
+        if ( fromSquare != null )
         {
-            from.deselect();
-            from = null;
+            fromSquare.deselect();
+            fromSquare = null;
         }
     }
 
     private void deselectToSquare()
     {
-        if ( to != null )
+        if ( toSquare != null )
         {
-            to.deselect();
-            to = null;
+            toSquare.deselect();
+            toSquare = null;
         }
     }
 
@@ -463,13 +485,13 @@ public class ApplicationFrame extends JFrame
 
     private void updateMoveMarkers()
     {
-        for ( SquareComp squareComp : squareComps )
-            squareComp.showMoveMarker( false );
+        for ( SquareComponent squareComponent : squareComponents )
+            squareComponent.showMoveMarker( false );
 
-        if ( from != null && to == null )
+        if ( fromSquare != null && toSquare == null )
         {
-            for ( Square move : getSquare( from ).getPiece().getMoves( getActiveBoard() ) )
-                getSquareComp( move ).showMoveMarker( true );
+            for ( Square square : getSquare( fromSquare ).getPiece().getMoves( getActiveBoard() ) )
+                getSquareComponent( square ).showMoveMarker( true );
         }
     }
 
@@ -513,12 +535,19 @@ public class ApplicationFrame extends JFrame
 
     private void registerMoveConfirmationInput()
     {
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher( e ->
+        InputMap inputMap = contentPane.getInputMap( JComponent.WHEN_IN_FOCUSED_WINDOW );
+        ActionMap actionMap = contentPane.getActionMap();
+
+        inputMap.put( KeyStroke.getKeyStroke( KeyEvent.VK_ENTER, 0 ), "moveConfirmedAction" );
+
+        actionMap.put( "moveConfirmedAction", new AbstractAction()
         {
-            if ( e.getKeyCode() == KeyEvent.VK_SPACE &&
-                 e.getID() == KeyEvent.KEY_PRESSED &&
-                 to != null )
+            @Override
+            public void actionPerformed( ActionEvent e )
             {
+                if ( toSquare == null )
+                    return;
+
                 makeMove();
 
                 updateCheckSquare();
@@ -527,8 +556,6 @@ public class ApplicationFrame extends JFrame
 
                 checkIfGameIsOver();
             }
-
-            return true;
         } );
     }
 
@@ -553,38 +580,38 @@ public class ApplicationFrame extends JFrame
     {
         deselectFromAndToSquares();
 
-        if ( check != null )
+        if ( checkSquare != null )
         {
-            check.resetBorder();
-            check = null;
+            checkSquare.resetBorder();
+            checkSquare = null;
         }
 
-        // Remove all existing PieceComps from the GUI
-        for ( PieceComp pieceComp : pieceComps )
+        // Remove all existing pieces from the UI
+        for ( PieceComponent pieceComponent : pieceComponents )
         {
-            Container parent = pieceComp.getParent();
+            Container parent = pieceComponent.getParent();
 
             if ( parent != null )
-                parent.remove( pieceComp );
+                parent.remove( pieceComponent );
         }
 
-        pieceComps.clear();
+        pieceComponents.clear();
 
         boardIndex = 0;
 
         game = new Game();
 
         for ( Piece piece : getActiveBoard().getPieces() )
-            createPieceComp( piece );
+            createPieceComponent( piece );
 
         updateBoardState();
         updatePieceCursors();
         orientTabletop();
     }
 
-    private void createPieceComp( Piece piece )
+    private void createPieceComponent( Piece piece )
     {
-        pieceComps.add( new PieceComp( piece ) );
+        pieceComponents.add( new PieceComponent( piece ) );
     }
 
     // ============================================================================================
@@ -593,12 +620,12 @@ public class ApplicationFrame extends JFrame
 
     private void makeMove()
     {
-        Square fromSquare = getSquare( from );
-        Square toSquare = getSquare( to );
+        Square from = getSquare( fromSquare );
+        Square to = getSquare( toSquare );
 
         deselectFromAndToSquares();
 
-        if ( fromSquare.getPiece().canPromote( toSquare ) )
+        if ( from.getPiece().canPromote( to ) )
         {
             int i = JOptionPane.showOptionDialog( rootPane,
                                                   "Select a piece to promote to.",
@@ -612,13 +639,13 @@ public class ApplicationFrame extends JFrame
             Typ newType = i == JOptionPane.CLOSED_OPTION ? Typ.QUEEN
                                                          : Typ.PROMOTION_TYPES[ i ];
 
-            Piece newPiece = game.makeMove( fromSquare, toSquare, newType );
+            Piece newPiece = game.makeMove( from, to, newType );
 
-            createPieceComp( newPiece );
+            createPieceComponent( newPiece );
         }
         else
         {
-            game.makeMove( fromSquare, toSquare );
+            game.makeMove( from, to );
         }
 
         boardIndex = getLatestBoardIndex();
@@ -650,54 +677,54 @@ public class ApplicationFrame extends JFrame
     {
         Board board;
 
-        if ( to == null )
+        if ( toSquare == null )
             board = getBoard( boardIndex );
         else
-            board = getActiveBoard().cloneAndMove( getSquare( from ), getSquare( to ) );
+            board = getActiveBoard().cloneAndMove( getSquare( fromSquare ), getSquare( toSquare ) );
 
-        for ( PieceComp pieceComp : pieceComps )
+        for ( PieceComponent pieceComponent : pieceComponents )
         {
-            SquareComp squareComp = getSquareComp( board, pieceComp.getPiece() );
+            SquareComponent squareComponent = getSquareComponent( board, pieceComponent.getPiece() );
 
             // If the piece is no longer on the board (i.e. it has been captured)
-            if ( squareComp == null )
+            if ( squareComponent == null )
             {
-                switch ( pieceComp.getPiece().getColour() )
+                switch ( pieceComponent.getPiece().getColour() )
                 {
                     case WHITE:
-                        capturedPiecesPaneWhite.add( pieceComp );
+                        capturedPiecesPaneWhite.add( pieceComponent );
                         break;
 
                     case BLACK:
-                        capturedPiecesPaneBlack.add( pieceComp );
+                        capturedPiecesPaneBlack.add( pieceComponent );
                         break;
                 }
             }
             else
             {
-                squareComp.addPieceComp( pieceComp );
+                squareComponent.addPieceComponent( pieceComponent );
             }
         }
 
         rescalePieces();
 
-        // Prevents pieces from being displayed in multiple locations simultaneously
+        // Repaint the tabletop pane to clear visual artifacts left behind by relocated pieces
         tabletopPane.repaint();
 
         previousMoveButton.setEnabled( boardIndex > 0 );
         nextMoveButton.setEnabled( boardIndex < getLatestBoardIndex() );
 
-        // Debug SquareComp layering issues caused by incorrect indexing
-        for ( SquareComp squareComp : squareComps )
-            squareComp.debugLayeringIssues();
+        // Debug SquareComponent layering issues caused by incorrect indexing
+        for ( SquareComponent squareComponent : squareComponents )
+            squareComponent.debugLayeringIssues();
     }
 
     private void rescalePieceContainers()
     {
         int scale = getUiScale();
 
-        for ( SquareComp squareComp : squareComps )
-            squareComp.setScale( scale );
+        for ( SquareComponent squareComponent : squareComponents )
+            squareComponent.setScale( scale );
 
         Dimension dimension = new Dimension( scale * 8, scale );
 
@@ -707,7 +734,7 @@ public class ApplicationFrame extends JFrame
         /*
          * The FlowLayout class does not have an option to set the vertical alignment of its components.
          * To achieve this, we set the vertical gap to half of the remaining vertical space in the pane.
-         * vgap = (paneHeight - compHeight) / 2 = (scale - scale * 3 / 5) / 2 = scale / 5
+         * vgap = (paneHeight - componentHeight) / 2 = (scale - scale * 3 / 5) / 2 = scale / 5
          */
         int gap = scale / 5;
 
@@ -725,12 +752,12 @@ public class ApplicationFrame extends JFrame
     {
         int scale = getUiScale();
 
-        for ( PieceComp pieceComp : pieceComps )
+        for ( PieceComponent pieceComponent : pieceComponents )
         {
-            if ( pieceComp.getParent() instanceof SquareComp )
-                pieceComp.setScale( scale );
+            if ( pieceComponent.getParent() instanceof SquareComponent )
+                pieceComponent.setScale( scale );
             else
-                pieceComp.setScale( scale * 3 / 5 );
+                pieceComponent.setScale( scale * 3 / 5 );
         }
     }
 
@@ -744,27 +771,27 @@ public class ApplicationFrame extends JFrame
     {
         if ( game.getStatus() == Status.CHECK ||
              game.getStatus() == Status.CHECKMATE )
-            check = getSquareComp( getActiveBoard(), getActivePlayer().getKing() );
+            checkSquare = getSquareComponent( getActiveBoard(), getActivePlayer().getKing() );
         else
-            check = null;
+            checkSquare = null;
 
         updateCheckBorder();
     }
 
     private void updateCheckBorder()
     {
-        if ( check == null )
+        if ( checkSquare == null )
             return;
 
-        if ( to == null )
+        if ( toSquare == null )
         {
-            int thickness = Math.max( 1, check.getWidth() / 20 );
+            int thickness = Math.max( 1, checkSquare.getWidth() / 20 );
             Border border = BorderFactory.createLineBorder( Color.RED, thickness );
-            check.setBorder( border );
+            checkSquare.setBorder( border );
         }
         else
         {
-            check.resetBorder();
+            checkSquare.resetBorder();
         }
     }
 
@@ -779,13 +806,13 @@ public class ApplicationFrame extends JFrame
      */
     private void updatePieceCursors()
     {
-        for ( PieceComp pieceComp : pieceComps )
+        for ( PieceComponent pieceComponent : pieceComponents )
         {
             if ( boardIndex == getLatestBoardIndex() &&
-                 pieceComp.getPiece().getPlayer() == getActivePlayer() )
-                pieceComp.setCursor( HAND_CURSOR );
+                 pieceComponent.getPiece().getPlayer() == getActivePlayer() )
+                pieceComponent.setCursor( HAND_CURSOR );
             else
-                pieceComp.setCursor( DEFAULT_CURSOR );
+                pieceComponent.setCursor( DEFAULT_CURSOR );
         }
     }
 
@@ -814,10 +841,10 @@ public class ApplicationFrame extends JFrame
                 tabletopPane.setLayout( tabletopLayoutWhite );
                 chessboardPane.setLayout( chessboardLayoutWhite );
 
-                for ( SquareComp squareComp : squareComps )
+                for ( SquareComponent squareComponent : squareComponents )
                 {
-                    squareComp.showRank( 'a' );
-                    squareComp.showFile( '1' );
+                    squareComponent.showRank( 'a' );
+                    squareComponent.showFile( '1' );
                 }
 
                 break;
@@ -826,10 +853,10 @@ public class ApplicationFrame extends JFrame
                 tabletopPane.setLayout( tabletopLayoutBlack );
                 chessboardPane.setLayout( chessboardLayoutBlack );
 
-                for ( SquareComp squareComp : squareComps )
+                for ( SquareComponent squareComponent : squareComponents )
                 {
-                    squareComp.showRank( 'h' );
-                    squareComp.showFile( '8' );
+                    squareComponent.showRank( 'h' );
+                    squareComponent.showFile( '8' );
                 }
 
                 break;

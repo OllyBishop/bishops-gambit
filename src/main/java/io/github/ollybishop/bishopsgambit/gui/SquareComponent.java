@@ -17,7 +17,7 @@ import io.github.ollybishop.bishopsgambit.io.Fonts.Weight;
 import io.github.ollybishop.bishopsgambit.util.ColorUtils;
 import io.github.ollybishop.bishopsgambit.util.ComponentUtils;
 
-public class SquareComp extends JLayeredPane
+public class SquareComponent extends JLayeredPane
 {
     private static final Color DARK = new Color( 209, 139, 71 );
     private static final Color LIGHT = new Color( 254, 206, 157 );
@@ -26,18 +26,21 @@ public class SquareComp extends JLayeredPane
     private static final Font ROBOTO_MEDIUM = Fonts.importFont( "Roboto", Weight.MEDIUM );
 
     /*
-     * New squares are created throughout the game, but the file and rank of a given square never
-     * change. For this reason, we use the file and rank as identifiers for (rather than directly
-     * associate a square with) each component.
+     * Square instances are cloned throughout the game so that each board state can be stored
+     * independently. The number of SquareComponent instances, however, remains fixed at 64.
+     * 
+     * The file and rank identify the board coordinate represented by this component. Because these
+     * fields are shared by Square and SquareComponent, instances of the two classes can be mapped
+     * to one another for any given board state.
      */
     private final char file;
     private final char rank;
 
-    private final Color defaultBg;
-    private final Color defaultFg;
+    private final Color defaultBackground;
+    private final Color defaultForeground;
 
-    private final JLabel fileLbl;
-    private final JLabel rankLbl;
+    private final JLabel fileLabel;
+    private final JLabel rankLabel;
     private final MoveMarker moveMarker;
 
     protected char getFile()
@@ -50,30 +53,30 @@ public class SquareComp extends JLayeredPane
         return this.rank;
     }
 
-    protected SquareComp( char file, char rank )
+    protected SquareComponent( char file, char rank )
     {
         this.file = file;
         this.rank = rank;
 
-        this.defaultBg = Square.getParity( file, rank ) == 0 ? DARK : LIGHT;
-        this.defaultFg = Square.getParity( file, rank ) == 0 ? LIGHT : DARK;
+        this.defaultBackground = Square.getParity( file, rank ) == 0 ? DARK : LIGHT;
+        this.defaultForeground = Square.getParity( file, rank ) == 0 ? LIGHT : DARK;
 
-        this.fileLbl = new JLabel( String.valueOf( file ) );
-        fileLbl.setVerticalAlignment( SwingConstants.BOTTOM );
-        fileLbl.setHorizontalAlignment( SwingConstants.RIGHT );
-        fileLbl.setForeground( defaultFg );
-        fileLbl.setFont( ROBOTO_MEDIUM );
+        this.fileLabel = new JLabel( String.valueOf( file ) );
+        fileLabel.setVerticalAlignment( SwingConstants.BOTTOM );
+        fileLabel.setHorizontalAlignment( SwingConstants.RIGHT );
+        fileLabel.setForeground( defaultForeground );
+        fileLabel.setFont( ROBOTO_MEDIUM );
 
-        this.rankLbl = new JLabel( String.valueOf( rank ) );
-        rankLbl.setVerticalAlignment( SwingConstants.TOP );
-        rankLbl.setHorizontalAlignment( SwingConstants.LEFT );
-        rankLbl.setForeground( defaultFg );
-        rankLbl.setFont( ROBOTO_MEDIUM );
+        this.rankLabel = new JLabel( String.valueOf( rank ) );
+        rankLabel.setVerticalAlignment( SwingConstants.TOP );
+        rankLabel.setHorizontalAlignment( SwingConstants.LEFT );
+        rankLabel.setForeground( defaultForeground );
+        rankLabel.setFont( ROBOTO_MEDIUM );
 
         this.moveMarker = new MoveMarker();
 
-        add( fileLbl, DEFAULT_LAYER );
-        add( rankLbl, DEFAULT_LAYER );
+        add( fileLabel, DEFAULT_LAYER );
+        add( rankLabel, DEFAULT_LAYER );
         add( moveMarker, MODAL_LAYER );
 
         resetBackground();
@@ -82,27 +85,27 @@ public class SquareComp extends JLayeredPane
         setOpaque( true );
     }
 
-    protected void addPieceComp( PieceComp pieceComp )
+    protected void addPieceComponent( PieceComponent pieceComponent )
     {
-        add( pieceComp, PALETTE_LAYER, 0 );
+        add( pieceComponent, PALETTE_LAYER, 0 );
 
-        // Ensures the piece is positioned within the bounds of the square
-        pieceComp.setLocation( 0, 0 );
+        // Reset location to (0, 0) relative to the parent square so the piece doesn't render off screen
+        pieceComponent.setLocation( 0, 0 );
     }
 
     private void resetBackground()
     {
-        setBackground( defaultBg );
+        setBackground( defaultBackground );
     }
 
     protected void showFile( char rank )
     {
-        fileLbl.setVisible( this.rank == rank );
+        fileLabel.setVisible( this.rank == rank );
     }
 
     protected void showRank( char file )
     {
-        rankLbl.setVisible( this.file == file );
+        rankLabel.setVisible( this.file == file );
     }
 
     protected void showMoveMarker( boolean b )
@@ -120,7 +123,7 @@ public class SquareComp extends JLayeredPane
      */
     protected void select()
     {
-        setBackground( ColorUtils.blend( defaultBg, HIGHLIGHT, 1, 3 ) );
+        setBackground( ColorUtils.blend( defaultBackground, HIGHLIGHT, 1, 3 ) );
     }
 
     /**
@@ -146,18 +149,18 @@ public class SquareComp extends JLayeredPane
         setMinimumSize( dimension );
         setPreferredSize( dimension );
 
-        fileLbl.setSize( dimension );
-        rankLbl.setSize( dimension );
+        fileLabel.setSize( dimension );
+        rankLabel.setSize( dimension );
         moveMarker.setSize( dimension );
 
         int x = scale / 20;
         int y = scale / 40;
 
-        fileLbl.setLocation( -x, -y );
-        rankLbl.setLocation( x, y );
+        fileLabel.setLocation( -x, -y );
+        rankLabel.setLocation( x, y );
 
-        ComponentUtils.resizeFont( fileLbl, scale / 5 );
-        ComponentUtils.resizeFont( rankLbl, scale / 5 );
+        ComponentUtils.resizeFont( fileLabel, scale / 5 );
+        ComponentUtils.resizeFont( rankLabel, scale / 5 );
     }
 
     protected int getIndex()
