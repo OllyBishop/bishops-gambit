@@ -27,9 +27,9 @@ public class Pawn extends Piece
     }
 
     @Override
-    public List<Square> getTargets( Board board )
+    public List<Square> getPseudoLegalMoves( Board board )
     {
-        List<Square> targets = new ArrayList<>();
+        List<Square> moves = new ArrayList<>();
 
         Square square = getSquare( board );
         int y = getSign();
@@ -46,7 +46,7 @@ public class Pawn extends Piece
                     if ( s.isOccupied() )
                         break;
 
-                    targets.add( s );
+                    moves.add( s );
                 }
             }
         }
@@ -58,16 +58,16 @@ public class Pawn extends Piece
             Square s1 = square.travel( board, x, y );
 
             boolean regularCapture = s1 != null &&
-                                     s1.isOccupiedByOpponent( getPlayer() );
+                                     s1.isOccupiedByOpponentOf( getPlayer() );
 
             boolean enPassantCapture = s0 != null &&
-                                       s0.isOccupiedByOpponent( getPlayer() ) &&
+                                       s0.isOccupiedByOpponentOf( getPlayer() ) &&
                                        s0.getPiece() == board.getEnPassantPawn();
 
             if ( regularCapture || enPassantCapture )
-                targets.add( s1 );
+                moves.add( s1 );
         }
 
-        return targets;
+        return moves;
     }
 }

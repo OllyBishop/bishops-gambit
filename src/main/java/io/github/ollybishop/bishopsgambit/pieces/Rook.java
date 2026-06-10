@@ -27,14 +27,14 @@ public class Rook extends Piece
     }
 
     @Override
-    public List<Square> getTargets( Board board )
+    public List<Square> getPseudoLegalMoves( Board board )
     {
-        return getTargets( board, this );
+        return getPseudoLegalMoves( board, this );
     }
 
-    public static List<Square> getTargets( Board board, Piece piece )
+    public static List<Square> getPseudoLegalMoves( Board board, Piece piece )
     {
-        List<Square> targets = new ArrayList<>();
+        List<Square> moves = new ArrayList<>();
 
         Square square = piece.getSquare( board );
 
@@ -51,17 +51,17 @@ public class Rook extends Piece
 
                     if ( s.isOccupied() )
                     {
-                        if ( s.isOccupiedByOpponent( piece.getPlayer() ) )
-                            targets.add( s );
+                        if ( s.isOccupiedByOpponentOf( piece.getPlayer() ) )
+                            moves.add( s );
 
                         break;
                     }
 
-                    targets.add( s );
+                    moves.add( s );
                 }
             }
         }
 
-        return targets;
+        return moves;
     }
 }

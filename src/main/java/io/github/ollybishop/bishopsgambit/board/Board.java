@@ -132,8 +132,8 @@ public class Board extends ArrayList<Square>
      * Clones this board and moves the piece occupying the <b>from</b> square to the <b>to</b>
      * square. Also handles the following special moves (if applicable):
      * <ul>
-     * <li>Castling – Moves the corresponding rook to the square adjacent to the king.</li>
-     * <li>En passant – Removes the corresponding pawn.</li>
+     * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
+     * <li>En passant: Removes the corresponding pawn.</li>
      * </ul>
      * 
      * @param from the square containing the piece to be moved
@@ -264,7 +264,7 @@ public class Board extends ArrayList<Square>
 
     public boolean isLegalMove( Square from, Square to )
     {
-        return from.getPiece().getMoves( this ).contains( to );
+        return from.getPiece().getLegalMoves( this ).contains( to );
     }
 
     public int getMaterialDifference()

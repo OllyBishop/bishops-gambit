@@ -490,7 +490,7 @@ public class ApplicationFrame extends JFrame
 
         if ( fromSquare != null && toSquare == null )
         {
-            for ( Square square : getSquare( fromSquare ).getPiece().getMoves( getActiveBoard() ) )
+            for ( Square square : getSquare( fromSquare ).getPiece().getLegalMoves( getActiveBoard() ) )
                 getSquareComponent( square ).showMoveMarker( true );
         }
     }
@@ -499,12 +499,12 @@ public class ApplicationFrame extends JFrame
     {
         newGameButton.addActionListener( e ->
         {
-            int i = JOptionPane.showConfirmDialog( rootPane,
-                                                   "Are you sure you want to start a new game?",
-                                                   "New Game",
-                                                   JOptionPane.YES_NO_OPTION );
+            int option = JOptionPane.showConfirmDialog( rootPane,
+                                                        "Are you sure you want to start a new game?",
+                                                        "New Game",
+                                                        JOptionPane.YES_NO_OPTION );
 
-            if ( i == JOptionPane.YES_OPTION )
+            if ( option == JOptionPane.YES_OPTION )
                 newGame();
         } );
 

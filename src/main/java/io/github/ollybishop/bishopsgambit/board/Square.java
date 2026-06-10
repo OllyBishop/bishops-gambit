@@ -55,9 +55,9 @@ public class Square
     }
 
     /**
-     * Returns a boolean indicating whether or not this square is occupied.
+     * Returns whether this square is occupied by a piece.
      * 
-     * @return {@code true} if this square contains a piece; {@code false} otherwise
+     * @return {@code true} if this square is occupied by a piece; {@code false} otherwise
      */
     public boolean isOccupied()
     {
@@ -65,11 +65,10 @@ public class Square
     }
 
     /**
-     * Returns a boolean indicating whether or not this square is occupied by a piece belonging to
-     * the given player.
+     * Returns whether this square is occupied by one of the given player's pieces.
      * 
-     * @param player the player
-     * @return {@code true} if this square contains a piece belonging to the given player;
+     * @param player the player to check
+     * @return {@code true} if this square is occupied by one of the given player's pieces;
      *         {@code false} otherwise
      */
     public boolean isOccupiedBy( Player player )
@@ -78,33 +77,30 @@ public class Square
     }
 
     /**
-     * Returns a boolean indicating whether or not this square is occupied by a piece <i>not</i>
-     * belonging to the given player.
+     * Returns whether this square is occupied by an opposing piece.
      * 
-     * @param player the player
-     * @return {@code true} if this square contains a piece <i>not</i> belonging to the given
-     *         player; {@code false} otherwise
+     * @param player the player whose opponent is checked
+     * @return {@code true} if this square is occupied by an opposing piece; {@code false} otherwise
      */
-    public boolean isOccupiedByOpponent( Player player )
+    public boolean isOccupiedByOpponentOf( Player player )
     {
         return isOccupied() && !isOccupiedBy( player );
     }
 
     /**
-     * Returns a boolean indicating whether or not this square is being targeted by a piece
-     * <i>not</i> belonging to the given player.
+     * Returns whether this square is a pseudo-legal move destination for any opposing piece.
      * 
-     * @param player the player
+     * @param player the player whose opponent's pieces are considered
      * @param board  the chessboard
-     * @return {@code true} if this square is being targeted by a piece <i>not</i> belonging to the
-     *         given player; {@code false} otherwise
+     * @return {@code true} if this square is pseudo-legally reachable by any opposing piece;
+     *         {@code false} otherwise
      */
-    public boolean isTargeted( Player player, Board board )
+    public boolean isPseudoLegallyReachableByOpponentOf( Player player, Board board )
     {
         return board.getPieces()
                     .stream()
-                    .filter( pc -> pc.getPlayer() != player )
-                    .anyMatch( pc -> pc.isTargeting( this, board ) );
+                    .filter( piece -> piece.getPlayer() != player )
+                    .anyMatch( piece -> piece.canPseudoLegallyMoveTo( this, board ) );
     }
 
     public boolean isOnLastRank( Player player )
@@ -148,6 +144,6 @@ public class Square
 
     public static int getIndex( char file, char rank )
     {
-        return 8 * (file - 'a') + (rank - '1');
+        return 8 * (file - 'a') + rank - '1';
     }
 }

@@ -186,13 +186,13 @@ public class Game
     }
 
     /**
-     * Clones the current board (as returned by {@code getBoard()}) and moves the piece occupying
-     * the <b>from</b> square to the <b>to</b> square. Also handles the following special moves (if
+     * Clones the board returned by {@link Game#getActiveBoard()} and moves the piece occupying the
+     * <b>from</b> square to the <b>to</b> square. Also handles the following special moves (if
      * applicable):
      * <ul>
-     * <li>Castling – Moves the corresponding rook to the square adjacent to the king.</li>
-     * <li>En passant – Removes the captured pawn.</li>
-     * <li>Promotion – Replaces the piece with a new piece of the given type.</li>
+     * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
+     * <li>En passant: Removes the captured pawn.</li>
+     * <li>Promotion: Replaces the piece with a new piece of the given type.</li>
      * </ul>
      * 
      * @param from    the square containing the piece to be moved

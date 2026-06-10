@@ -27,9 +27,9 @@ public class Knight extends Piece
     }
 
     @Override
-    public List<Square> getTargets( Board board )
+    public List<Square> getPseudoLegalMoves( Board board )
     {
-        List<Square> targets = new ArrayList<>();
+        List<Square> moves = new ArrayList<>();
 
         Square square = getSquare( board );
 
@@ -42,11 +42,11 @@ public class Knight extends Piece
                     Square s = square.travel( board, n * x, (3 - n) * y );
 
                     if ( s != null && !s.isOccupiedBy( getPlayer() ) )
-                        targets.add( s );
+                        moves.add( s );
                 }
             }
         }
 
-        return targets;
+        return moves;
     }
 }

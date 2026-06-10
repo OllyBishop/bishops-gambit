@@ -27,9 +27,9 @@ public class King extends Piece
     }
 
     @Override
-    public List<Square> getTargets( Board board )
+    public List<Square> getPseudoLegalMoves( Board board )
     {
-        List<Square> targets = new ArrayList<>();
+        List<Square> moves = new ArrayList<>();
 
         Square square = getSquare( board );
 
@@ -40,19 +40,19 @@ public class King extends Piece
                 Square s = square.travel( board, x, y );
 
                 if ( s != null && !s.isOccupiedBy( getPlayer() ) )
-                    targets.add( s );
+                    moves.add( s );
             }
         }
 
-        return targets;
+        return moves;
     }
 
     @Override
-    public List<Square> getMoves( Board board )
+    public List<Square> getLegalMoves( Board board )
     {
-        List<Square> moves = new ArrayList<>( super.getMoves( board ) );
+        List<Square> moves = new ArrayList<>( super.getLegalMoves( board ) );
 
-        if ( !isTargeted( board ) )
+        if ( !isUnderAttack( board ) )
         {
             for ( int x : new int[] { -1, 1 } )
             {
@@ -70,8 +70,8 @@ public class King extends Piece
                     if ( !k1.isOccupied() &&
                          !k2.isOccupied() &&
                          !r1.isOccupied() &&
-                         !k1.isTargeted( getPlayer(), board ) &&
-                         !k2.isTargeted( getPlayer(), board ) )
+                         !k1.isPseudoLegallyReachableByOpponentOf( getPlayer(), board ) &&
+                         !k2.isPseudoLegallyReachableByOpponentOf( getPlayer(), board ) )
                         moves.add( k2 );
                 }
             }

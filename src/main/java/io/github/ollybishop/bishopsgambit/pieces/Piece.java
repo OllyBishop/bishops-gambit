@@ -7,6 +7,7 @@ import io.github.ollybishop.bishopsgambit.board.Board;
 import io.github.ollybishop.bishopsgambit.board.Square;
 import io.github.ollybishop.bishopsgambit.player.Player;
 import io.github.ollybishop.bishopsgambit.player.Player.Colour;
+import io.github.ollybishop.bishopsgambit.util.StreamUtils;
 
 public abstract class Piece
 {
@@ -24,10 +25,10 @@ public abstract class Piece
     }
 
     /**
-     * The player this piece belongs to.
+     * The player that owns this piece.
      * <p>
-     * Given an arbitrary {@code Player p}, then {@code this.player == p} if and only if
-     * {@code p.getPieces().contains( this )}.
+     * This is the same player whose piece list, returned by {@link Player#getPieces()}, contains
+     * this piece.
      */
     private final Player player;
 
@@ -73,34 +74,38 @@ public abstract class Piece
     public abstract Typ getType();
 
     /**
-     * Returns the value of this piece as an integer.
+     * Returns this piece's material value.
      * 
-     * @return the value of this piece as an integer
+     * @return this piece's material value
      */
     public abstract int getValue();
 
     /**
-     * Returns a list of all squares this piece is currently targeting; i.e., all squares this piece
-     * could move to if checks are ignored.
+     * Returns the pseudo-legal moves available to this piece on the given board.
+     * <p>
+     * A pseudo-legal move obeys this piece's movement rules, but may leave the moving player's king
+     * in check.
      * 
      * @param board the chessboard
-     * @return a list of all squares this piece could move to if checks are ignored
+     * @return the squares this piece could move to before checking king safety
      */
-    protected abstract List<Square> getTargets( Board board );
+    protected abstract List<Square> getPseudoLegalMoves( Board board );
 
     /**
-     * Returns a list of all squares this piece can legally move to. The list returned is a filtered
-     * version of {@code getTargets(Board)}.
+     * Returns the legal moves available to this piece on the given board.
+     * <p>
+     * Legal moves are obtained by filtering this piece's pseudo-legal moves to exclude any move
+     * that would leave the moving player's king in check.
      * 
      * @param board the chessboard
-     * @return a list of all squares this piece can legally move to
+     * @return the squares this piece can legally move to
      */
-    public List<Square> getMoves( Board board )
+    public List<Square> getLegalMoves( Board board )
     {
         Square from = getSquare( board );
-        return getTargets( board ).stream()
-                                  .filter( to -> !getPlayer().isInCheck( board.cloneAndMove( from, to ) ) )
-                                  .toList();
+        return getPseudoLegalMoves( board ).stream()
+                                           .filter( to -> !getPlayer().isInCheck( board.cloneAndMove( from, to ) ) )
+                                           .toList();
     }
 
     public Square getStartSquare( Board board )
@@ -116,34 +121,32 @@ public abstract class Piece
      */
     public Square getSquare( Board board )
     {
-        return board.stream()
-                    .filter( s -> s.getPiece() == this )
-                    .findAny()
-                    .orElse( null );
+        return StreamUtils.findOnlyOrNull( board.stream().filter( square -> square.getPiece() == this ) );
     }
 
     /**
-     * Returns a boolean indicating whether (the square occupied by) this piece is being targeted by
-     * an enemy piece.
+     * Returns whether this piece is under attack by any opposing piece.
      * 
      * @param board the chessboard
-     * @return {@code true} if this piece is being targeted; {@code false} otherwise
+     * @return {@code true} if this piece is under attack by any opposing piece; {@code false}
+     *         otherwise
      */
-    public boolean isTargeted( Board board )
+    public boolean isUnderAttack( Board board )
     {
-        return getSquare( board ).isTargeted( getPlayer(), board );
+        return getSquare( board ).isPseudoLegallyReachableByOpponentOf( getPlayer(), board );
     }
 
     /**
-     * Returns a boolean indicating whether this piece is targeting the given square.
+     * Returns whether this piece could move to the given square before checking king safety.
      * 
-     * @param square the square
+     * @param square the destination square
      * @param board  the chessboard
-     * @return {@code true} if this piece is targeting the given square; {@code false} otherwise
+     * @return {@code true} if this piece could pseudo-legally move to the given square;
+     *         {@code false} otherwise
      */
-    public boolean isTargeting( Square square, Board board )
+    public boolean canPseudoLegallyMoveTo( Square square, Board board )
     {
-        return getTargets( board ).contains( square );
+        return getPseudoLegalMoves( board ).contains( square );
     }
 
     public boolean canPromote( Square square )

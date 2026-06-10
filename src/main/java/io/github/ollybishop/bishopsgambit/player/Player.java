@@ -131,7 +131,7 @@ public class Player
      */
     public boolean isInCheck( Board board )
     {
-        return getKing().isTargeted( board );
+        return getKing().isUnderAttack( board );
     }
 
     /**
@@ -165,8 +165,8 @@ public class Player
     public int getNumberOfLegalMoves( Board board )
     {
         return getPieces().stream()
-                          .filter( pc -> board.containsPiece( pc ) )
-                          .mapToInt( pc -> pc.getMoves( board ).size() )
+                          .filter( piece -> board.containsPiece( piece ) )
+                          .mapToInt( piece -> piece.getLegalMoves( board ).size() )
                           .sum();
     }
 
