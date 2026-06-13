@@ -114,7 +114,7 @@ public class Square
 
     public Square travel( Board board, int x, int y )
     {
-        return board.getSquare( (char) (getFile() + x), (char) (getRank() + y) );
+        return board.getSquare( (char) ( getFile() + x ), (char) ( getRank() + y ) );
     }
 
     public int fileDiff( Square square )
@@ -134,7 +134,7 @@ public class Square
 
     public static int getParity( char file, char rank )
     {
-        return (file + rank) % 2;
+        return ( file + rank ) % 2;
     }
 
     public int getIndex()
@@ -144,6 +144,6 @@ public class Square
 
     public static int getIndex( char file, char rank )
     {
-        return 8 * (file - 'a') + rank - '1';
+        return 8 * ( file - 'a' ) + rank - '1';
     }
 }

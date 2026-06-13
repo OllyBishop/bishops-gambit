@@ -44,7 +44,7 @@ public class Rook extends Piece
             {
                 for ( int n = 1; n < 8; n++ )
                 {
-                    Square s = square.travel( board, n * x * y, n * (1 - x) * y );
+                    Square s = square.travel( board, n * x * y, n * ( 1 - x ) * y );
 
                     if ( s == null )
                         break;

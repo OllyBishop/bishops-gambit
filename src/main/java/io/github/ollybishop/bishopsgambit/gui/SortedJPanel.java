@@ -15,7 +15,7 @@ public class SortedJPanel extends JPanel
     @Override
     protected final void addImpl( Component comp, Object constraints, int index )
     {
-        if ( !(comp instanceof Sortable) )
+        if ( !( comp instanceof Sortable ) )
             throw new IllegalArgumentException( comp.getClass().getSimpleName() +
                                                 " must implement Sortable to be added to a SortedJPanel." );
 
@@ -26,7 +26,7 @@ public class SortedJPanel extends JPanel
 
         // Determine where to insert the new component to preserve sort order
         index = IntStream.range( 0, components.length )
-                         .filter( i -> ((Sortable) components[ i ]).compareTo( (Sortable) comp ) > 0 )
+                         .filter( i -> ( (Sortable) components[ i ] ).compareTo( (Sortable) comp ) > 0 )
                          .findFirst()
                          .orElse( -1 );
 

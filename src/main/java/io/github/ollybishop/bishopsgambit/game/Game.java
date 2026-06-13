@@ -231,7 +231,7 @@ public class Game
         }
         else
         {
-            if ( !(piece instanceof Pawn) )
+            if ( !( piece instanceof Pawn ) )
             {
                 String msg = String.format( "The promoting piece (%s) must be a Pawn.", piece );
                 throw new InvalidPromotionException( msg );

@@ -20,9 +20,9 @@ public class ColorUtils
         int blue2 = color2.getBlue();
 
         int total = ratio1 + ratio2;
-        int r = (ratio1 * red1 + ratio2 * red2) / total;
-        int g = (ratio1 * green1 + ratio2 * green2) / total;
-        int b = (ratio1 * blue1 + ratio2 * blue2) / total;
+        int r = ( ratio1 * red1 + ratio2 * red2 ) / total;
+        int g = ( ratio1 * green1 + ratio2 * green2 ) / total;
+        int b = ( ratio1 * blue1 + ratio2 * blue2 ) / total;
 
         return new Color( r, g, b );
     }

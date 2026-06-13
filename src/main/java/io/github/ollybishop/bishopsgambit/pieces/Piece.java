@@ -68,7 +68,7 @@ public abstract class Piece
 
     public char toChar()
     {
-        return (char) ('\u2654' + 6 * getColour().ordinal() + 5 - getType().ordinal());
+        return (char) ( '\u2654' + 6 * getColour().ordinal() + 5 - getType().ordinal() );
     }
 
     public abstract Typ getType();
