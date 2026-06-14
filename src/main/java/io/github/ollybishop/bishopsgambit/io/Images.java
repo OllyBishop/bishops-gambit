@@ -7,26 +7,26 @@ import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import io.github.ollybishop.bishopsgambit.pieces.Piece.Typ;
-import io.github.ollybishop.bishopsgambit.player.Player.Colour;
+import io.github.ollybishop.bishopsgambit.pieces.Piece;
+import io.github.ollybishop.bishopsgambit.player.Player;
 
 public class Images
 {
-    private static Image whitePawn = importImage( Colour.WHITE, Typ.PAWN );
-    private static Image whiteKnight = importImage( Colour.WHITE, Typ.KNIGHT );
-    private static Image whiteBishop = importImage( Colour.WHITE, Typ.BISHOP );
-    private static Image whiteRook = importImage( Colour.WHITE, Typ.ROOK );
-    private static Image whiteQueen = importImage( Colour.WHITE, Typ.QUEEN );
-    private static Image whiteKing = importImage( Colour.WHITE, Typ.KING );
+    private static Image whitePawn = importImage( Player.Colour.WHITE, Piece.Type.PAWN );
+    private static Image whiteKnight = importImage( Player.Colour.WHITE, Piece.Type.KNIGHT );
+    private static Image whiteBishop = importImage( Player.Colour.WHITE, Piece.Type.BISHOP );
+    private static Image whiteRook = importImage( Player.Colour.WHITE, Piece.Type.ROOK );
+    private static Image whiteQueen = importImage( Player.Colour.WHITE, Piece.Type.QUEEN );
+    private static Image whiteKing = importImage( Player.Colour.WHITE, Piece.Type.KING );
 
-    private static Image blackPawn = importImage( Colour.BLACK, Typ.PAWN );
-    private static Image blackKnight = importImage( Colour.BLACK, Typ.KNIGHT );
-    private static Image blackBishop = importImage( Colour.BLACK, Typ.BISHOP );
-    private static Image blackRook = importImage( Colour.BLACK, Typ.ROOK );
-    private static Image blackQueen = importImage( Colour.BLACK, Typ.QUEEN );
-    private static Image blackKing = importImage( Colour.BLACK, Typ.KING );
+    private static Image blackPawn = importImage( Player.Colour.BLACK, Piece.Type.PAWN );
+    private static Image blackKnight = importImage( Player.Colour.BLACK, Piece.Type.KNIGHT );
+    private static Image blackBishop = importImage( Player.Colour.BLACK, Piece.Type.BISHOP );
+    private static Image blackRook = importImage( Player.Colour.BLACK, Piece.Type.ROOK );
+    private static Image blackQueen = importImage( Player.Colour.BLACK, Piece.Type.QUEEN );
+    private static Image blackKing = importImage( Player.Colour.BLACK, Piece.Type.KING );
 
-    private static Image importImage( Colour colour, Typ type )
+    private static Image importImage( Player.Colour colour, Piece.Type type )
     {
         Image image = null;
 
@@ -43,7 +43,7 @@ public class Images
         return image;
     }
 
-    public static Image getImage( Colour colour, Typ type )
+    public static Image getImage( Player.Colour colour, Piece.Type type )
     {
         return switch ( colour )
         {
@@ -77,7 +77,7 @@ public class Images
      * @param type   the piece type
      * @return an {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
      */
-    public static Icon createIcon( Colour colour, Typ type )
+    public static Icon createIcon( Player.Colour colour, Piece.Type type )
     {
         return createIcon( colour, type, -1 );
     }
@@ -94,7 +94,7 @@ public class Images
      * @return a scaled {@code ImageIcon} of the piece with the given <b>colour</b> and <b>type</b>
      * @throws IllegalArgumentException if <b>scale</b> is zero
      */
-    public static Icon createIcon( Colour colour, Typ type, int scale )
+    public static Icon createIcon( Player.Colour colour, Piece.Type type, int scale )
     {
         if ( scale == 0 )
             throw new IllegalArgumentException( "Scale must be non-zero." );

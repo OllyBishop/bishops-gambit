@@ -14,11 +14,8 @@ import org.junit.jupiter.api.TestInfo;
 
 import io.github.ollybishop.bishopsgambit.board.Board;
 import io.github.ollybishop.bishopsgambit.board.Square;
-import io.github.ollybishop.bishopsgambit.game.Game.Status;
 import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.pieces.Piece.Typ;
 import io.github.ollybishop.bishopsgambit.player.Player;
-import io.github.ollybishop.bishopsgambit.player.Player.Colour;
 
 class GameTest
 {
@@ -37,7 +34,7 @@ class GameTest
         makeMove( uci2 );
     }
 
-    private void makeMove( Square from, Square to, Typ newType )
+    private void makeMove( Square from, Square to, Piece.Type newType )
     {
         game.makeMove( from, to, newType );
     }
@@ -103,7 +100,7 @@ class GameTest
         return getActiveBoard().hasInsufficientMaterial();
     }
 
-    private Status getStatus()
+    private Game.Status getStatus()
     {
         return game.getStatus();
     }
@@ -183,7 +180,7 @@ class GameTest
         assertTrue( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.CHECKMATE );
+        assertEquals( getStatus(), Game.Status.CHECKMATE );
     }
 
     @Test
@@ -202,7 +199,7 @@ class GameTest
         assertTrue( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.CHECKMATE );
+        assertEquals( getStatus(), Game.Status.CHECKMATE );
     }
 
     @Test
@@ -226,7 +223,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.DEFAULT );
+        assertEquals( getStatus(), Game.Status.DEFAULT );
 
         assertSameNotNull( whiteKing, getPiece( "g1" ) );
         assertSameNotNull( blackKing, getPiece( "g8" ) );
@@ -256,7 +253,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.DEFAULT );
+        assertEquals( getStatus(), Game.Status.DEFAULT );
 
         assertSameNotNull( whiteKing, getPiece( "c1" ) );
         assertSameNotNull( blackKing, getPiece( "c8" ) );
@@ -278,7 +275,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.DEFAULT );
+        assertEquals( getStatus(), Game.Status.DEFAULT );
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "d5e6" ),
@@ -302,7 +299,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.CHECK );
+        assertEquals( getStatus(), Game.Status.CHECK );
 
         assertDoesNotThrow( () -> makeMove( "e5d6" ) );
     }
@@ -323,15 +320,15 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.DEFAULT );
+        assertEquals( getStatus(), Game.Status.DEFAULT );
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
                                  "The White King occupying e1 cannot legally move to g1." );
 
         Piece piece = getPiece( "f1" );
-        assertEquals( piece.getColour(), Colour.BLACK );
-        assertEquals( piece.getType(), Typ.KNIGHT );
+        assertEquals( piece.getColour(), Player.Colour.BLACK );
+        assertEquals( piece.getType(), Piece.Type.KNIGHT );
     }
 
     @Test
@@ -349,15 +346,15 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.DEFAULT );
+        assertEquals( getStatus(), Game.Status.DEFAULT );
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
                                  "The White King occupying e1 cannot legally move to g1." );
 
         Piece piece = getPiece( "f1" );
-        assertEquals( piece.getColour(), Colour.BLACK );
-        assertEquals( piece.getType(), Typ.BISHOP );
+        assertEquals( piece.getColour(), Player.Colour.BLACK );
+        assertEquals( piece.getType(), Piece.Type.BISHOP );
     }
 
     @Test
@@ -382,7 +379,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertTrue( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.STALEMATE );
+        assertEquals( getStatus(), Game.Status.STALEMATE );
     }
 
     @Test
@@ -409,7 +406,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertTrue( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.STALEMATE );
+        assertEquals( getStatus(), Game.Status.STALEMATE );
     }
 
     @Test
@@ -441,7 +438,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.INSUFFICIENT_MATERIAL );
+        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
     }
 
     @Test
@@ -474,7 +471,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.INSUFFICIENT_MATERIAL );
+        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
     }
 
     @Test
@@ -506,7 +503,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.INSUFFICIENT_MATERIAL );
+        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
     }
 
     @Test
@@ -538,7 +535,7 @@ class GameTest
         assertFalse( isCheckmated() );
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Status.INSUFFICIENT_MATERIAL );
+        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
     }
 
     @Test
@@ -615,12 +612,12 @@ class GameTest
         makeMove( "b7a8q", "g2h1q" );
 
         Piece newPieceWhite = getPiece( "a8" );
-        assertEquals( newPieceWhite.getColour(), Colour.WHITE );
-        assertEquals( newPieceWhite.getType(), Typ.QUEEN );
+        assertEquals( newPieceWhite.getColour(), Player.Colour.WHITE );
+        assertEquals( newPieceWhite.getType(), Piece.Type.QUEEN );
 
         Piece newPieceBlack = getPiece( "h1" );
-        assertEquals( newPieceBlack.getColour(), Colour.BLACK );
-        assertEquals( newPieceBlack.getType(), Typ.QUEEN );
+        assertEquals( newPieceBlack.getColour(), Player.Colour.BLACK );
+        assertEquals( newPieceBlack.getType(), Piece.Type.QUEEN );
     }
 
     @Test
@@ -633,12 +630,12 @@ class GameTest
         makeMove( "b7a8r", "g2h1r" );
 
         Piece newPieceWhite = getPiece( "a8" );
-        assertEquals( newPieceWhite.getColour(), Colour.WHITE );
-        assertEquals( newPieceWhite.getType(), Typ.ROOK );
+        assertEquals( newPieceWhite.getColour(), Player.Colour.WHITE );
+        assertEquals( newPieceWhite.getType(), Piece.Type.ROOK );
 
         Piece newPieceBlack = getPiece( "h1" );
-        assertEquals( newPieceBlack.getColour(), Colour.BLACK );
-        assertEquals( newPieceBlack.getType(), Typ.ROOK );
+        assertEquals( newPieceBlack.getColour(), Player.Colour.BLACK );
+        assertEquals( newPieceBlack.getType(), Piece.Type.ROOK );
     }
 
     @Test
@@ -651,12 +648,12 @@ class GameTest
         makeMove( "b7a8b", "g2h1b" );
 
         Piece newPieceWhite = getPiece( "a8" );
-        assertEquals( newPieceWhite.getColour(), Colour.WHITE );
-        assertEquals( newPieceWhite.getType(), Typ.BISHOP );
+        assertEquals( newPieceWhite.getColour(), Player.Colour.WHITE );
+        assertEquals( newPieceWhite.getType(), Piece.Type.BISHOP );
 
         Piece newPieceBlack = getPiece( "h1" );
-        assertEquals( newPieceBlack.getColour(), Colour.BLACK );
-        assertEquals( newPieceBlack.getType(), Typ.BISHOP );
+        assertEquals( newPieceBlack.getColour(), Player.Colour.BLACK );
+        assertEquals( newPieceBlack.getType(), Piece.Type.BISHOP );
     }
 
     @Test
@@ -669,12 +666,12 @@ class GameTest
         makeMove( "b7a8n", "g2h1n" );
 
         Piece newPieceWhite = getPiece( "a8" );
-        assertEquals( newPieceWhite.getColour(), Colour.WHITE );
-        assertEquals( newPieceWhite.getType(), Typ.KNIGHT );
+        assertEquals( newPieceWhite.getColour(), Player.Colour.WHITE );
+        assertEquals( newPieceWhite.getType(), Piece.Type.KNIGHT );
 
         Piece newPieceBlack = getPiece( "h1" );
-        assertEquals( newPieceBlack.getColour(), Colour.BLACK );
-        assertEquals( newPieceBlack.getType(), Typ.KNIGHT );
+        assertEquals( newPieceBlack.getColour(), Player.Colour.BLACK );
+        assertEquals( newPieceBlack.getType(), Piece.Type.KNIGHT );
     }
 
     @Test
@@ -690,7 +687,7 @@ class GameTest
 
         // Attempt to promote a pawn to a pawn
         assertThrowsWithMessage( InvalidPromotionException.class,
-                                 () -> makeMove( from, to, Typ.PAWN ),
+                                 () -> makeMove( from, to, Piece.Type.PAWN ),
                                  "The new piece type (Pawn) must be one of Knight, Bishop, Rook or Queen." );
     }
 
@@ -707,7 +704,7 @@ class GameTest
 
         // Attempt to promote a pawn to a king
         assertThrowsWithMessage( InvalidPromotionException.class,
-                                 () -> makeMove( from, to, Typ.KING ),
+                                 () -> makeMove( from, to, Piece.Type.KING ),
                                  "The new piece type (King) must be one of Knight, Bishop, Rook or Queen." );
     }
 

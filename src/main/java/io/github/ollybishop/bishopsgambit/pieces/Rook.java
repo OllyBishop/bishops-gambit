@@ -15,9 +15,9 @@ public class Rook extends Piece
     }
 
     @Override
-    public Typ getType()
+    public Type getType()
     {
-        return Typ.ROOK;
+        return Type.ROOK;
     }
 
     @Override

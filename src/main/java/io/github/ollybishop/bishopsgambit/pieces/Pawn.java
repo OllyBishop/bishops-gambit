@@ -15,9 +15,9 @@ public class Pawn extends Piece
     }
 
     @Override
-    public Typ getType()
+    public Type getType()
     {
-        return Typ.PAWN;
+        return Type.PAWN;
     }
 
     @Override

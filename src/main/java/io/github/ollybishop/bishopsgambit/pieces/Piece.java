@@ -6,12 +6,11 @@ import java.util.List;
 import io.github.ollybishop.bishopsgambit.board.Board;
 import io.github.ollybishop.bishopsgambit.board.Square;
 import io.github.ollybishop.bishopsgambit.player.Player;
-import io.github.ollybishop.bishopsgambit.player.Player.Colour;
 import io.github.ollybishop.bishopsgambit.util.StreamUtils;
 
 public abstract class Piece
 {
-    public static Piece newInstance( Typ type, Player player, char file, char rank )
+    public static Piece newInstance( Type type, Player player, char file, char rank )
     {
         return switch ( type )
         {
@@ -40,7 +39,7 @@ public abstract class Piece
         return this.player;
     }
 
-    public Colour getColour()
+    public Player.Colour getColour()
     {
         return getPlayer().getColour();
     }
@@ -71,7 +70,7 @@ public abstract class Piece
         return (char) ( '\u2654' + 6 * getColour().ordinal() + 5 - getType().ordinal() );
     }
 
-    public abstract Typ getType();
+    public abstract Type getType();
 
     /**
      * Returns this piece's material value.
@@ -178,12 +177,12 @@ public abstract class Piece
      * @param types the piece types to check
      * @return {@code true} if this piece is one of the given types; {@code false} otherwise
      */
-    public boolean isType( Typ... types )
+    public boolean isType( Type... types )
     {
         return Arrays.asList( types ).contains( getType() );
     }
 
-    public enum Typ
+    public enum Type
     {
         PAWN( "Pawn" ),
         KNIGHT( "Knight" ),
@@ -192,11 +191,11 @@ public abstract class Piece
         QUEEN( "Queen" ),
         KING( "King" );
 
-        public static final Typ[] PROMOTION_TYPES = new Typ[] { KNIGHT, BISHOP, ROOK, QUEEN };
+        public static final Type[] PROMOTION_TYPES = new Type[] { KNIGHT, BISHOP, ROOK, QUEEN };
 
         private final String str;
 
-        private Typ( String str )
+        private Type( String str )
         {
             this.str = str;
         }

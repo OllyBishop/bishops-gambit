@@ -38,12 +38,9 @@ import javax.swing.border.Border;
 import io.github.ollybishop.bishopsgambit.board.Board;
 import io.github.ollybishop.bishopsgambit.board.Square;
 import io.github.ollybishop.bishopsgambit.game.Game;
-import io.github.ollybishop.bishopsgambit.game.Game.Status;
 import io.github.ollybishop.bishopsgambit.io.Images;
 import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.pieces.Piece.Typ;
 import io.github.ollybishop.bishopsgambit.player.Player;
-import io.github.ollybishop.bishopsgambit.player.Player.Colour;
 
 public class ApplicationFrame extends JFrame
 {
@@ -511,9 +508,9 @@ public class ApplicationFrame extends JFrame
         flipViewButton.addActionListener( e ->
         {
             if ( tabletopPane.getLayout() == tabletopLayoutWhite )
-                orientTabletop( Colour.BLACK );
+                orientTabletop( Player.Colour.BLACK );
             else
-                orientTabletop( Colour.WHITE );
+                orientTabletop( Player.Colour.WHITE );
         } );
 
         previousMoveButton.addActionListener( e ->
@@ -632,12 +629,12 @@ public class ApplicationFrame extends JFrame
                                                   "Promotion",
                                                   JOptionPane.DEFAULT_OPTION,
                                                   JOptionPane.PLAIN_MESSAGE,
-                                                  Images.createIcon( getActivePlayer().getColour(), Typ.PAWN ),
-                                                  Typ.PROMOTION_TYPES,
+                                                  Images.createIcon( getActivePlayer().getColour(), Piece.Type.PAWN ),
+                                                  Piece.Type.PROMOTION_TYPES,
                                                   null );
 
-            Typ newType = i == JOptionPane.CLOSED_OPTION ? Typ.QUEEN
-                                                         : Typ.PROMOTION_TYPES[ i ];
+            Piece.Type newType = i == JOptionPane.CLOSED_OPTION ? Piece.Type.QUEEN
+                                                                : Piece.Type.PROMOTION_TYPES[ i ];
 
             Piece newPiece = game.makeMove( from, to, newType );
 
@@ -660,8 +657,8 @@ public class ApplicationFrame extends JFrame
         {
             Icon icon;
 
-            if ( game.getStatus() == Status.CHECKMATE )
-                icon = Images.createIcon( getActivePlayer().getColour().transpose(), Typ.KING );
+            if ( game.getStatus() == Game.Status.CHECKMATE )
+                icon = Images.createIcon( getActivePlayer().getColour().transpose(), Piece.Type.KING );
             else
                 icon = null;
 
@@ -769,8 +766,8 @@ public class ApplicationFrame extends JFrame
 
     private void updateCheckSquare()
     {
-        if ( game.getStatus() == Status.CHECK ||
-             game.getStatus() == Status.CHECKMATE )
+        if ( game.getStatus() == Game.Status.CHECK ||
+             game.getStatus() == Game.Status.CHECKMATE )
             checkSquare = getSquareComponent( getActiveBoard(), getActivePlayer().getKing() );
         else
             checkSquare = null;
@@ -833,7 +830,7 @@ public class ApplicationFrame extends JFrame
      * 
      * @param colour the colour of the player whose perspective the tabletop is oriented to
      */
-    private void orientTabletop( Colour colour )
+    private void orientTabletop( Player.Colour colour )
     {
         switch ( colour )
         {

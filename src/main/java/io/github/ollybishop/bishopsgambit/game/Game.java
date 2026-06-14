@@ -8,16 +8,14 @@ import io.github.ollybishop.bishopsgambit.board.Board;
 import io.github.ollybishop.bishopsgambit.board.Square;
 import io.github.ollybishop.bishopsgambit.pieces.Pawn;
 import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.pieces.Piece.Typ;
 import io.github.ollybishop.bishopsgambit.player.Player;
-import io.github.ollybishop.bishopsgambit.player.Player.Colour;
 
 public class Game
 {
     private final List<Board> boardStateHistory = new ArrayList<>();
 
-    private final Player white = new Player( Colour.WHITE );
-    private final Player black = new Player( Colour.BLACK );
+    private final Player white = new Player( Player.Colour.WHITE );
+    private final Player black = new Player( Player.Colour.BLACK );
 
     private Status status;
 
@@ -171,10 +169,10 @@ public class Game
 
         return switch ( values[ 2 ] )
         {
-            case "n" -> makeMove( from, to, Typ.KNIGHT );
-            case "b" -> makeMove( from, to, Typ.BISHOP );
-            case "r" -> makeMove( from, to, Typ.ROOK );
-            case "q" -> makeMove( from, to, Typ.QUEEN );
+            case "n" -> makeMove( from, to, Piece.Type.KNIGHT );
+            case "b" -> makeMove( from, to, Piece.Type.BISHOP );
+            case "r" -> makeMove( from, to, Piece.Type.ROOK );
+            case "q" -> makeMove( from, to, Piece.Type.QUEEN );
 
             default -> makeMove( from, to );
         };
@@ -209,7 +207,7 @@ public class Game
      *                                   <li><b>newType</b> is not a valid promotion type</li>
      *                                   </ul>
      */
-    public Piece makeMove( Square from, Square to, Typ newType )
+    public Piece makeMove( Square from, Square to, Piece.Type newType )
     {
         if ( !from.isOccupied() )
             throw new UnoccupiedSquareException( from );

@@ -6,7 +6,6 @@ import java.util.List;
 import io.github.ollybishop.bishopsgambit.pieces.King;
 import io.github.ollybishop.bishopsgambit.pieces.Pawn;
 import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.pieces.Piece.Typ;
 import io.github.ollybishop.bishopsgambit.pieces.Rook;
 import io.github.ollybishop.bishopsgambit.player.Player;
 
@@ -210,7 +209,7 @@ public class Board extends ArrayList<Square>
         add( index, s2 );
     }
 
-    public Piece promote( Pawn pawn, Typ promType )
+    public Piece promote( Pawn pawn, Piece.Type promType )
     {
         Square square = pawn.getSquare( this );
         Piece promPiece = Piece.newInstance( promType,
@@ -277,7 +276,7 @@ public class Board extends ArrayList<Square>
     public boolean hasInsufficientMaterial()
     {
         // All pieces currently on the board (excluding the Kings)
-        List<Piece> pieces = getPieces().stream().filter( pc -> !pc.isType( Typ.KING ) ).toList();
+        List<Piece> pieces = getPieces().stream().filter( pc -> !pc.isType( Piece.Type.KING ) ).toList();
 
         return switch ( pieces.size() )
         {
@@ -285,10 +284,10 @@ public class Board extends ArrayList<Square>
             case 0 -> true;
 
             // King and Bishop versus King, King and Knight versus King
-            case 1 -> pieces.stream().allMatch( pc -> pc.isType( Typ.BISHOP, Typ.KNIGHT ) );
+            case 1 -> pieces.stream().allMatch( pc -> pc.isType( Piece.Type.BISHOP, Piece.Type.KNIGHT ) );
 
             // King and Bishop versus King and Bishop with the Bishops on the same colour
-            case 2 -> pieces.stream().allMatch( pc -> pc.isType( Typ.BISHOP ) ) &&
+            case 2 -> pieces.stream().allMatch( pc -> pc.isType( Piece.Type.BISHOP ) ) &&
                       pieces.stream().map( Piece::getPlayer ).distinct().count() > 1 &&
                       pieces.stream().map( pc -> pc.getSquare( this ).getParity() ).distinct().count() == 1;
 
