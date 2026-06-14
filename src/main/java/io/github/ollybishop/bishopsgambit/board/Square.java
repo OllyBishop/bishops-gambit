@@ -55,52 +55,64 @@ public class Square
     }
 
     /**
+     * Returns whether this square is empty.
+     * 
+     * @return {@code true} if this square is empty; {@code false} otherwise
+     */
+    public boolean isEmpty()
+    {
+        return getPiece() == null;
+    }
+
+    /**
      * Returns whether this square is occupied by a piece.
      * 
      * @return {@code true} if this square is occupied by a piece; {@code false} otherwise
      */
     public boolean isOccupied()
     {
-        return getPiece() != null;
+        return !isEmpty();
     }
 
     /**
-     * Returns whether this square is occupied by one of the given player's pieces.
+     * Returns whether this square is occupied by a piece belonging to the given player.
      * 
      * @param player the player to check
-     * @return {@code true} if this square is occupied by one of the given player's pieces;
+     * @return {@code true} if this square is occupied by a piece belonging to the given player;
      *         {@code false} otherwise
      */
     public boolean isOccupiedBy( Player player )
     {
-        return player.getPieces().contains( getPiece() );
+        return isOccupied() && getPiece().getPlayer() == player;
     }
 
     /**
-     * Returns whether this square is occupied by an opposing piece.
+     * Returns whether this square is occupied by a piece belonging to the given player's opponent.
      * 
-     * @param player the player whose opponent is checked
-     * @return {@code true} if this square is occupied by an opposing piece; {@code false} otherwise
+     * @param player the player to check against
+     * @return {@code true} if this square is occupied by a piece belonging to the given player's
+     *         opponent; {@code false} otherwise
      */
     public boolean isOccupiedByOpponentOf( Player player )
     {
-        return isOccupied() && !isOccupiedBy( player );
+        return isOccupied() && getPiece().getPlayer() != player;
     }
 
     /**
-     * Returns whether this square is a pseudo-legal move destination for any opposing piece.
+     * Returns whether this square is controlled by a piece belonging to the given player's
+     * opponent.
      * 
-     * @param player the player whose opponent's pieces are considered
+     * @param player the player whose opponent's pieces are checked
      * @param board  the chessboard
-     * @return {@code true} if this square is pseudo-legally reachable by any opposing piece;
-     *         {@code false} otherwise
+     * @return {@code true} if this square is controlled by a piece belonging to the given player's
+     *         opponent; {@code false} otherwise
      */
-    public boolean isPseudoLegallyReachableByOpponentOf( Player player, Board board )
+    public boolean isControlledByOpponentOf( Player player, Board board )
     {
         return board.getPieces()
                     .stream()
                     .filter( piece -> piece.getPlayer() != player )
-                    .anyMatch( piece -> piece.canPseudoLegallyMoveTo( this, board ) );
+                    .anyMatch( piece -> piece.controls( this, board ) );
     }
 
     public boolean isOnLastRank( Player player )
@@ -110,11 +122,6 @@ public class Square
             case WHITE -> getRank() == '8';
             case BLACK -> getRank() == '1';
         };
-    }
-
-    public Square travel( Board board, int x, int y )
-    {
-        return board.getSquare( (char) ( getFile() + x ), (char) ( getRank() + y ) );
     }
 
     public int fileDiff( Square square )
@@ -127,14 +134,9 @@ public class Square
         return getRank() - square.getRank();
     }
 
-    public int getParity()
+    public static Shade getShade( char file, char rank )
     {
-        return getParity( getFile(), getRank() );
-    }
-
-    public static int getParity( char file, char rank )
-    {
-        return ( file + rank ) % 2;
+        return ( file + rank ) % 2 == 0 ? Shade.DARK : Shade.LIGHT;
     }
 
     public int getIndex()
@@ -145,5 +147,10 @@ public class Square
     public static int getIndex( char file, char rank )
     {
         return 8 * ( file - 'a' ) + rank - '1';
+    }
+
+    public enum Shade
+    {
+        DARK, LIGHT
     }
 }

@@ -27,26 +27,29 @@ public class Knight extends Piece
     }
 
     @Override
-    public List<Square> getPseudoLegalMoves( Board board )
+    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
-        List<Square> moves = new ArrayList<>();
+        List<Square> candidateSquares = new ArrayList<>();
 
         Square square = getSquare( board );
 
-        for ( int x : new int[] { -1, 1 } )
+        for ( int dx : new int[] { -1, 1 } )
         {
-            for ( int y : new int[] { -1, 1 } )
+            for ( int dy : new int[] { -1, 1 } )
             {
                 for ( int n : new int[] { 1, 2 } )
                 {
-                    Square s = square.travel( board, n * x, ( 3 - n ) * y );
+                    Square s = board.getSquare( square, n * dx, ( 3 - n ) * dy );
 
-                    if ( s != null && !s.isOccupiedBy( getPlayer() ) )
-                        moves.add( s );
+                    if ( s == null )
+                        continue;
+
+                    if ( includeFriendlySquares || s.isEmpty() || s.isOccupiedByOpponentOf( getPlayer() ) )
+                        candidateSquares.add( s );
                 }
             }
         }
 
-        return moves;
+        return candidateSquares;
     }
 }

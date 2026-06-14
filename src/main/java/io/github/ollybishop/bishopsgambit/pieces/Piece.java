@@ -36,7 +36,7 @@ public abstract class Piece
 
     public Player getPlayer()
     {
-        return this.player;
+        return player;
     }
 
     public Player.Colour getColour()
@@ -44,13 +44,24 @@ public abstract class Piece
         return getPlayer().getColour();
     }
 
-    public int getSign()
+    public int getPlayerCoefficient()
     {
-        return getPlayer().getSign();
+        return getPlayer().getCoefficient();
+    }
+
+    public Board.Side getBoardSide()
+    {
+        if ( startFile <= 'd' )
+            return Board.Side.QUEENSIDE;
+
+        return Board.Side.KINGSIDE;
     }
 
     protected Piece( Player player, char startFile, char startRank )
     {
+        if ( !Board.isValidSquare( startFile, startRank ) )
+            throw new IllegalArgumentException();
+
         this.player = player;
 
         this.startFile = startFile;
@@ -80,30 +91,62 @@ public abstract class Piece
     public abstract int getValue();
 
     /**
-     * Returns the pseudo-legal moves available to this piece on the given board.
+     * Returns this piece's candidate squares on the given board.
      * <p>
-     * A pseudo-legal move obeys this piece's movement rules, but may leave the moving player's king
-     * in check.
+     * Candidate squares follow this piece's movement rules and are used as the basis for both
+     * controlled squares and pseudo-legal destination squares.
      * 
-     * @param board the chessboard
-     * @return the squares this piece could move to before checking king safety
+     * @param board                  the chessboard
+     * @param includeFriendlySquares whether to include squares occupied by friendly pieces
+     * @return this piece's candidate squares
      */
-    protected abstract List<Square> getPseudoLegalMoves( Board board );
+    protected abstract List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares );
 
     /**
-     * Returns the legal moves available to this piece on the given board.
+     * Returns the squares controlled by this piece on the given board.
      * <p>
-     * Legal moves are obtained by filtering this piece's pseudo-legal moves to exclude any move
-     * that would leave the moving player's king in check.
+     * A square is controlled by this piece if this piece attacks or defends that square according
+     * to its movement rules, regardless of whether this piece could legally move there.
+     * 
+     * @param board the chessboard
+     * @return the squares controlled by this piece
+     */
+    public List<Square> getControlledSquares( Board board )
+    {
+        return getCandidateSquares( board, true );
+    }
+
+    /**
+     * Returns the pseudo-legal destination squares available to this piece on the given board.
+     * <p>
+     * Pseudo-legal destination squares follow this piece's movement rules and exclude squares
+     * occupied by friendly pieces. They are not filtered to exclude moves that would leave the
+     * moving player in check.
+     * 
+     * @param board the chessboard
+     * @return the squares this piece can pseudo-legally move to
+     */
+    private List<Square> getPseudoLegalMoves( Board board )
+    {
+        return getCandidateSquares( board, false );
+    }
+
+    /**
+     * Returns the legal destination squares available to this piece on the given board.
+     * <p>
+     * Legal destination squares are obtained by filtering this piece's pseudo-legal destination
+     * squares to exclude any move that would leave the moving player in check.
      * 
      * @param board the chessboard
      * @return the squares this piece can legally move to
      */
     public List<Square> getLegalMoves( Board board )
     {
+        Player player = getPlayer();
         Square from = getSquare( board );
+
         return getPseudoLegalMoves( board ).stream()
-                                           .filter( to -> !getPlayer().isInCheck( board.cloneAndMove( from, to ) ) )
+                                           .filter( to -> !board.moveWouldLeavePlayerInCheck( player, from, to ) )
                                            .toList();
     }
 
@@ -113,10 +156,10 @@ public abstract class Piece
     }
 
     /**
-     * Finds the square this piece is occupying.
+     * Returns the square occupied by this piece on the given board.
      * 
      * @param board the chessboard
-     * @return the square this piece is occupying (if it exists); {@code null} otherwise
+     * @return the square occupied by this piece, or {@code null} if this piece is not on the board
      */
     public Square getSquare( Board board )
     {
@@ -124,28 +167,28 @@ public abstract class Piece
     }
 
     /**
-     * Returns whether this piece is under attack by any opposing piece.
+     * Returns whether this piece is under attack.
+     * <p>
+     * A piece is under attack if the square it occupies is controlled by any opposing piece.
      * 
      * @param board the chessboard
-     * @return {@code true} if this piece is under attack by any opposing piece; {@code false}
-     *         otherwise
+     * @return {@code true} if this piece is under attack; {@code false} otherwise
      */
     public boolean isUnderAttack( Board board )
     {
-        return getSquare( board ).isPseudoLegallyReachableByOpponentOf( getPlayer(), board );
+        return getSquare( board ).isControlledByOpponentOf( getPlayer(), board );
     }
 
     /**
-     * Returns whether this piece could move to the given square before checking king safety.
+     * Returns whether this piece controls the given square.
      * 
-     * @param square the destination square
+     * @param square the square to check
      * @param board  the chessboard
-     * @return {@code true} if this piece could pseudo-legally move to the given square;
-     *         {@code false} otherwise
+     * @return {@code true} if this piece controls the given square; {@code false} otherwise
      */
-    public boolean canPseudoLegallyMoveTo( Square square, Board board )
+    public boolean controls( Square square, Board board )
     {
-        return getPseudoLegalMoves( board ).contains( square );
+        return getControlledSquares( board ).contains( square );
     }
 
     public boolean canPromote( Square square )
@@ -156,30 +199,19 @@ public abstract class Piece
     public boolean movedTwoSquaresForward( Square from, Square to )
     {
         return to.fileDiff( from ) == 0 &&
-               to.rankDiff( from ) == 2 * getSign();
+               to.rankDiff( from ) == 2 * getPlayerCoefficient();
     }
 
     public boolean movedOneSquareDiagonallyForward( Square from, Square to )
     {
         return Math.abs( to.fileDiff( from ) ) == 1 &&
-               to.rankDiff( from ) == getSign();
+               to.rankDiff( from ) == getPlayerCoefficient();
     }
 
     public boolean movedTwoSquaresHorizontally( Square from, Square to )
     {
         return Math.abs( to.fileDiff( from ) ) == 2 &&
                to.rankDiff( from ) == 0;
-    }
-
-    /**
-     * Returns a boolean indicating whether this piece is one of the given <b>types</b>.
-     * 
-     * @param types the piece types to check
-     * @return {@code true} if this piece is one of the given types; {@code false} otherwise
-     */
-    public boolean isType( Type... types )
-    {
-        return Arrays.asList( types ).contains( getType() );
     }
 
     public enum Type
