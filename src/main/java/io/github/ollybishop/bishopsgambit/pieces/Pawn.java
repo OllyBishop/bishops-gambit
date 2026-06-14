@@ -6,6 +6,7 @@ import java.util.List;
 import io.github.ollybishop.bishopsgambit.board.Board;
 import io.github.ollybishop.bishopsgambit.board.Square;
 import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.util.ListUtils;
 
 public class Pawn extends Piece
 {
@@ -27,47 +28,76 @@ public class Pawn extends Piece
     }
 
     @Override
-    public List<Square> getPseudoLegalMoves( Board board )
+    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
-        List<Square> moves = new ArrayList<>();
+        List<Square> forwardMoveSquares = new ArrayList<>();
 
         Square square = getSquare( board );
-        int y = getSign();
+        int dy = getPlayerCoefficient();
 
-        // Move forward one or two squares
-        for ( int n : new int[] { 1, 2 } )
+        Square oneRankForward = board.getSquare( square, 0, dy );
+
+        if ( oneRankForward.isEmpty() )
         {
-            if ( n == 1 || square == getStartSquare( board ) )
-            {
-                Square s = square.travel( board, 0, n * y );
+            forwardMoveSquares.add( oneRankForward );
 
-                if ( s != null )
-                {
-                    if ( s.isOccupied() )
-                        break;
+            Square twoRanksForward = board.getSquare( square, 0, 2 * dy );
 
-                    moves.add( s );
-                }
-            }
+            if ( square == getStartSquare( board ) && twoRanksForward.isEmpty() )
+                forwardMoveSquares.add( twoRanksForward );
         }
 
-        // Capture diagonally
-        for ( int x : new int[] { -1, 1 } )
+        // Only include controlled squares that would result in a capture
+        List<Square> captureSquares = getControlledSquares( board ).stream()
+                                                                   .filter( s -> canCaptureOn( s, board ) )
+                                                                   .toList();
+
+        return ListUtils.combine( forwardMoveSquares, captureSquares );
+    }
+
+    /**
+     * Returns whether this pawn can capture on the given square.
+     * <p>
+     * A pawn can capture on the given square if it is occupied by an opposing piece, or if moving
+     * there would capture the board's en passant pawn. This method does not check whether making
+     * the move would leave the moving player in check.
+     * 
+     * @param square the destination square
+     * @param board  the chessboard
+     * @return {@code true} if this pawn can capture on the given square; {@code false} otherwise
+     */
+    private boolean canCaptureOn( Square square, Board board )
+    {
+        if ( square.isOccupiedByOpponentOf( getPlayer() ) )
+            return true;
+
+        Pawn enPassantPawn = board.getEnPassantPawn();
+
+        if ( enPassantPawn == null )
+            return false;
+
+        char file = square.getFile();
+        char rank = getSquare( board ).getRank();
+
+        return board.getSquare( file, rank ).getPiece() == enPassantPawn;
+    }
+
+    @Override
+    public List<Square> getControlledSquares( Board board )
+    {
+        List<Square> controlledSquares = new ArrayList<>();
+
+        Square square = getSquare( board );
+        int dy = getPlayerCoefficient();
+
+        for ( int dx : new int[] { -1, 1 } )
         {
-            Square s0 = square.travel( board, x, 0 );
-            Square s1 = square.travel( board, x, y );
+            Square diagonal = board.getSquare( square, dx, dy );
 
-            boolean regularCapture = s1 != null &&
-                                     s1.isOccupiedByOpponentOf( getPlayer() );
-
-            boolean enPassantCapture = s0 != null &&
-                                       s0.isOccupiedByOpponentOf( getPlayer() ) &&
-                                       s0.getPiece() == board.getEnPassantPawn();
-
-            if ( regularCapture || enPassantCapture )
-                moves.add( s1 );
+            if ( diagonal != null )
+                controlledSquares.add( diagonal );
         }
 
-        return moves;
+        return controlledSquares;
     }
 }

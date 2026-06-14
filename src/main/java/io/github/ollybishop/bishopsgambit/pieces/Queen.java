@@ -27,10 +27,10 @@ public class Queen extends Piece
     }
 
     @Override
-    public List<Square> getPseudoLegalMoves( Board board )
+    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
-        List<Square> bishopMoves = Bishop.getPseudoLegalMoves( board, this );
-        List<Square> rookMoves = Rook.getPseudoLegalMoves( board, this );
-        return ListUtils.combine( bishopMoves, rookMoves );
+        List<Square> bishopCandidateSquares = Bishop.getCandidateSquares( this, board, includeFriendlySquares );
+        List<Square> rookCandidateSquares = Rook.getCandidateSquares( this, board, includeFriendlySquares );
+        return ListUtils.combine( bishopCandidateSquares, rookCandidateSquares );
     }
 }

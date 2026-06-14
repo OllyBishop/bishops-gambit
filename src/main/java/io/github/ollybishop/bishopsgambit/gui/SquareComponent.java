@@ -19,9 +19,10 @@ import io.github.ollybishop.bishopsgambit.util.ComponentUtils;
 
 public class SquareComponent extends JLayeredPane
 {
-    private static final Color DARK = new Color( 209, 139, 71 );
-    private static final Color LIGHT = new Color( 254, 206, 157 );
-    private static final Color HIGHLIGHT = ColorUtils.blend( Color.YELLOW, Color.WHITE );
+    private static final Color DARK_SQUARE_BG = new Color( 209, 139, 71 );
+    private static final Color LIGHT_SQUARE_BG = new Color( 254, 206, 157 );
+
+    private static final Color YELLOW_WHITE = ColorUtils.blend( Color.YELLOW, Color.WHITE );
 
     private static final Font ROBOTO_MEDIUM = Fonts.importFont( "Roboto", Weight.MEDIUM );
 
@@ -58,8 +59,10 @@ public class SquareComponent extends JLayeredPane
         this.file = file;
         this.rank = rank;
 
-        this.defaultBackground = Square.getParity( file, rank ) == 0 ? DARK : LIGHT;
-        this.defaultForeground = Square.getParity( file, rank ) == 0 ? LIGHT : DARK;
+        Square.Shade squareShade = Square.getShade( file, rank );
+
+        this.defaultBackground = squareShade == Square.Shade.DARK ? DARK_SQUARE_BG : LIGHT_SQUARE_BG;
+        this.defaultForeground = squareShade == Square.Shade.DARK ? LIGHT_SQUARE_BG : DARK_SQUARE_BG;
 
         this.fileLabel = new JLabel( String.valueOf( file ) );
         fileLabel.setVerticalAlignment( SwingConstants.BOTTOM );
@@ -123,7 +126,7 @@ public class SquareComponent extends JLayeredPane
      */
     protected void select()
     {
-        setBackground( ColorUtils.blend( defaultBackground, HIGHLIGHT, 1, 3 ) );
+        setBackground( ColorUtils.blend( defaultBackground, YELLOW_WHITE, 1, 3 ) );
     }
 
     /**

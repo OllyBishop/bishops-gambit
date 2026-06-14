@@ -27,41 +27,41 @@ public class Rook extends Piece
     }
 
     @Override
-    public List<Square> getPseudoLegalMoves( Board board )
+    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
-        return getPseudoLegalMoves( board, this );
+        return getCandidateSquares( this, board, includeFriendlySquares );
     }
 
-    public static List<Square> getPseudoLegalMoves( Board board, Piece piece )
+    protected static List<Square> getCandidateSquares( Piece piece, Board board, boolean includeFriendlySquares )
     {
-        List<Square> moves = new ArrayList<>();
+        List<Square> candidateSquares = new ArrayList<>();
 
         Square square = piece.getSquare( board );
 
-        for ( int x : new int[] { 0, 1 } )
+        for ( int dx : new int[] { 0, 1 } )
         {
-            for ( int y : new int[] { -1, 1 } )
+            for ( int dy : new int[] { -1, 1 } )
             {
                 for ( int n = 1; n < 8; n++ )
                 {
-                    Square s = square.travel( board, n * x * y, n * ( 1 - x ) * y );
+                    Square s = board.getSquare( square, n * dx * dy, n * ( 1 - dx ) * dy );
 
                     if ( s == null )
                         break;
 
                     if ( s.isOccupied() )
                     {
-                        if ( s.isOccupiedByOpponentOf( piece.getPlayer() ) )
-                            moves.add( s );
+                        if ( includeFriendlySquares || s.isOccupiedByOpponentOf( piece.getPlayer() ) )
+                            candidateSquares.add( s );
 
                         break;
                     }
 
-                    moves.add( s );
+                    candidateSquares.add( s );
                 }
             }
         }
 
-        return moves;
+        return candidateSquares;
     }
 }

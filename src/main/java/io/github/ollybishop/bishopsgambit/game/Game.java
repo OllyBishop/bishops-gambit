@@ -1,7 +1,6 @@
 package io.github.ollybishop.bishopsgambit.game;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import io.github.ollybishop.bishopsgambit.board.Board;
@@ -130,57 +129,52 @@ public class Game
         return getNumberOfPliesPlayed() % 2 == 0 ? white : black;
     }
 
-    private String[] parseUci( String uci )
-    {
-        if ( uci == null )
-            throw new IllegalArgumentException( "String cannot be null." );
-
-        if ( uci.length() < 4 || uci.length() > 5 )
-            throw new IllegalArgumentException( "String must be 4 or 5 characters in length." );
-
-        String value1 = uci.substring( 0, 2 );
-        String value2 = uci.substring( 2, 4 );
-        String value3 = uci.substring( 4 );
-
-        if ( !Board.isValidSquare( value1 ) )
-            throw new IllegalArgumentException( "First pair of characters '" + value1 + "' must represent a valid square." );
-
-        if ( !Board.isValidSquare( value2 ) )
-            throw new IllegalArgumentException( "Second pair of characters '" + value2 + "' must represent a valid square." );
-
-        if ( !Arrays.asList( "", "n", "b", "r", "q" ).contains( value3 ) )
-            throw new IllegalArgumentException( "Fifth character '" + value3 + "' must be empty or represent a valid piece." );
-
-        return new String[] { value1, value2, value3 };
-    }
-
     /**
      * @param uci a string representing the move in Universal Chess Interface (UCI) notation
      * @return the new piece (if promoting); {@code null} otherwise
      */
     public Piece makeMove( String uci )
     {
-        String[] values = parseUci( uci );
+        Object[] moveInfo = getMoveInfo( uci, getActiveBoard() );
 
-        Board board = getActiveBoard();
+        Square from = (Square) moveInfo[ 0 ];
+        Square to = (Square) moveInfo[ 1 ];
+        Piece.Type newType = (Piece.Type) moveInfo[ 2 ];
 
-        Square from = board.getSquare( values[ 0 ] );
-        Square to = board.getSquare( values[ 1 ] );
-
-        return switch ( values[ 2 ] )
-        {
-            case "n" -> makeMove( from, to, Piece.Type.KNIGHT );
-            case "b" -> makeMove( from, to, Piece.Type.BISHOP );
-            case "r" -> makeMove( from, to, Piece.Type.ROOK );
-            case "q" -> makeMove( from, to, Piece.Type.QUEEN );
-
-            default -> makeMove( from, to );
-        };
+        return makeMove( from, to, newType );
     }
 
-    public Piece makeMove( Square from, Square to )
+    private Object[] getMoveInfo( String uci, Board board )
     {
-        return makeMove( from, to, null );
+        if ( uci == null )
+            throw new IllegalArgumentException( "UCI string cannot be null." );
+
+        if ( uci.length() < 4 || uci.length() > 5 )
+            throw new IllegalArgumentException( "UCI string must be 4 or 5 characters in length." );
+
+        if ( !Board.isValidSquare( uci.charAt( 0 ), uci.charAt( 1 ) ) )
+            throw new IllegalArgumentException( "First & second characters in UCI string must represent a valid square." );
+
+        if ( !Board.isValidSquare( uci.charAt( 2 ), uci.charAt( 3 ) ) )
+            throw new IllegalArgumentException( "Third & fourth characters in UCI string must represent a valid square." );
+
+        Square from = board.getSquare( uci.charAt( 0 ), uci.charAt( 1 ) );
+        Square to = board.getSquare( uci.charAt( 2 ), uci.charAt( 3 ) );
+
+        if ( uci.length() == 4 )
+            return new Object[] { from, to, null };
+
+        Piece.Type newType = switch ( uci.charAt( 4 ) )
+        {
+            case 'n' -> Piece.Type.KNIGHT;
+            case 'b' -> Piece.Type.BISHOP;
+            case 'r' -> Piece.Type.ROOK;
+            case 'q' -> Piece.Type.QUEEN;
+
+            default -> throw new IllegalArgumentException( "Fifth character in UCI string must represent a valid piece." );
+        };
+
+        return new Object[] { from, to, newType };
     }
 
     /**

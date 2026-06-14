@@ -27,82 +27,67 @@ public class King extends Piece
     }
 
     @Override
-    public List<Square> getPseudoLegalMoves( Board board )
+    public List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
-        List<Square> moves = new ArrayList<>();
+        List<Square> candidateSquares = new ArrayList<>();
 
         Square square = getSquare( board );
 
-        for ( int x : new int[] { -1, 0, 1 } )
+        for ( int dx : new int[] { -1, 0, 1 } )
         {
-            for ( int y : new int[] { -1, 0, 1 } )
+            for ( int dy : new int[] { -1, 0, 1 } )
             {
-                Square s = square.travel( board, x, y );
+                if ( dx == 0 && dy == 0 )
+                    continue;
 
-                if ( s != null && !s.isOccupiedBy( getPlayer() ) )
-                    moves.add( s );
+                Square s = board.getSquare( square, dx, dy );
+
+                if ( s == null )
+                    continue;
+
+                if ( includeFriendlySquares || s.isEmpty() || s.isOccupiedByOpponentOf( getPlayer() ) )
+                    candidateSquares.add( s );
             }
         }
 
-        return moves;
+        return candidateSquares;
     }
 
     @Override
     public List<Square> getLegalMoves( Board board )
     {
-        List<Square> moves = new ArrayList<>( super.getLegalMoves( board ) );
+        if ( isUnderAttack( board ) )
+            return super.getLegalMoves( board );
 
-        if ( !isUnderAttack( board ) )
+        List<Square> legalMoves = new ArrayList<>( super.getLegalMoves( board ) );
+
+        for ( int dx : new int[] { -1, 1 } )
         {
-            for ( int x : new int[] { -1, 1 } )
+            Rook rook = getPlayer().getRook( dx );
+
+            if ( board.isCastlingAllowed( rook ) )
             {
-                Rook rook = getPlayer().getRook( x );
+                Square kingSquare = getSquare( board );
+                Square rookSquare = rook.getSquare( board );
 
-                if ( isCastlingAllowed( rook, board ) )
-                {
-                    Square k = getSquare( board );
-                    Square r = rook.getSquare( board );
+                // One square adjacent to king (rook moves here)
+                Square kingAdjacent = board.getSquare( kingSquare, dx, 0 );
 
-                    Square k1 = k.travel( board, x, 0 ); // One square adjacent to king (rook moves here)
-                    Square k2 = k.travel( board, 2 * x, 0 ); // Two squares adjacent to king (king moves here)
-                    Square r1 = r.travel( board, -x, 0 ); // One square adjacent to rook (same as 'k2' when castling kingside)
+                // Two squares adjacent to king (king moves here)
+                Square kingDestination = board.getSquare( kingSquare, 2 * dx, 0 );
 
-                    if ( !k1.isOccupied() &&
-                         !k2.isOccupied() &&
-                         !r1.isOccupied() &&
-                         !k1.isPseudoLegallyReachableByOpponentOf( getPlayer(), board ) &&
-                         !k2.isPseudoLegallyReachableByOpponentOf( getPlayer(), board ) )
-                        moves.add( k2 );
-                }
+                // One square adjacent to rook (same as 'k2' when castling kingside)
+                Square rookAdjacent = board.getSquare( rookSquare, -dx, 0 );
+
+                if ( kingAdjacent.isEmpty() &&
+                     kingDestination.isEmpty() &&
+                     rookAdjacent.isEmpty() &&
+                     !kingAdjacent.isControlledByOpponentOf( getPlayer(), board ) &&
+                     !kingDestination.isControlledByOpponentOf( getPlayer(), board ) )
+                    legalMoves.add( kingDestination );
             }
         }
 
-        return moves;
-    }
-
-    private boolean isCastlingAllowed( Rook rook, Board board )
-    {
-        switch ( getColour() )
-        {
-            case WHITE:
-                if ( rook == getPlayer().getQueensideRook() )
-                    return board.isWhiteQueensideCastlingAllowed();
-
-                if ( rook == getPlayer().getKingsideRook() )
-                    return board.isWhiteKingsideCastlingAllowed();
-
-                break;
-
-            case BLACK:
-                if ( rook == getPlayer().getQueensideRook() )
-                    return board.isBlackQueensideCastlingAllowed();
-
-                if ( rook == getPlayer().getKingsideRook() )
-                    return board.isBlackKingsideCastlingAllowed();
-
-                break;
-        }
-
-        throw new RuntimeException();
+        return legalMoves;
     }
 }

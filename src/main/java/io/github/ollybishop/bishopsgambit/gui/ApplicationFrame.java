@@ -642,7 +642,7 @@ public class ApplicationFrame extends JFrame
         }
         else
         {
-            game.makeMove( from, to );
+            game.makeMove( from, to, null );
         }
 
         boardIndex = getLatestBoardIndex();

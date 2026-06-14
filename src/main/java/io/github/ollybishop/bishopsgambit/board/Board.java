@@ -3,7 +3,9 @@ package io.github.ollybishop.bishopsgambit.board;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.ollybishop.bishopsgambit.pieces.Bishop;
 import io.github.ollybishop.bishopsgambit.pieces.King;
+import io.github.ollybishop.bishopsgambit.pieces.Knight;
 import io.github.ollybishop.bishopsgambit.pieces.Pawn;
 import io.github.ollybishop.bishopsgambit.pieces.Piece;
 import io.github.ollybishop.bishopsgambit.pieces.Rook;
@@ -86,20 +88,7 @@ public class Board extends ArrayList<Square>
      */
     public boolean containsPiece( Piece piece )
     {
-        return stream().anyMatch( sq -> sq.getPiece() == piece );
-    }
-
-    /**
-     * Finds and returns the square whose coordinates match the given string. For example, an input
-     * of "a1" would return the square with file 'a' and rank '1'.
-     * 
-     * @param coords the coordinates of the desired square as a string
-     * @return the square whose coordinates match the given string (if it exists); {@code null}
-     *         otherwise
-     */
-    public Square getSquare( String coords )
-    {
-        return getSquare( coords.charAt( 0 ), coords.charAt( 1 ) );
+        return stream().anyMatch( square -> square.getPiece() == piece );
     }
 
     /**
@@ -117,12 +106,14 @@ public class Board extends ArrayList<Square>
         return null;
     }
 
-    public static boolean isValidSquare( String coords )
+    public Square getSquare( Square origin, int dx, int dy )
     {
-        return isValidSquare( coords.charAt( 0 ), coords.charAt( 1 ) );
+        char file = (char) ( origin.getFile() + dx );
+        char rank = (char) ( origin.getRank() + dy );
+        return getSquare( file, rank );
     }
 
-    private static boolean isValidSquare( char file, char rank )
+    public static boolean isValidSquare( char file, char rank )
     {
         return 'a' <= file && file <= 'h' && '1' <= rank && rank <= '8';
     }
@@ -152,20 +143,20 @@ public class Board extends ArrayList<Square>
 
         Piece piece = from.getPiece();
 
-        int x = Integer.signum( to.fileDiff( from ) );
-        Square s1 = from.travel( this, x, 0 );
+        int dx = Integer.signum( to.fileDiff( from ) );
+        Square adjacent = getSquare( from, dx, 0 );
 
-        if ( piece instanceof Pawn && piece.movedOneSquareDiagonallyForward( from, to ) && !to.isOccupied() )
+        // En passant
+        if ( piece instanceof Pawn && piece.movedOneSquareDiagonallyForward( from, to ) && to.isEmpty() )
         {
-            // En passant
-            replace( s1, s1.clone() );
+            replace( adjacent, adjacent.clone() );
         }
+        // Castling
         else if ( piece instanceof King && piece.movedTwoSquaresHorizontally( from, to ) )
         {
-            // Castling
-            Rook rook = piece.getPlayer().getRook( x );
-            Square r = rook.getSquare( this );
-            movePiece( r, s1 );
+            Rook rook = piece.getPlayer().getRook( dx );
+            Square rookSquare = rook.getSquare( this );
+            movePiece( rookSquare, adjacent );
         }
 
         if ( piece instanceof Rook || piece instanceof King )
@@ -209,15 +200,15 @@ public class Board extends ArrayList<Square>
         add( index, s2 );
     }
 
-    public Piece promote( Pawn pawn, Piece.Type promType )
+    public Piece promote( Pawn pawn, Piece.Type newType )
     {
         Square square = pawn.getSquare( this );
-        Piece promPiece = Piece.newInstance( promType,
-                                             pawn.getPlayer(),
-                                             square.getFile(),
-                                             square.getRank() );
-        square.setPiece( promPiece );
-        return promPiece;
+        Piece newPiece = Piece.newInstance( newType,
+                                            pawn.getPlayer(),
+                                            square.getFile(),
+                                            square.getRank() );
+        square.setPiece( newPiece );
+        return newPiece;
     }
 
     private void revokeCastlingRights( Piece piece )
@@ -250,6 +241,24 @@ public class Board extends ArrayList<Square>
         }
     }
 
+    public boolean isCastlingAllowed( Rook rook )
+    {
+        return switch ( rook.getColour() )
+        {
+            case WHITE -> switch ( rook.getBoardSide() )
+            {
+                case QUEENSIDE -> whiteQueensideCastlingAllowed;
+                case KINGSIDE -> whiteKingsideCastlingAllowed;
+            };
+
+            case BLACK -> switch ( rook.getBoardSide() )
+            {
+                case QUEENSIDE -> blackQueensideCastlingAllowed;
+                case KINGSIDE -> blackKingsideCastlingAllowed;
+            };
+        };
+    }
+
     private void updateEnPassantPawn( Square from, Square to )
     {
         Piece piece = from.getPiece();
@@ -266,33 +275,55 @@ public class Board extends ArrayList<Square>
         return from.getPiece().getLegalMoves( this ).contains( to );
     }
 
+    public boolean moveWouldLeavePlayerInCheck( Player player, Square from, Square to )
+    {
+        return player.isInCheck( cloneAndMove( from, to ) );
+    }
+
     public int getMaterialDifference()
     {
         return getPieces().stream()
-                          .mapToInt( pc -> pc.getSign() * pc.getValue() )
+                          .mapToInt( piece -> piece.getPlayerCoefficient() * piece.getValue() )
                           .sum();
     }
 
     public boolean hasInsufficientMaterial()
     {
-        // All pieces currently on the board (excluding the Kings)
-        List<Piece> pieces = getPieces().stream().filter( pc -> !pc.isType( Piece.Type.KING ) ).toList();
+        // Get all non-king pieces currently on the board
+        List<Piece> pieces = getPieces().stream()
+                                        .filter( piece -> !( piece instanceof King ) )
+                                        .toList();
 
-        return switch ( pieces.size() )
+        switch ( pieces.size() )
         {
-            // King versus King
-            case 0 -> true;
+            // King versus king
+            case 0:
+                return true;
 
-            // King and Bishop versus King, King and Knight versus King
-            case 1 -> pieces.stream().allMatch( pc -> pc.isType( Piece.Type.BISHOP, Piece.Type.KNIGHT ) );
+            // King and knight/bishop versus king
+            case 1:
+                return pieces.get( 0 ) instanceof Knight ||
+                       pieces.get( 0 ) instanceof Bishop;
 
-            // King and Bishop versus King and Bishop with the Bishops on the same colour
-            case 2 -> pieces.stream().allMatch( pc -> pc.isType( Piece.Type.BISHOP ) ) &&
-                      pieces.stream().map( Piece::getPlayer ).distinct().count() > 1 &&
-                      pieces.stream().map( pc -> pc.getSquare( this ).getParity() ).distinct().count() == 1;
+            // King and bishop versus king and bishop with the bishops on the same colour
+            case 2:
+                if ( pieces.get( 0 ) instanceof Bishop &&
+                     pieces.get( 1 ) instanceof Bishop )
+                {
+                    Bishop first = (Bishop) pieces.get( 0 );
+                    Bishop second = (Bishop) pieces.get( 1 );
 
-            default -> false;
-        };
+                    boolean differentPlayers = first.getColour() != second.getColour();
+                    boolean sameSquareShade = first.getSquareShade() == second.getSquareShade();
+
+                    return differentPlayers && sameSquareShade;
+                }
+
+                return false;
+
+            default:
+                return false;
+        }
     }
 
     public void print()
@@ -300,10 +331,20 @@ public class Board extends ArrayList<Square>
         Printer.print( this );
     }
 
+    public static enum Side
+    {
+        QUEENSIDE, KINGSIDE
+    }
+
     private static class Printer
     {
-        // For each box-drawing char below, n is the number of "prongs" that char has.
-        // To convert box-drawing chars from light to heavy, add (1 << n) - 1 to each.
+        /*
+         * For each box-drawing character below, n is the number of line segments obtained by splitting
+         * the character at its endpoints and junctions.
+         * 
+         * To convert a light box-drawing character to its heavy equivalent, add (1 << n) - 1, i.e. one
+         * less than two to the power of n.
+         */
 
         // n = 1
         private static final char HORIZONTAL = '\u2500';
@@ -336,8 +377,9 @@ public class Board extends ArrayList<Square>
 
             for ( char file = 'a'; file <= 'h'; file++ )
             {
-                for ( int j = 0; j < 3; j++ )
-                    row.append( HORIZONTAL );
+                row.append( HORIZONTAL )
+                   .append( HORIZONTAL )
+                   .append( HORIZONTAL );
 
                 if ( file < 'h' )
                     row.append( horizontal );

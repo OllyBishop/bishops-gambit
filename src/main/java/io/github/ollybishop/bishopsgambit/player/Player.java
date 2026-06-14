@@ -15,23 +15,17 @@ import io.github.ollybishop.bishopsgambit.pieces.Rook;
 public class Player
 {
     private final Colour colour;
-    private final int sign;
 
     private final List<Piece> pieces = new ArrayList<>();
 
     private final Rook queensideRook;
     private final Rook kingsideRook;
+
     private final King king;
 
     public Player( Colour colour )
     {
         this.colour = colour;
-
-        this.sign = switch ( colour )
-        {
-            case WHITE -> 1;
-            case BLACK -> -1;
-        };
 
         char backRank = switch ( colour )
         {
@@ -73,9 +67,13 @@ public class Player
         return this.colour;
     }
 
-    public int getSign()
+    public int getCoefficient()
     {
-        return this.sign;
+        return switch ( getColour() )
+        {
+            case WHITE -> 1;
+            case BLACK -> -1;
+        };
     }
 
     public List<Piece> getPieces()
@@ -94,22 +92,26 @@ public class Player
     }
 
     /**
-     * Returns the queenside or kingside rook belonging this player.
+     * Returns this player's original queenside or kingside rook, as indicated by the given castling
+     * direction.
+     * <p>
+     * The castling direction is the horizontal direction from the king's starting square towards
+     * the rook's starting square.
      * 
-     * @param x the direction along the x-axis of the rook's starting square (relative to the king's
-     *          starting square)
-     * @return the queenside rook if <b>x</b> is negative; the kingside rook if <b>x</b> is positive
-     * @throws IllegalArgumentException if <b>x</b> is zero
+     * @param castlingDirection the castling direction
+     * @return the queenside rook if {@code castlingDirection} is negative; the kingside rook if
+     *         {@code castlingDirection} is positive
+     * @throws IllegalArgumentException if {@code castlingDirection} is zero
      */
-    public Rook getRook( int x )
+    public Rook getRook( int castlingDirection )
     {
-        if ( x < 0 )
+        if ( castlingDirection < 0 )
             return getQueensideRook();
 
-        if ( x > 0 )
+        if ( castlingDirection > 0 )
             return getKingsideRook();
 
-        throw new IllegalArgumentException( "The value 'x' must be non-zero." );
+        throw new IllegalArgumentException( "Castling direction must be non-zero." );
     }
 
     public King getKing()

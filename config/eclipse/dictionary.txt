@@ -1,13 +1,16 @@
 accessors
+checkmate
 checkmated
 chessboard
 color
 deselect
 en
+endpoints
 kingside
 passant
 queenside
 sortable
+stalemate
 stalemated
 tabletop
 vgap

@@ -16,20 +16,20 @@ public class ListUtils
     }
 
     /**
-     * Finds the element in <b>list1</b> that has the same index as the given <b>object</b> in
-     * <b>list2</b>.
+     * Returns the element in {@code list1} at the same index as the first occurrence of
+     * {@code element} in {@code list2}.
      * 
-     * @param <T>    the type of the element to be found
-     * @param <U>    the type of the given <b>object</b>
-     * @param list1  the list containing the element to be found
-     * @param list2  the list containing the given <b>object</b>
-     * @param object the object whose index we are interested in
-     * @return the element in <b>list1</b> that has the same index as the given <b>object</b> in
-     *         <b>list2</b> (if it exists); {@code null} otherwise
+     * @param <T>     the type of elements in {@code list1}
+     * @param <U>     the type of elements in {@code list2}
+     * @param list1   the list containing the element to return
+     * @param list2   the list to search for {@code element}
+     * @param element the element to search for in {@code list2}
+     * @return the element in {@code list1} at the same index as the first occurrence of
+     *         {@code element} in {@code list2}, if such an element exists; {@code null} otherwise
      */
-    public static <T, U> T get( List<T> list1, List<U> list2, U object )
+    public static <T, U> T getCorrespondingElement( List<T> list1, List<U> list2, U element )
     {
-        int index = list2.indexOf( object );
+        int index = list2.indexOf( element );
 
         if ( hasIndex( list1, index ) )
             return list1.get( index );
