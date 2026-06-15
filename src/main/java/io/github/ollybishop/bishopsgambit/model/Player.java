@@ -80,12 +80,12 @@ public class Player
         return this.pieces;
     }
 
-    public Rook getQueensideRook()
+    Rook getQueensideRook()
     {
         return this.queensideRook;
     }
 
-    public Rook getKingsideRook()
+    Rook getKingsideRook()
     {
         return this.kingsideRook;
     }

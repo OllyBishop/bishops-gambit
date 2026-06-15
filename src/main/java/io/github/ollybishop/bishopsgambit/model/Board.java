@@ -85,7 +85,7 @@ public class Board extends ArrayList<Square>
      * @param piece the piece
      * @return {@code true} if this board contains the given piece; {@code false} otherwise
      */
-    public boolean containsPiece( Piece piece )
+    boolean containsPiece( Piece piece )
     {
         return stream().anyMatch( square -> square.getPiece() == piece );
     }

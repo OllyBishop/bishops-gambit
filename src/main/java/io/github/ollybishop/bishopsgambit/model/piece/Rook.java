@@ -27,12 +27,12 @@ public class Rook extends Piece
     }
 
     @Override
-    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
+    List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
         return getCandidateSquares( this, board, includeFriendlySquares );
     }
 
-    protected static List<Square> getCandidateSquares( Piece piece, Board board, boolean includeFriendlySquares )
+    static List<Square> getCandidateSquares( Piece piece, Board board, boolean includeFriendlySquares )
     {
         List<Square> candidateSquares = new ArrayList<>();
 

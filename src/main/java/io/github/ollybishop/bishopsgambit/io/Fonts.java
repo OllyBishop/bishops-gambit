@@ -49,7 +49,7 @@ public class Fonts
 
         private final String str;
 
-        Weight( String str )
+        private Weight( String str )
         {
             this.str = str;
         }

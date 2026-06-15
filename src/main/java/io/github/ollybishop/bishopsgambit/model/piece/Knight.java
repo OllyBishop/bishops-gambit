@@ -27,7 +27,7 @@ public class Knight extends Piece
     }
 
     @Override
-    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
+    List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
         List<Square> candidateSquares = new ArrayList<>();
 

@@ -9,7 +9,7 @@ public class Square
 
     private Piece piece;
 
-    protected Square( char file, char rank )
+    Square( char file, char rank )
     {
         this.file = file;
         this.rank = rank;
@@ -30,7 +30,7 @@ public class Square
         return this.piece;
     }
 
-    protected void setPiece( Piece piece )
+    void setPiece( Piece piece )
     {
         this.piece = piece;
     }

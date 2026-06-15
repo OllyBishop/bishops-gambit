@@ -28,7 +28,7 @@ public class Pawn extends Piece
     }
 
     @Override
-    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
+    List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
         List<Square> forwardMoveSquares = new ArrayList<>();
 

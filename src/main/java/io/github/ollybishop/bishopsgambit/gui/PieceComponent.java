@@ -6,21 +6,21 @@ import io.github.ollybishop.bishopsgambit.io.Images;
 import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 import io.github.ollybishop.bishopsgambit.util.Sortable;
 
-public class PieceComponent extends JLabel implements Sortable
+class PieceComponent extends JLabel implements Sortable
 {
     private final Piece piece;
 
-    protected Piece getPiece()
+    Piece getPiece()
     {
         return this.piece;
     }
 
-    protected PieceComponent( Piece piece )
+    PieceComponent( Piece piece )
     {
         this.piece = piece;
     }
 
-    protected void setScale( int scale )
+    void setScale( int scale )
     {
         setSize( scale, scale );
         setIcon( Images.createIcon( piece.getColour(), piece.getType(), scale ) );

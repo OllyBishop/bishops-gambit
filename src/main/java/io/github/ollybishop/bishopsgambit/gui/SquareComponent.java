@@ -17,7 +17,7 @@ import io.github.ollybishop.bishopsgambit.io.Fonts;
 import io.github.ollybishop.bishopsgambit.io.Fonts.Weight;
 import io.github.ollybishop.bishopsgambit.model.Square;
 
-public class SquareComponent extends JLayeredPane
+class SquareComponent extends JLayeredPane
 {
     private static final Color DARK_SQUARE_BG = new Color( 209, 139, 71 );
     private static final Color LIGHT_SQUARE_BG = new Color( 254, 206, 157 );
@@ -44,17 +44,17 @@ public class SquareComponent extends JLayeredPane
     private final JLabel rankLabel;
     private final MoveMarker moveMarker;
 
-    protected char getFile()
+    char getFile()
     {
         return this.file;
     }
 
-    protected char getRank()
+    char getRank()
     {
         return this.rank;
     }
 
-    protected SquareComponent( char file, char rank )
+    SquareComponent( char file, char rank )
     {
         this.file = file;
         this.rank = rank;
@@ -88,7 +88,7 @@ public class SquareComponent extends JLayeredPane
         setOpaque( true );
     }
 
-    protected void addPieceComponent( PieceComponent pieceComponent )
+    void addPieceComponent( PieceComponent pieceComponent )
     {
         add( pieceComponent, PALETTE_LAYER, 0 );
 
@@ -101,22 +101,22 @@ public class SquareComponent extends JLayeredPane
         setBackground( defaultBackground );
     }
 
-    protected void showFile( char rank )
+    void showFile( char rank )
     {
         fileLabel.setVisible( this.rank == rank );
     }
 
-    protected void showRank( char file )
+    void showRank( char file )
     {
         rankLabel.setVisible( this.file == file );
     }
 
-    protected void showMoveMarker( boolean b )
+    void showMoveMarker( boolean b )
     {
         moveMarker.setVisible( b );
     }
 
-    protected boolean hasMoveMarker()
+    boolean hasMoveMarker()
     {
         return moveMarker.isVisible();
     }
@@ -124,7 +124,7 @@ public class SquareComponent extends JLayeredPane
     /**
      * Changes the background color of this component to its highlighted color.
      */
-    protected void select()
+    void select()
     {
         setBackground( ColorUtils.blend( defaultBackground, YELLOW_WHITE, 1, 3 ) );
     }
@@ -132,7 +132,7 @@ public class SquareComponent extends JLayeredPane
     /**
      * Changes the background color of this button to its default color.
      */
-    protected void deselect()
+    void deselect()
     {
         resetBackground();
     }
@@ -140,12 +140,12 @@ public class SquareComponent extends JLayeredPane
     /**
      * Sets the border of this button to an empty border.
      */
-    protected void resetBorder()
+    void resetBorder()
     {
         setBorder( BorderFactory.createEmptyBorder() );
     }
 
-    protected void setScale( int scale )
+    void setScale( int scale )
     {
         Dimension dimension = new Dimension( scale, scale );
 
@@ -166,12 +166,12 @@ public class SquareComponent extends JLayeredPane
         ComponentUtils.resizeFont( rankLabel, scale / 5 );
     }
 
-    protected int getIndex()
+    int getIndex()
     {
         return Square.getIndex( file, rank );
     }
 
-    protected void debugLayeringIssues()
+    void debugLayeringIssues()
     {
         int totalCount = getComponentCount();
 

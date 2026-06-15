@@ -57,7 +57,7 @@ public abstract class Piece
         return Board.Side.KINGSIDE;
     }
 
-    protected Piece( Player player, char startFile, char startRank )
+    Piece( Player player, char startFile, char startRank )
     {
         if ( !Board.isValidSquare( startFile, startRank ) )
             throw new IllegalArgumentException();
@@ -100,7 +100,7 @@ public abstract class Piece
      * @param includeFriendlySquares whether to include squares occupied by friendly pieces
      * @return this piece's candidate squares
      */
-    protected abstract List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares );
+    abstract List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares );
 
     /**
      * Returns the squares controlled by this piece on the given board.
@@ -111,7 +111,7 @@ public abstract class Piece
      * @param board the chessboard
      * @return the squares controlled by this piece
      */
-    public List<Square> getControlledSquares( Board board )
+    List<Square> getControlledSquares( Board board )
     {
         return getCandidateSquares( board, true );
     }

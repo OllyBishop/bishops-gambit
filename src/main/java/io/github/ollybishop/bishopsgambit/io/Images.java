@@ -43,7 +43,7 @@ public class Images
         return image;
     }
 
-    public static Image getImage( Player.Colour colour, Piece.Type type )
+    private static Image getImage( Player.Colour colour, Piece.Type type )
     {
         return switch ( colour )
         {

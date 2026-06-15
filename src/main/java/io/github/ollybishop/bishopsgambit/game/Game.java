@@ -133,7 +133,7 @@ public class Game
      * @param uci a string representing the move in Universal Chess Interface (UCI) notation
      * @return the new piece (if promoting); {@code null} otherwise
      */
-    public Piece makeMove( String uci )
+    Piece makeMove( String uci )
     {
         Object[] moveInfo = getMoveInfo( uci, getActiveBoard() );
 

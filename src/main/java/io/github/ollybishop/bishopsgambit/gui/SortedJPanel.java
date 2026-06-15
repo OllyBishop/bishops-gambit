@@ -10,7 +10,7 @@ import io.github.ollybishop.bishopsgambit.util.Sortable;
 /**
  * Custom version of {@link JPanel} which only allows {@link Sortable} components to be added.
  */
-public class SortedJPanel extends JPanel
+class SortedJPanel extends JPanel
 {
     @Override
     protected final void addImpl( Component comp, Object constraints, int index )

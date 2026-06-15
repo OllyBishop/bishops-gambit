@@ -27,7 +27,7 @@ public class Queen extends Piece
     }
 
     @Override
-    protected List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
+    List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
         List<Square> bishopCandidateSquares = Bishop.getCandidateSquares( this, board, includeFriendlySquares );
         List<Square> rookCandidateSquares = Rook.getCandidateSquares( this, board, includeFriendlySquares );
