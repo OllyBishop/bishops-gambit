@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Fonts
 {
-    public static Font importFont( String name, Weight weight )
+    public static Font importFont( String fontName, FontFace fontFace )
     {
         Font font = null;
 
@@ -18,7 +18,7 @@ public class Fonts
 
         try
         {
-            String fontPath = String.format( "/fonts/%s/%s-%s.ttf", name.toLowerCase(), name, weight );
+            String fontPath = String.format( "/fonts/%s/%s-%s.ttf", fontName.toLowerCase(), fontName, fontFace );
             font = Font.createFont( Font.TRUETYPE_FONT, Fonts.class.getResourceAsStream( fontPath ) );
 
             if ( !fontFamilyNames.contains( font.getFontName() ) )
@@ -30,34 +30,5 @@ public class Fonts
         }
 
         return font;
-    }
-
-    public enum Weight
-    {
-        THIN( "Thin" ),
-        LIGHT( "Light" ),
-        REGULAR( "Regular" ),
-        MEDIUM( "Medium" ),
-        BOLD( "Bold" ),
-        BLACK( "Black" ),
-        THIN_ITALIC( "ThinItalic" ),
-        LIGHT_ITALIC( "LightItalic" ),
-        REGULAR_ITALIC( "RegularItalic" ),
-        MEDIUM_ITALIC( "MediumItalic" ),
-        BOLD_ITALIC( "BoldItalic" ),
-        BLACK_ITALIC( "BlackItalic" );
-
-        private final String str;
-
-        private Weight( String str )
-        {
-            this.str = str;
-        }
-
-        @Override
-        public String toString()
-        {
-            return this.str;
-        }
     }
 }

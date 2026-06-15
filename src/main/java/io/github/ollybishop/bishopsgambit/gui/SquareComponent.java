@@ -13,8 +13,8 @@ import javax.swing.SwingConstants;
 
 import io.github.ollybishop.bishopsgambit.gui.util.ColorUtils;
 import io.github.ollybishop.bishopsgambit.gui.util.ComponentUtils;
+import io.github.ollybishop.bishopsgambit.io.FontFace;
 import io.github.ollybishop.bishopsgambit.io.Fonts;
-import io.github.ollybishop.bishopsgambit.io.Fonts.Weight;
 import io.github.ollybishop.bishopsgambit.model.Square;
 
 class SquareComponent extends JLayeredPane
@@ -24,7 +24,7 @@ class SquareComponent extends JLayeredPane
 
     private static final Color YELLOW_WHITE = ColorUtils.blend( Color.YELLOW, Color.WHITE );
 
-    private static final Font ROBOTO_MEDIUM = Fonts.importFont( "Roboto", Weight.MEDIUM );
+    private static final Font ROBOTO_MEDIUM = Fonts.importFont( "Roboto", FontFace.MEDIUM );
 
     /*
      * Square instances are cloned throughout the game so that each board state can be stored
