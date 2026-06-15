@@ -1,6 +1,6 @@
 package io.github.ollybishop.bishopsgambit.game;
 
-import io.github.ollybishop.bishopsgambit.board.Square;
+import io.github.ollybishop.bishopsgambit.model.Square;
 
 public class IllegalMoveException extends RuntimeException
 {

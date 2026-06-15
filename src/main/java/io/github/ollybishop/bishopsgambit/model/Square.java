@@ -1,7 +1,6 @@
-package io.github.ollybishop.bishopsgambit.board;
+package io.github.ollybishop.bishopsgambit.model;
 
-import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 
 public class Square
 {

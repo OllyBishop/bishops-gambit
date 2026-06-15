@@ -3,11 +3,11 @@ package io.github.ollybishop.bishopsgambit.game;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.ollybishop.bishopsgambit.board.Board;
-import io.github.ollybishop.bishopsgambit.board.Square;
-import io.github.ollybishop.bishopsgambit.pieces.Pawn;
-import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.model.Board;
+import io.github.ollybishop.bishopsgambit.model.Player;
+import io.github.ollybishop.bishopsgambit.model.Square;
+import io.github.ollybishop.bishopsgambit.model.piece.Pawn;
+import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 
 public class Game
 {

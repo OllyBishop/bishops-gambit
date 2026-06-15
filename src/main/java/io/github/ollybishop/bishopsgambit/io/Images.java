@@ -7,8 +7,8 @@ import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.model.Player;
+import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 
 public class Images
 {

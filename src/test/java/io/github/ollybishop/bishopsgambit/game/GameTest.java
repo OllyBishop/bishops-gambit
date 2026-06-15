@@ -14,9 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
-import io.github.ollybishop.bishopsgambit.board.Square;
-import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.model.Player;
+import io.github.ollybishop.bishopsgambit.model.Square;
+import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 
 class GameTest
 {

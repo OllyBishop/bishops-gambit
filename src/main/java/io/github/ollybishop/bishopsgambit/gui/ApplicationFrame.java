@@ -35,12 +35,12 @@ import javax.swing.KeyStroke;
 import javax.swing.LayoutFocusTraversalPolicy;
 import javax.swing.border.Border;
 
-import io.github.ollybishop.bishopsgambit.board.Board;
-import io.github.ollybishop.bishopsgambit.board.Square;
 import io.github.ollybishop.bishopsgambit.game.Game;
 import io.github.ollybishop.bishopsgambit.io.Images;
-import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.model.Board;
+import io.github.ollybishop.bishopsgambit.model.Player;
+import io.github.ollybishop.bishopsgambit.model.Square;
+import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 
 public class ApplicationFrame extends JFrame
 {

@@ -1,15 +1,14 @@
-package io.github.ollybishop.bishopsgambit.board;
+package io.github.ollybishop.bishopsgambit.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.ollybishop.bishopsgambit.pieces.Bishop;
-import io.github.ollybishop.bishopsgambit.pieces.King;
-import io.github.ollybishop.bishopsgambit.pieces.Knight;
-import io.github.ollybishop.bishopsgambit.pieces.Pawn;
-import io.github.ollybishop.bishopsgambit.pieces.Piece;
-import io.github.ollybishop.bishopsgambit.pieces.Rook;
-import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.model.piece.Bishop;
+import io.github.ollybishop.bishopsgambit.model.piece.King;
+import io.github.ollybishop.bishopsgambit.model.piece.Knight;
+import io.github.ollybishop.bishopsgambit.model.piece.Pawn;
+import io.github.ollybishop.bishopsgambit.model.piece.Piece;
+import io.github.ollybishop.bishopsgambit.model.piece.Rook;
 
 public class Board extends ArrayList<Square>
 {

@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 
-import io.github.ollybishop.bishopsgambit.board.Square;
+import io.github.ollybishop.bishopsgambit.model.Square;
 
 @SuppressWarnings( "unused" )
 @TestInstance( Lifecycle.PER_CLASS )

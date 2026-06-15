@@ -11,11 +11,11 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.SwingConstants;
 
-import io.github.ollybishop.bishopsgambit.board.Square;
+import io.github.ollybishop.bishopsgambit.gui.util.ColorUtils;
+import io.github.ollybishop.bishopsgambit.gui.util.ComponentUtils;
 import io.github.ollybishop.bishopsgambit.io.Fonts;
 import io.github.ollybishop.bishopsgambit.io.Fonts.Weight;
-import io.github.ollybishop.bishopsgambit.util.ColorUtils;
-import io.github.ollybishop.bishopsgambit.util.ComponentUtils;
+import io.github.ollybishop.bishopsgambit.model.Square;
 
 public class SquareComponent extends JLayeredPane
 {

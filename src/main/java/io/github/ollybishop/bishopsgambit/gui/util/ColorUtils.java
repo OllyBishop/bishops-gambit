@@ -1,4 +1,4 @@
-package io.github.ollybishop.bishopsgambit.util;
+package io.github.ollybishop.bishopsgambit.gui.util;
 
 import java.awt.Color;
 

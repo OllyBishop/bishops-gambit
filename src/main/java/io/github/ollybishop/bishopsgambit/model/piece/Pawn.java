@@ -1,11 +1,11 @@
-package io.github.ollybishop.bishopsgambit.pieces;
+package io.github.ollybishop.bishopsgambit.model.piece;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.ollybishop.bishopsgambit.board.Board;
-import io.github.ollybishop.bishopsgambit.board.Square;
-import io.github.ollybishop.bishopsgambit.player.Player;
+import io.github.ollybishop.bishopsgambit.model.Board;
+import io.github.ollybishop.bishopsgambit.model.Player;
+import io.github.ollybishop.bishopsgambit.model.Square;
 import io.github.ollybishop.bishopsgambit.util.ListUtils;
 
 public class Pawn extends Piece
