@@ -573,7 +573,7 @@ public class ApplicationFrame extends JFrame
         } );
     }
 
-    private void newGame()
+    void newGame()
     {
         deselectFromAndToSquares();
 

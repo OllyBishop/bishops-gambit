@@ -2,6 +2,7 @@ package io.github.ollybishop.bishopsgambit.gui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.InvocationTargetException;
 
@@ -9,6 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -31,14 +33,14 @@ class ApplicationFrameTest
         return frame.getSquareComponents().get( Square.getIndex( file, rank ) );
     }
 
-    private void mouseEvent( SquareComponent squareComponent, int type, int modifiers )
+    private void mouseEvent( SquareComponent squareComponent, int eventType, int modifiers )
     {
         try
         {
             SwingUtilities.invokeAndWait( () ->
             {
                 MouseEvent event = new MouseEvent( frame.getChessboardPane(),
-                                                   type,
+                                                   eventType,
                                                    System.currentTimeMillis(),
                                                    modifiers,
                                                    squareComponent.getX(),
@@ -64,25 +66,32 @@ class ApplicationFrameTest
         }
     }
 
+    private void click( SquareComponent squareComponent )
+    {
+        press( squareComponent );
+        release( squareComponent );
+    }
+
     private void press( SquareComponent squareComponent )
     {
-        mouseEvent( squareComponent, MouseEvent.MOUSE_PRESSED, MouseEvent.BUTTON1_DOWN_MASK );
+        mouseEvent( squareComponent, MouseEvent.MOUSE_PRESSED, InputEvent.BUTTON1_DOWN_MASK );
     }
 
     private void release( SquareComponent squareComponent )
     {
-        mouseEvent( squareComponent, MouseEvent.MOUSE_RELEASED, MouseEvent.BUTTON1 );
-    }
-
-    private void click( SquareComponent squareComponent )
-    {
-        mouseEvent( squareComponent, MouseEvent.MOUSE_CLICKED, MouseEvent.BUTTON1 );
+        mouseEvent( squareComponent, MouseEvent.MOUSE_RELEASED, 0 );
     }
 
     @BeforeAll
     void beforeAll()
     {
         frame.setVisible( true );
+    }
+
+    @AfterEach
+    void afterEach()
+    {
+        frame.newGame();
     }
 
     @AfterAll
