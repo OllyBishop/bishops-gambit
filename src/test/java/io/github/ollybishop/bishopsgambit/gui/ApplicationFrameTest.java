@@ -10,8 +10,8 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -27,6 +27,8 @@ class ApplicationFrameTest
 
     private final SquareComponent e2 = getSquareComponent( 'e', '2' );
     private final SquareComponent e4 = getSquareComponent( 'e', '4' );
+
+    private boolean isFirstTest = true;
 
     private SquareComponent getSquareComponent( char file, char rank )
     {
@@ -88,9 +90,17 @@ class ApplicationFrameTest
         frame.setVisible( true );
     }
 
-    @AfterEach
-    void afterEach()
+    @BeforeEach
+    void newGame()
     {
+        // Skip for first test because ApplicationFrame already creates a new Game on startup.
+        // Note: This relies on @TestInstance(Lifecycle.PER_CLASS) keeping state across tests.
+        if ( isFirstTest )
+        {
+            isFirstTest = false;
+            return;
+        }
+
         frame.newGame();
     }
 
