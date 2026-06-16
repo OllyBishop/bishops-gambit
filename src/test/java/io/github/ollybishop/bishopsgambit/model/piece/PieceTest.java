@@ -102,13 +102,13 @@ class PieceTest
     }
 
     // ============================================================================================
-    // Controlled Squares
+    // Pawns
     // ============================================================================================
 
-    // Pawns
+    // White a-pawn
 
     @Test
-    void initialSetup_whiteAPawn_controlsRightDiagonalOnly()
+    void initialSetup_whiteAPawn_controlledSquares()
     {
         PieceHelper whiteAPawn = a2.getPieceHelper();
 
@@ -120,7 +120,21 @@ class PieceTest
     }
 
     @Test
-    void initialSetup_whiteEPawn_controlsDiagonalsOnly()
+    void initialSetup_whiteAPawn_pseudoLegalMoves()
+    {
+        PieceHelper whiteAPawn = a2.getPieceHelper();
+
+        assertEquals( 2, whiteAPawn.getPseudoLegalMoves().size() );
+
+        assertTrue( whiteAPawn.canPseudoLegallyMoveTo( a3 ) );
+        assertTrue( whiteAPawn.canPseudoLegallyMoveTo( a4 ) );
+        assertFalse( whiteAPawn.canPseudoLegallyMoveTo( b3 ) );
+    }
+
+    // White e-pawn
+
+    @Test
+    void initialSetup_whiteEPawn_controlledSquares()
     {
         PieceHelper whiteEPawn = e2.getPieceHelper();
 
@@ -133,7 +147,22 @@ class PieceTest
     }
 
     @Test
-    void initialSetup_whiteHPawn_controlsDiagonalsOnly()
+    void initialSetup_whiteEPawn_pseudoLegalMoves()
+    {
+        PieceHelper whiteEPawn = e2.getPieceHelper();
+
+        assertEquals( 2, whiteEPawn.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteEPawn.canPseudoLegallyMoveTo( d3 ) );
+        assertTrue( whiteEPawn.canPseudoLegallyMoveTo( e3 ) );
+        assertTrue( whiteEPawn.canPseudoLegallyMoveTo( e4 ) );
+        assertFalse( whiteEPawn.canPseudoLegallyMoveTo( f3 ) );
+    }
+
+    // White h-pawn
+
+    @Test
+    void initialSetup_whiteHPawn_controlledSquares()
     {
         PieceHelper whiteHPawn = h2.getPieceHelper();
 
@@ -145,7 +174,21 @@ class PieceTest
     }
 
     @Test
-    void initialSetup_blackAPawn_controlsRightDiagonalOnly()
+    void initialSetup_whiteHPawn_pseudoLegalMoves()
+    {
+        PieceHelper whiteHPawn = h2.getPieceHelper();
+
+        assertEquals( 2, whiteHPawn.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteHPawn.canPseudoLegallyMoveTo( g3 ) );
+        assertTrue( whiteHPawn.canPseudoLegallyMoveTo( h3 ) );
+        assertTrue( whiteHPawn.canPseudoLegallyMoveTo( h4 ) );
+    }
+
+    // Black a-pawn
+
+    @Test
+    void initialSetup_blackAPawn_controlledSquares()
     {
         PieceHelper blackAPawn = a7.getPieceHelper();
 
@@ -157,7 +200,21 @@ class PieceTest
     }
 
     @Test
-    void initialSetup_blackEPawn_controlsDiagonalsOnly()
+    void initialSetup_blackAPawn_pseudoLegalMoves()
+    {
+        PieceHelper blackAPawn = a7.getPieceHelper();
+
+        assertEquals( 2, blackAPawn.getPseudoLegalMoves().size() );
+
+        assertTrue( blackAPawn.canPseudoLegallyMoveTo( a6 ) );
+        assertTrue( blackAPawn.canPseudoLegallyMoveTo( a5 ) );
+        assertFalse( blackAPawn.canPseudoLegallyMoveTo( b6 ) );
+    }
+
+    // Black e-pawn
+
+    @Test
+    void initialSetup_blackEPawn_controlledSquares()
     {
         PieceHelper blackEPawn = e7.getPieceHelper();
 
@@ -170,7 +227,22 @@ class PieceTest
     }
 
     @Test
-    void initialSetup_blackHPawn_controlsDiagonalsOnly()
+    void initialSetup_blackEPawn_pseudoLegalMoves()
+    {
+        PieceHelper blackEPawn = e7.getPieceHelper();
+
+        assertEquals( 2, blackEPawn.getPseudoLegalMoves().size() );
+
+        assertFalse( blackEPawn.canPseudoLegallyMoveTo( d6 ) );
+        assertTrue( blackEPawn.canPseudoLegallyMoveTo( e6 ) );
+        assertTrue( blackEPawn.canPseudoLegallyMoveTo( e5 ) );
+        assertFalse( blackEPawn.canPseudoLegallyMoveTo( f6 ) );
+    }
+
+    // Black h-pawn
+
+    @Test
+    void initialSetup_blackHPawn_controlledSquares()
     {
         PieceHelper blackHPawn = h7.getPieceHelper();
 
@@ -181,7 +253,23 @@ class PieceTest
         assertFalse( blackHPawn.controls( h5 ) );
     }
 
+    @Test
+    void initialSetup_blackHPawn_pseudoLegalMoves()
+    {
+        PieceHelper blackHPawn = h7.getPieceHelper();
+
+        assertEquals( 2, blackHPawn.getPseudoLegalMoves().size() );
+
+        assertFalse( blackHPawn.canPseudoLegallyMoveTo( g6 ) );
+        assertTrue( blackHPawn.canPseudoLegallyMoveTo( h6 ) );
+        assertTrue( blackHPawn.canPseudoLegallyMoveTo( h5 ) );
+    }
+
+    // ============================================================================================
     // Knights
+    // ============================================================================================
+
+    // White queenside knight
 
     @Test
     void initialSetup_whiteQueensideKnight_controlledSquares()
@@ -196,6 +284,20 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_whiteQueensideKnight_pseudoLegalMoves()
+    {
+        PieceHelper whiteQueensideKnight = b1.getPieceHelper();
+
+        assertEquals( 2, whiteQueensideKnight.getPseudoLegalMoves().size() );
+
+        assertTrue( whiteQueensideKnight.canPseudoLegallyMoveTo( a3 ) );
+        assertTrue( whiteQueensideKnight.canPseudoLegallyMoveTo( c3 ) );
+        assertFalse( whiteQueensideKnight.canPseudoLegallyMoveTo( d2 ) );
+    }
+
+    // White kingside knight
+
+    @Test
     void initialSetup_whiteKingsideKnight_controlledSquares()
     {
         PieceHelper whiteKingsideKnight = g1.getPieceHelper();
@@ -206,6 +308,20 @@ class PieceTest
         assertTrue( whiteKingsideKnight.controls( f3 ) );
         assertTrue( whiteKingsideKnight.controls( h3 ) );
     }
+
+    @Test
+    void initialSetup_whiteKingsideKnight_pseudoLegalMoves()
+    {
+        PieceHelper whiteKingsideKnight = g1.getPieceHelper();
+
+        assertEquals( 2, whiteKingsideKnight.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteKingsideKnight.canPseudoLegallyMoveTo( e2 ) );
+        assertTrue( whiteKingsideKnight.canPseudoLegallyMoveTo( f3 ) );
+        assertTrue( whiteKingsideKnight.canPseudoLegallyMoveTo( h3 ) );
+    }
+
+    // Black queenside knight
 
     @Test
     void initialSetup_blackQueensideKnight_controlledSquares()
@@ -220,6 +336,20 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_blackQueensideKnight_pseudoLegalMoves()
+    {
+        PieceHelper blackQueensideKnight = b8.getPieceHelper();
+
+        assertEquals( 2, blackQueensideKnight.getPseudoLegalMoves().size() );
+
+        assertTrue( blackQueensideKnight.canPseudoLegallyMoveTo( a6 ) );
+        assertTrue( blackQueensideKnight.canPseudoLegallyMoveTo( c6 ) );
+        assertFalse( blackQueensideKnight.canPseudoLegallyMoveTo( d7 ) );
+    }
+
+    // Black kingside knight
+
+    @Test
     void initialSetup_blackKingsideKnight_controlledSquares()
     {
         PieceHelper blackKingsideKnight = g8.getPieceHelper();
@@ -231,7 +361,23 @@ class PieceTest
         assertTrue( blackKingsideKnight.controls( h6 ) );
     }
 
+    @Test
+    void initialSetup_blackKingsideKnight_pseudoLegalMoves()
+    {
+        PieceHelper blackKingsideKnight = g8.getPieceHelper();
+
+        assertEquals( 2, blackKingsideKnight.getPseudoLegalMoves().size() );
+
+        assertFalse( blackKingsideKnight.canPseudoLegallyMoveTo( e7 ) );
+        assertTrue( blackKingsideKnight.canPseudoLegallyMoveTo( f6 ) );
+        assertTrue( blackKingsideKnight.canPseudoLegallyMoveTo( h6 ) );
+    }
+
+    // ============================================================================================
     // Bishops
+    // ============================================================================================
+
+    // White queenside bishop
 
     @Test
     void initialSetup_whiteQueensideBishop_controlledSquares()
@@ -245,6 +391,19 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_whiteQueensideBishop_pseudoLegalMoves()
+    {
+        PieceHelper whiteQueensideBishop = c1.getPieceHelper();
+
+        assertEquals( 0, whiteQueensideBishop.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteQueensideBishop.canPseudoLegallyMoveTo( b2 ) );
+        assertFalse( whiteQueensideBishop.canPseudoLegallyMoveTo( d2 ) );
+    }
+
+    // White kingside bishop
+
+    @Test
     void initialSetup_whiteKingsideBishop_controlledSquares()
     {
         PieceHelper whiteKingsideBishop = f1.getPieceHelper();
@@ -254,6 +413,19 @@ class PieceTest
         assertTrue( whiteKingsideBishop.controls( e2 ) );
         assertTrue( whiteKingsideBishop.controls( g2 ) );
     }
+
+    @Test
+    void initialSetup_whiteKingsideBishop_pseudoLegalMoves()
+    {
+        PieceHelper whiteKingsideBishop = f1.getPieceHelper();
+
+        assertEquals( 0, whiteKingsideBishop.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteKingsideBishop.canPseudoLegallyMoveTo( e2 ) );
+        assertFalse( whiteKingsideBishop.canPseudoLegallyMoveTo( g2 ) );
+    }
+
+    // Black queenside bishop
 
     @Test
     void initialSetup_blackQueensideBishop_controlledSquares()
@@ -267,6 +439,19 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_blackQueensideBishop_pseudoLegalMoves()
+    {
+        PieceHelper blackQueensideBishop = c8.getPieceHelper();
+
+        assertEquals( 0, blackQueensideBishop.getPseudoLegalMoves().size() );
+
+        assertFalse( blackQueensideBishop.canPseudoLegallyMoveTo( b7 ) );
+        assertFalse( blackQueensideBishop.canPseudoLegallyMoveTo( d7 ) );
+    }
+
+    // Black kingside bishop
+
+    @Test
     void initialSetup_blackKingsideBishop_controlledSquares()
     {
         PieceHelper blackKingsideBishop = f8.getPieceHelper();
@@ -277,7 +462,22 @@ class PieceTest
         assertTrue( blackKingsideBishop.controls( g7 ) );
     }
 
+    @Test
+    void initialSetup_blackKingsideBishop_pseudoLegalMoves()
+    {
+        PieceHelper blackKingsideBishop = f8.getPieceHelper();
+
+        assertEquals( 0, blackKingsideBishop.getPseudoLegalMoves().size() );
+
+        assertFalse( blackKingsideBishop.canPseudoLegallyMoveTo( e7 ) );
+        assertFalse( blackKingsideBishop.canPseudoLegallyMoveTo( g7 ) );
+    }
+
+    // ============================================================================================
     // Rooks
+    // ============================================================================================
+
+    // White queenside rook
 
     @Test
     void initialSetup_whiteQueensideRook_controlledSquares()
@@ -291,6 +491,19 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_whiteQueensideRook_pseudoLegalMoves()
+    {
+        PieceHelper whiteQueensideRook = a1.getPieceHelper();
+
+        assertEquals( 0, whiteQueensideRook.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteQueensideRook.canPseudoLegallyMoveTo( a2 ) );
+        assertFalse( whiteQueensideRook.canPseudoLegallyMoveTo( b1 ) );
+    }
+
+    // White kingside rook
+
+    @Test
     void initialSetup_whiteKingsideRook_controlledSquares()
     {
         PieceHelper whiteKingsideRook = h1.getPieceHelper();
@@ -300,6 +513,19 @@ class PieceTest
         assertTrue( whiteKingsideRook.controls( g1 ) );
         assertTrue( whiteKingsideRook.controls( h2 ) );
     }
+
+    @Test
+    void initialSetup_whiteKingsideRook_pseudoLegalMoves()
+    {
+        PieceHelper whiteKingsideRook = h1.getPieceHelper();
+
+        assertEquals( 0, whiteKingsideRook.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteKingsideRook.canPseudoLegallyMoveTo( g1 ) );
+        assertFalse( whiteKingsideRook.canPseudoLegallyMoveTo( h2 ) );
+    }
+
+    // Black queenside rook
 
     @Test
     void initialSetup_blackQueensideRook_controlledSquares()
@@ -313,6 +539,19 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_blackQueensideRook_pseudoLegalMoves()
+    {
+        PieceHelper blackQueensideRook = a8.getPieceHelper();
+
+        assertEquals( 0, blackQueensideRook.getPseudoLegalMoves().size() );
+
+        assertFalse( blackQueensideRook.canPseudoLegallyMoveTo( a7 ) );
+        assertFalse( blackQueensideRook.canPseudoLegallyMoveTo( b8 ) );
+    }
+
+    // Black kingside rook
+
+    @Test
     void initialSetup_blackKingsideRook_controlledSquares()
     {
         PieceHelper blackKingsideRook = h8.getPieceHelper();
@@ -323,7 +562,22 @@ class PieceTest
         assertTrue( blackKingsideRook.controls( h7 ) );
     }
 
+    @Test
+    void initialSetup_blackKingsideRook_pseudoLegalMoves()
+    {
+        PieceHelper blackKingsideRook = h8.getPieceHelper();
+
+        assertEquals( 0, blackKingsideRook.getPseudoLegalMoves().size() );
+
+        assertFalse( blackKingsideRook.canPseudoLegallyMoveTo( g8 ) );
+        assertFalse( blackKingsideRook.canPseudoLegallyMoveTo( h7 ) );
+    }
+
+    // ============================================================================================
     // Queens
+    // ============================================================================================
+
+    // White queen
 
     @Test
     void initialSetup_whiteQueen_controlledSquares()
@@ -340,6 +594,22 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_whiteQueen_pseudoLegalMoves()
+    {
+        PieceHelper whiteQueen = d1.getPieceHelper();
+
+        assertEquals( 0, whiteQueen.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteQueen.canPseudoLegallyMoveTo( c1 ) );
+        assertFalse( whiteQueen.canPseudoLegallyMoveTo( c2 ) );
+        assertFalse( whiteQueen.canPseudoLegallyMoveTo( d2 ) );
+        assertFalse( whiteQueen.canPseudoLegallyMoveTo( e1 ) );
+        assertFalse( whiteQueen.canPseudoLegallyMoveTo( e2 ) );
+    }
+
+    // Black queen
+
+    @Test
     void initialSetup_blackQueen_controlledSquares()
     {
         PieceHelper blackQueen = d8.getPieceHelper();
@@ -353,7 +623,25 @@ class PieceTest
         assertTrue( blackQueen.controls( e7 ) );
     }
 
+    @Test
+    void initialSetup_blackQueen_pseudoLegalMoves()
+    {
+        PieceHelper blackQueen = d8.getPieceHelper();
+
+        assertEquals( 0, blackQueen.getPseudoLegalMoves().size() );
+
+        assertFalse( blackQueen.canPseudoLegallyMoveTo( c8 ) );
+        assertFalse( blackQueen.canPseudoLegallyMoveTo( c7 ) );
+        assertFalse( blackQueen.canPseudoLegallyMoveTo( d7 ) );
+        assertFalse( blackQueen.canPseudoLegallyMoveTo( e8 ) );
+        assertFalse( blackQueen.canPseudoLegallyMoveTo( e7 ) );
+    }
+
+    // ============================================================================================
     // Kings
+    // ============================================================================================
+
+    // White king
 
     @Test
     void initialSetup_whiteKing_controlledSquares()
@@ -370,6 +658,22 @@ class PieceTest
     }
 
     @Test
+    void initialSetup_whiteKing_pseudoLegalMoves()
+    {
+        PieceHelper whiteKing = e1.getPieceHelper();
+
+        assertEquals( 0, whiteKing.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteKing.canPseudoLegallyMoveTo( d1 ) );
+        assertFalse( whiteKing.canPseudoLegallyMoveTo( d2 ) );
+        assertFalse( whiteKing.canPseudoLegallyMoveTo( e2 ) );
+        assertFalse( whiteKing.canPseudoLegallyMoveTo( f1 ) );
+        assertFalse( whiteKing.canPseudoLegallyMoveTo( f2 ) );
+    }
+
+    // Black king
+
+    @Test
     void initialSetup_blackKing_controlledSquares()
     {
         PieceHelper blackKing = e8.getPieceHelper();
@@ -381,5 +685,19 @@ class PieceTest
         assertTrue( blackKing.controls( e7 ) );
         assertTrue( blackKing.controls( f8 ) );
         assertTrue( blackKing.controls( f7 ) );
+    }
+
+    @Test
+    void initialSetup_blackKing_pseudoLegalMoves()
+    {
+        PieceHelper blackKing = e8.getPieceHelper();
+
+        assertEquals( 0, blackKing.getPseudoLegalMoves().size() );
+
+        assertFalse( blackKing.canPseudoLegallyMoveTo( d8 ) );
+        assertFalse( blackKing.canPseudoLegallyMoveTo( d7 ) );
+        assertFalse( blackKing.canPseudoLegallyMoveTo( e7 ) );
+        assertFalse( blackKing.canPseudoLegallyMoveTo( f8 ) );
+        assertFalse( blackKing.canPseudoLegallyMoveTo( f7 ) );
     }
 }

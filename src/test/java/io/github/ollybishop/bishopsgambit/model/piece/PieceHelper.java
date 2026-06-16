@@ -20,13 +20,23 @@ public class PieceHelper
         this.piece = piece;
     }
 
-    public List<Square> getControlledSquares()
+    List<Square> getControlledSquares()
     {
         return piece.getControlledSquares( gameSupplier.get().getActiveBoard() );
     }
 
-    public boolean controls( SquareHelper squareHelper )
+    List<Square> getPseudoLegalMoves()
     {
-        return piece.controls( squareHelper.getSquare(), gameSupplier.get().getActiveBoard() );
+        return piece.getPseudoLegalMoves( gameSupplier.get().getActiveBoard() );
+    }
+
+    boolean controls( SquareHelper squareHelper )
+    {
+        return getControlledSquares().contains( squareHelper.getSquare() );
+    }
+
+    boolean canPseudoLegallyMoveTo( SquareHelper squareHelper )
+    {
+        return getPseudoLegalMoves().contains( squareHelper.getSquare() );
     }
 }

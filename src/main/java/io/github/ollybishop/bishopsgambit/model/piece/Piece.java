@@ -126,7 +126,7 @@ public abstract class Piece
      * @param board the chessboard
      * @return the squares this piece can pseudo-legally move to
      */
-    private List<Square> getPseudoLegalMoves( Board board )
+    List<Square> getPseudoLegalMoves( Board board )
     {
         return getCandidateSquares( board, false );
     }
