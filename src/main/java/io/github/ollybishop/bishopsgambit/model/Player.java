@@ -66,7 +66,15 @@ public class Player
         return this.colour;
     }
 
-    public int getCoefficient()
+    /**
+     * Returns this player's sign for player-relative calculations.
+     * <p>
+     * The sign is {@code 1} for White and {@code -1} for Black. It also matches the y-direction in
+     * which this player's pawns move.
+     *
+     * @return {@code 1} for White; {@code -1} for Black
+     */
+    public int getSign()
     {
         return switch ( getColour() )
         {

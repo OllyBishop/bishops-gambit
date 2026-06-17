@@ -93,8 +93,8 @@ class ApplicationFrameTest
     @BeforeEach
     void newGame()
     {
-        // Skip for first test because ApplicationFrame already creates a new Game on startup.
-        // Note: This relies on @TestInstance(Lifecycle.PER_CLASS) keeping state across tests.
+        // Skip the first test because ApplicationFrame already creates a new Game on startup.
+        // This relies on @TestInstance( Lifecycle.PER_CLASS ) preserving state between tests.
         if ( isFirstTest )
         {
             isFirstTest = false;

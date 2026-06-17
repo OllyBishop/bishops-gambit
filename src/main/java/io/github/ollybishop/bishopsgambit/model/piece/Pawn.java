@@ -6,7 +6,6 @@ import java.util.List;
 import io.github.ollybishop.bishopsgambit.model.Board;
 import io.github.ollybishop.bishopsgambit.model.Player;
 import io.github.ollybishop.bishopsgambit.model.Square;
-import io.github.ollybishop.bishopsgambit.util.ListUtils;
 
 public class Pawn extends Piece
 {
@@ -30,29 +29,30 @@ public class Pawn extends Piece
     @Override
     List<Square> getCandidateSquares( Board board, boolean includeFriendlySquares )
     {
-        List<Square> forwardMoveSquares = new ArrayList<>();
+        List<Square> candidateSquares = new ArrayList<>();
 
         Square square = getSquare( board );
-        int dy = getPlayerCoefficient();
+        int dy = getPlayerSign();
 
         Square oneRankForward = board.getSquare( square, 0, dy );
 
         if ( oneRankForward.isEmpty() )
         {
-            forwardMoveSquares.add( oneRankForward );
+            candidateSquares.add( oneRankForward );
 
             Square twoRanksForward = board.getSquare( square, 0, 2 * dy );
 
             if ( square == getStartSquare( board ) && twoRanksForward.isEmpty() )
-                forwardMoveSquares.add( twoRanksForward );
+                candidateSquares.add( twoRanksForward );
         }
 
-        // Only include controlled squares that would result in a capture
         List<Square> captureSquares = getControlledSquares( board ).stream()
                                                                    .filter( s -> canCaptureOn( s, board ) )
                                                                    .toList();
 
-        return ListUtils.combine( forwardMoveSquares, captureSquares );
+        candidateSquares.addAll( captureSquares );
+
+        return candidateSquares;
     }
 
     /**
@@ -82,13 +82,18 @@ public class Pawn extends Piece
         return board.getSquare( file, rank ).getPiece() == enPassantPawn;
     }
 
+    /**
+     * For pawns, controlled squares are not simply candidate squares with friendly-occupied squares
+     * included. A pawn controls its forward diagonals: two for non-edge pawns, or one for a-pawns
+     * and h-pawns.
+     */
     @Override
     public List<Square> getControlledSquares( Board board )
     {
         List<Square> controlledSquares = new ArrayList<>();
 
         Square square = getSquare( board );
-        int dy = getPlayerCoefficient();
+        int dy = getPlayerSign();
 
         for ( int dx : new int[] { -1, 1 } )
         {

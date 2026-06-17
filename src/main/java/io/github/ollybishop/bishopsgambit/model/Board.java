@@ -279,10 +279,17 @@ public class Board extends ArrayList<Square>
         return player.isInCheck( cloneAndMove( from, to ) );
     }
 
+    /**
+     * Returns the material difference on this board from White's perspective.
+     * <p>
+     * A positive value means White is ahead, while a negative value means Black is ahead.
+     *
+     * @return the total white material value minus the total black material value
+     */
     public int getMaterialDifference()
     {
         return getPieces().stream()
-                          .mapToInt( piece -> piece.getPlayerCoefficient() * piece.getValue() )
+                          .mapToInt( piece -> piece.getPlayerSign() * piece.getValue() )
                           .sum();
     }
 

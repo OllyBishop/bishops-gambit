@@ -76,7 +76,7 @@ public class King extends Piece
                 // Two squares adjacent to king (king moves here)
                 Square kingDestination = board.getSquare( kingSquare, 2 * dx, 0 );
 
-                // One square adjacent to rook (same as 'k2' when castling kingside)
+                // One square adjacent to rook (same as kingDestination when castling kingside)
                 Square rookAdjacent = board.getSquare( rookSquare, -dx, 0 );
 
                 if ( kingAdjacent.isEmpty() &&

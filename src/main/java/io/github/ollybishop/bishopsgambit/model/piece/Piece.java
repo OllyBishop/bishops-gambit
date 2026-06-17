@@ -44,9 +44,14 @@ public abstract class Piece
         return getPlayer().getColour();
     }
 
-    public int getPlayerCoefficient()
+    /**
+     * Returns the sign of the player that owns this piece.
+     *
+     * @return {@code 1} for a white piece; {@code -1} for a black piece
+     */
+    public int getPlayerSign()
     {
-        return getPlayer().getCoefficient();
+        return getPlayer().getSign();
     }
 
     public Board.Side getBoardSide()
@@ -199,13 +204,13 @@ public abstract class Piece
     public boolean movedTwoSquaresForward( Square from, Square to )
     {
         return to.fileDiff( from ) == 0 &&
-               to.rankDiff( from ) == 2 * getPlayerCoefficient();
+               to.rankDiff( from ) == 2 * getPlayerSign();
     }
 
     public boolean movedOneSquareDiagonallyForward( Square from, Square to )
     {
         return Math.abs( to.fileDiff( from ) ) == 1 &&
-               to.rankDiff( from ) == getPlayerCoefficient();
+               to.rankDiff( from ) == getPlayerSign();
     }
 
     public boolean movedTwoSquaresHorizontally( Square from, Square to )
