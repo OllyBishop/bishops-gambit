@@ -42,12 +42,14 @@ public class Pawn extends Piece
 
             Square twoRanksForward = board.getSquare( square, 0, 2 * dy );
 
+            // twoRanksForward is always non-null when the pawn is on its start square
             if ( square == getStartSquare( board ) && twoRanksForward.isEmpty() )
                 candidateSquares.add( twoRanksForward );
         }
 
+        // Include controlled squares that are valid capture destinations
         List<Square> captureSquares = getControlledSquares( board ).stream()
-                                                                   .filter( s -> canCaptureOn( s, board ) )
+                                                                   .filter( s -> isValidCaptureDestination( s, board ) )
                                                                    .toList();
 
         candidateSquares.addAll( captureSquares );
@@ -56,19 +58,20 @@ public class Pawn extends Piece
     }
 
     /**
-     * Returns whether this pawn can capture on the given square.
+     * Returns whether the given controlled square is a valid capture destination for this pawn.
      * <p>
-     * A pawn can capture on the given square if it is occupied by an opposing piece, or if moving
-     * there would capture the board's en passant pawn. This method does not check whether making
-     * the move would leave the moving player in check.
+     * A controlled square is a valid capture destination if it is occupied by an opposing piece, or
+     * if moving there would capture the board's en passant pawn. This method does not check whether
+     * making the move would leave the moving player in check.
      * 
-     * @param square the destination square
-     * @param board  the chessboard
-     * @return {@code true} if this pawn can capture on the given square; {@code false} otherwise
+     * @param controlledSquare the controlled destination square
+     * @param board            the chessboard
+     * @return {@code true} if the given controlled square is a valid capture destination;
+     *         {@code false} otherwise
      */
-    private boolean canCaptureOn( Square square, Board board )
+    private boolean isValidCaptureDestination( Square controlledSquare, Board board )
     {
-        if ( square.isOccupiedByOpponentOf( getPlayer() ) )
+        if ( controlledSquare.isOccupiedByOpponentOf( getPlayer() ) )
             return true;
 
         Pawn enPassantPawn = board.getEnPassantPawn();
@@ -76,7 +79,7 @@ public class Pawn extends Piece
         if ( enPassantPawn == null )
             return false;
 
-        char file = square.getFile();
+        char file = controlledSquare.getFile();
         char rank = getSquare( board ).getRank();
 
         return board.getSquare( file, rank ).getPiece() == enPassantPawn;

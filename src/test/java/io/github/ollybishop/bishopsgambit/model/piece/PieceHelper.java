@@ -30,6 +30,11 @@ public class PieceHelper
         return piece.getPseudoLegalMoves( gameSupplier.get().getActiveBoard() );
     }
 
+    List<Square> getLegalMoves()
+    {
+        return piece.getLegalMoves( gameSupplier.get().getActiveBoard() );
+    }
+
     boolean controls( SquareHelper squareHelper )
     {
         return getControlledSquares().contains( squareHelper.getSquare() );
@@ -38,5 +43,10 @@ public class PieceHelper
     boolean canPseudoLegallyMoveTo( SquareHelper squareHelper )
     {
         return getPseudoLegalMoves().contains( squareHelper.getSquare() );
+    }
+
+    boolean canLegallyMoveTo( SquareHelper squareHelper )
+    {
+        return getLegalMoves().contains( squareHelper.getSquare() );
     }
 }

@@ -22,6 +22,16 @@ public class SquareHelper
         this.rank = rank;
     }
 
+    public char getFile()
+    {
+        return file;
+    }
+
+    public char getRank()
+    {
+        return rank;
+    }
+
     public Square getSquare()
     {
         return gameSupplier.get().getActiveBoard().getSquare( file, rank );

@@ -30,6 +30,8 @@ class PieceTest
     private final SquareHelper b1 = new SquareHelper( () -> game, 'b', '1' );
     private final SquareHelper b2 = new SquareHelper( () -> game, 'b', '2' );
     private final SquareHelper b3 = new SquareHelper( () -> game, 'b', '3' );
+    private final SquareHelper b4 = new SquareHelper( () -> game, 'b', '4' );
+    private final SquareHelper b5 = new SquareHelper( () -> game, 'b', '5' );
     private final SquareHelper b6 = new SquareHelper( () -> game, 'b', '6' );
     private final SquareHelper b7 = new SquareHelper( () -> game, 'b', '7' );
     private final SquareHelper b8 = new SquareHelper( () -> game, 'b', '8' );
@@ -37,6 +39,8 @@ class PieceTest
     private final SquareHelper c1 = new SquareHelper( () -> game, 'c', '1' );
     private final SquareHelper c2 = new SquareHelper( () -> game, 'c', '2' );
     private final SquareHelper c3 = new SquareHelper( () -> game, 'c', '3' );
+    private final SquareHelper c4 = new SquareHelper( () -> game, 'c', '4' );
+    private final SquareHelper c5 = new SquareHelper( () -> game, 'c', '5' );
     private final SquareHelper c6 = new SquareHelper( () -> game, 'c', '6' );
     private final SquareHelper c7 = new SquareHelper( () -> game, 'c', '7' );
     private final SquareHelper c8 = new SquareHelper( () -> game, 'c', '8' );
@@ -44,6 +48,8 @@ class PieceTest
     private final SquareHelper d1 = new SquareHelper( () -> game, 'd', '1' );
     private final SquareHelper d2 = new SquareHelper( () -> game, 'd', '2' );
     private final SquareHelper d3 = new SquareHelper( () -> game, 'd', '3' );
+    private final SquareHelper d4 = new SquareHelper( () -> game, 'd', '4' );
+    private final SquareHelper d5 = new SquareHelper( () -> game, 'd', '5' );
     private final SquareHelper d6 = new SquareHelper( () -> game, 'd', '6' );
     private final SquareHelper d7 = new SquareHelper( () -> game, 'd', '7' );
     private final SquareHelper d8 = new SquareHelper( () -> game, 'd', '8' );
@@ -60,6 +66,8 @@ class PieceTest
     private final SquareHelper f1 = new SquareHelper( () -> game, 'f', '1' );
     private final SquareHelper f2 = new SquareHelper( () -> game, 'f', '2' );
     private final SquareHelper f3 = new SquareHelper( () -> game, 'f', '3' );
+    private final SquareHelper f4 = new SquareHelper( () -> game, 'f', '4' );
+    private final SquareHelper f5 = new SquareHelper( () -> game, 'f', '5' );
     private final SquareHelper f6 = new SquareHelper( () -> game, 'f', '6' );
     private final SquareHelper f7 = new SquareHelper( () -> game, 'f', '7' );
     private final SquareHelper f8 = new SquareHelper( () -> game, 'f', '8' );
@@ -67,6 +75,8 @@ class PieceTest
     private final SquareHelper g1 = new SquareHelper( () -> game, 'g', '1' );
     private final SquareHelper g2 = new SquareHelper( () -> game, 'g', '2' );
     private final SquareHelper g3 = new SquareHelper( () -> game, 'g', '3' );
+    private final SquareHelper g4 = new SquareHelper( () -> game, 'g', '4' );
+    private final SquareHelper g5 = new SquareHelper( () -> game, 'g', '5' );
     private final SquareHelper g6 = new SquareHelper( () -> game, 'g', '6' );
     private final SquareHelper g7 = new SquareHelper( () -> game, 'g', '7' );
     private final SquareHelper g8 = new SquareHelper( () -> game, 'g', '8' );
@@ -82,27 +92,39 @@ class PieceTest
 
     // ============================================================================================
 
+    private void makeMove( SquareHelper from, SquareHelper to )
+    {
+        makeMove( from, to, null );
+    }
+
+    private void makeMove( SquareHelper from, SquareHelper to, Piece.Type newType )
+    {
+        game.makeMove( from.getSquare(), to.getSquare(), newType );
+    }
+
+    // ============================================================================================
+
     @BeforeEach
-    void printName( TestInfo testInfo )
+    void printTestName( TestInfo testInfo )
     {
         System.out.println( "Running test " + testInfo.getDisplayName() + "..." );
     }
 
     @BeforeEach
-    void newGame()
+    void createNewGame()
     {
         game = new Game();
     }
 
     @AfterEach
-    void printBoard()
+    void printFinalBoard()
     {
         game.getActiveBoard().print();
         System.out.println();
     }
 
     // ============================================================================================
-    // Pawns
+    // Initial Setup
     // ============================================================================================
 
     // White a-pawn
@@ -265,10 +287,6 @@ class PieceTest
         assertTrue( blackHPawn.canPseudoLegallyMoveTo( h5 ) );
     }
 
-    // ============================================================================================
-    // Knights
-    // ============================================================================================
-
     // White queenside knight
 
     @Test
@@ -373,10 +391,6 @@ class PieceTest
         assertTrue( blackKingsideKnight.canPseudoLegallyMoveTo( h6 ) );
     }
 
-    // ============================================================================================
-    // Bishops
-    // ============================================================================================
-
     // White queenside bishop
 
     @Test
@@ -472,10 +486,6 @@ class PieceTest
         assertFalse( blackKingsideBishop.canPseudoLegallyMoveTo( e7 ) );
         assertFalse( blackKingsideBishop.canPseudoLegallyMoveTo( g7 ) );
     }
-
-    // ============================================================================================
-    // Rooks
-    // ============================================================================================
 
     // White queenside rook
 
@@ -573,10 +583,6 @@ class PieceTest
         assertFalse( blackKingsideRook.canPseudoLegallyMoveTo( h7 ) );
     }
 
-    // ============================================================================================
-    // Queens
-    // ============================================================================================
-
     // White queen
 
     @Test
@@ -637,10 +643,6 @@ class PieceTest
         assertFalse( blackQueen.canPseudoLegallyMoveTo( e7 ) );
     }
 
-    // ============================================================================================
-    // Kings
-    // ============================================================================================
-
     // White king
 
     @Test
@@ -699,5 +701,466 @@ class PieceTest
         assertFalse( blackKing.canPseudoLegallyMoveTo( e7 ) );
         assertFalse( blackKing.canPseudoLegallyMoveTo( f8 ) );
         assertFalse( blackKing.canPseudoLegallyMoveTo( f7 ) );
+    }
+
+    // ============================================================================================
+    // Developed Positions
+    // ============================================================================================
+
+    // Bishop blockers
+
+    @Test
+    void developedPosition_whiteBishop_controlledSquares_stopAtFirstPieceInEachDirection()
+    {
+        makeMove( e2, e4 );
+        makeMove( b7, b5 );
+        makeMove( f1, d3 );
+
+        PieceHelper whiteBishop = d3.getPieceHelper();
+
+        assertEquals( 6, whiteBishop.getControlledSquares().size() );
+
+        assertFalse( whiteBishop.controls( a6 ) );
+        assertFalse( whiteBishop.controls( b1 ) );
+        assertTrue( whiteBishop.controls( b5 ) );
+        assertTrue( whiteBishop.controls( c2 ) );
+        assertTrue( whiteBishop.controls( c4 ) );
+        assertTrue( whiteBishop.controls( e2 ) );
+        assertTrue( whiteBishop.controls( e4 ) );
+        assertTrue( whiteBishop.controls( f1 ) );
+        assertFalse( whiteBishop.controls( f5 ) );
+    }
+
+    @Test
+    void developedPosition_whiteBishop_pseudoLegalMoves_includeEnemyBlockersButExcludeFriendlyBlockers()
+    {
+        makeMove( e2, e4 );
+        makeMove( b7, b5 );
+        makeMove( f1, d3 );
+
+        PieceHelper whiteBishop = d3.getPieceHelper();
+
+        assertEquals( 4, whiteBishop.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteBishop.canPseudoLegallyMoveTo( a6 ) );
+        assertFalse( whiteBishop.canPseudoLegallyMoveTo( b1 ) );
+        assertTrue( whiteBishop.canPseudoLegallyMoveTo( b5 ) );
+        assertFalse( whiteBishop.canPseudoLegallyMoveTo( c2 ) );
+        assertTrue( whiteBishop.canPseudoLegallyMoveTo( c4 ) );
+        assertTrue( whiteBishop.canPseudoLegallyMoveTo( e2 ) );
+        assertFalse( whiteBishop.canPseudoLegallyMoveTo( e4 ) );
+        assertTrue( whiteBishop.canPseudoLegallyMoveTo( f1 ) );
+        assertFalse( whiteBishop.canPseudoLegallyMoveTo( f5 ) );
+    }
+
+    // Pawn captures and blockers
+
+    @Test
+    void developedPosition_whitePawn_controlledSquares_includeBothDiagonals()
+    {
+        makeMove( e2, e4 );
+        makeMove( d7, d5 );
+        makeMove( f2, f4 );
+        makeMove( a7, a6 );
+        makeMove( f4, f5 );
+
+        PieceHelper whitePawn = e4.getPieceHelper();
+
+        assertEquals( 2, whitePawn.getControlledSquares().size() );
+
+        assertTrue( whitePawn.controls( d5 ) );
+        assertFalse( whitePawn.controls( e5 ) );
+        assertTrue( whitePawn.controls( f5 ) );
+    }
+
+    @Test
+    void developedPosition_whitePawn_pseudoLegalMoves_includeForwardMoveAndEnemyCaptureOnly()
+    {
+        makeMove( e2, e4 );
+        makeMove( d7, d5 );
+        makeMove( f2, f4 );
+        makeMove( a7, a6 );
+        makeMove( f4, f5 );
+
+        PieceHelper whitePawn = e4.getPieceHelper();
+
+        assertEquals( 2, whitePawn.getPseudoLegalMoves().size() );
+
+        assertTrue( whitePawn.canPseudoLegallyMoveTo( d5 ) );
+        assertTrue( whitePawn.canPseudoLegallyMoveTo( e5 ) );
+        assertFalse( whitePawn.canPseudoLegallyMoveTo( f5 ) );
+    }
+
+    // Knight movement
+
+    @Test
+    void developedPosition_whiteKnight_controlledSquares_includeAllEightJumpSquares()
+    {
+        makeMove( g1, f3 );
+        makeMove( b8, c6 );
+        makeMove( f3, d4 );
+        makeMove( g8, f6 );
+
+        PieceHelper whiteKnight = d4.getPieceHelper();
+
+        assertEquals( 8, whiteKnight.getControlledSquares().size() );
+
+        assertTrue( whiteKnight.controls( b3 ) );
+        assertTrue( whiteKnight.controls( b5 ) );
+        assertTrue( whiteKnight.controls( c2 ) );
+        assertTrue( whiteKnight.controls( c6 ) );
+        assertTrue( whiteKnight.controls( e2 ) );
+        assertTrue( whiteKnight.controls( e6 ) );
+        assertTrue( whiteKnight.controls( f3 ) );
+        assertTrue( whiteKnight.controls( f5 ) );
+    }
+
+    @Test
+    void developedPosition_whiteKnight_pseudoLegalMoves_canJumpButCannotLandOnFriendlyPieces()
+    {
+        makeMove( g1, f3 );
+        makeMove( b8, c6 );
+        makeMove( f3, d4 );
+        makeMove( g8, f6 );
+
+        PieceHelper whiteKnight = d4.getPieceHelper();
+
+        assertEquals( 6, whiteKnight.getPseudoLegalMoves().size() );
+
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( b3 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( b5 ) );
+        assertFalse( whiteKnight.canPseudoLegallyMoveTo( c2 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( c6 ) );
+        assertFalse( whiteKnight.canPseudoLegallyMoveTo( e2 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( e6 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( f3 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( f5 ) );
+    }
+
+    // Absolute pins
+
+    @Test
+    void developedPosition_pinnedBlackKnight_hasPseudoLegalMovesButNoLegalMoves()
+    {
+        makeMove( e2, e4 );
+        makeMove( d7, d6 );
+        makeMove( g1, f3 );
+        makeMove( b8, c6 );
+        makeMove( f1, b5 );
+
+        PieceHelper blackKnight = c6.getPieceHelper();
+
+        assertEquals( 8, blackKnight.getControlledSquares().size() );
+
+        assertTrue( blackKnight.controls( a7 ) );
+        assertTrue( blackKnight.controls( a5 ) );
+        assertTrue( blackKnight.controls( b8 ) );
+        assertTrue( blackKnight.controls( b4 ) );
+        assertTrue( blackKnight.controls( d8 ) );
+        assertTrue( blackKnight.controls( d4 ) );
+        assertTrue( blackKnight.controls( e7 ) );
+        assertTrue( blackKnight.controls( e5 ) );
+
+        assertEquals( 5, blackKnight.getPseudoLegalMoves().size() );
+
+        assertFalse( blackKnight.canPseudoLegallyMoveTo( a7 ) );
+        assertTrue( blackKnight.canPseudoLegallyMoveTo( a5 ) );
+        assertTrue( blackKnight.canPseudoLegallyMoveTo( b8 ) );
+        assertTrue( blackKnight.canPseudoLegallyMoveTo( b4 ) );
+        assertFalse( blackKnight.canPseudoLegallyMoveTo( d8 ) );
+        assertTrue( blackKnight.canPseudoLegallyMoveTo( d4 ) );
+        assertFalse( blackKnight.canPseudoLegallyMoveTo( e7 ) );
+        assertTrue( blackKnight.canPseudoLegallyMoveTo( e5 ) );
+
+        assertEquals( 0, blackKnight.getLegalMoves().size() );
+
+        assertFalse( blackKnight.canLegallyMoveTo( a7 ) );
+        assertFalse( blackKnight.canLegallyMoveTo( a5 ) );
+        assertFalse( blackKnight.canLegallyMoveTo( b8 ) );
+        assertFalse( blackKnight.canLegallyMoveTo( b4 ) );
+        assertFalse( blackKnight.canLegallyMoveTo( d8 ) );
+        assertFalse( blackKnight.canLegallyMoveTo( d4 ) );
+        assertFalse( blackKnight.canLegallyMoveTo( e7 ) );
+        assertFalse( blackKnight.canLegallyMoveTo( e5 ) );
+    }
+
+    @Test
+    void developedPosition_pinnedWhiteKnight_hasPseudoLegalMovesButNoLegalMoves()
+    {
+        makeMove( b1, c3 );
+        makeMove( e7, e5 );
+        makeMove( d2, d3 );
+        makeMove( f8, b4 );
+
+        PieceHelper whiteKnight = c3.getPieceHelper();
+
+        assertEquals( 8, whiteKnight.getControlledSquares().size() );
+
+        assertTrue( whiteKnight.controls( a2 ) );
+        assertTrue( whiteKnight.controls( a4 ) );
+        assertTrue( whiteKnight.controls( b1 ) );
+        assertTrue( whiteKnight.controls( b5 ) );
+        assertTrue( whiteKnight.controls( d1 ) );
+        assertTrue( whiteKnight.controls( d5 ) );
+        assertTrue( whiteKnight.controls( e2 ) );
+        assertTrue( whiteKnight.controls( e4 ) );
+
+        assertEquals( 5, whiteKnight.getPseudoLegalMoves().size() );
+
+        assertFalse( whiteKnight.canPseudoLegallyMoveTo( a2 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( a4 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( b1 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( b5 ) );
+        assertFalse( whiteKnight.canPseudoLegallyMoveTo( d1 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( d5 ) );
+        assertFalse( whiteKnight.canPseudoLegallyMoveTo( e2 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( e4 ) );
+
+        assertEquals( 0, whiteKnight.getLegalMoves().size() );
+
+        assertFalse( whiteKnight.canLegallyMoveTo( a2 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( a4 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( b1 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( b5 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( d1 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( d5 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( e2 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( e4 ) );
+    }
+
+    // Check responses
+
+    @Test
+    void developedPosition_whiteInCheck_canBlockWithSinglePawnMoveButNotDoublePawnMove()
+    {
+        makeMove( d2, d4 );
+        makeMove( e7, e5 );
+        makeMove( e2, e4 );
+        makeMove( f8, b4 );
+
+        PieceHelper whitePawn = c2.getPieceHelper();
+
+        assertEquals( 2, whitePawn.getPseudoLegalMoves().size() );
+
+        assertTrue( whitePawn.canPseudoLegallyMoveTo( c3 ) );
+        assertTrue( whitePawn.canPseudoLegallyMoveTo( c4 ) );
+
+        assertEquals( 1, whitePawn.getLegalMoves().size() );
+
+        assertTrue( whitePawn.canLegallyMoveTo( c3 ) );
+        assertFalse( whitePawn.canLegallyMoveTo( c4 ) );
+    }
+
+    @Test
+    void developedPosition_whiteInCheck_unrelatedPseudoLegalKnightMovesAreNotLegal()
+    {
+        makeMove( d2, d4 );
+        makeMove( e7, e5 );
+        makeMove( e2, e4 );
+        makeMove( f8, b4 );
+
+        PieceHelper whiteKnight = g1.getPieceHelper();
+
+        assertEquals( 3, whiteKnight.getControlledSquares().size() );
+
+        assertTrue( whiteKnight.controls( e2 ) );
+        assertTrue( whiteKnight.controls( f3 ) );
+        assertTrue( whiteKnight.controls( h3 ) );
+
+        assertEquals( 3, whiteKnight.getPseudoLegalMoves().size() );
+
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( e2 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( f3 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( h3 ) );
+
+        assertEquals( 0, whiteKnight.getLegalMoves().size() );
+
+        assertFalse( whiteKnight.canLegallyMoveTo( e2 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( f3 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( h3 ) );
+    }
+
+    @Test
+    void developedPosition_whiteInCheck_unrelatedQueensideKnightMovesAreNotLegal()
+    {
+        makeMove( f2, f3 );
+        makeMove( e7, e5 );
+        makeMove( g2, g4 );
+        makeMove( d8, h4 );
+
+        PieceHelper whiteKnight = b1.getPieceHelper();
+
+        assertEquals( 3, whiteKnight.getControlledSquares().size() );
+
+        assertTrue( whiteKnight.controls( a3 ) );
+        assertTrue( whiteKnight.controls( c3 ) );
+        assertTrue( whiteKnight.controls( d2 ) );
+
+        assertEquals( 2, whiteKnight.getPseudoLegalMoves().size() );
+
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( a3 ) );
+        assertTrue( whiteKnight.canPseudoLegallyMoveTo( c3 ) );
+        assertFalse( whiteKnight.canPseudoLegallyMoveTo( d2 ) );
+
+        assertEquals( 0, whiteKnight.getLegalMoves().size() );
+
+        assertFalse( whiteKnight.canLegallyMoveTo( a3 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( c3 ) );
+        assertFalse( whiteKnight.canLegallyMoveTo( d2 ) );
+    }
+
+    // En passant
+
+    @Test
+    void developedPosition_whitePawn_enPassantCaptureEscapesCheck()
+    {
+        makeMove( e2, e4 );
+        makeMove( e7, e6 );
+        makeMove( e4, e5 );
+        makeMove( a7, a6 );
+        makeMove( e1, e2 );
+        makeMove( a6, a5 );
+        makeMove( e2, e3 );
+        makeMove( h7, h6 );
+        makeMove( e3, e4 );
+        makeMove( f7, f5 );
+
+        PieceHelper whitePawn = e5.getPieceHelper();
+
+        assertEquals( 1, whitePawn.getPseudoLegalMoves().size() );
+
+        assertFalse( whitePawn.canPseudoLegallyMoveTo( e6 ) );
+        assertTrue( whitePawn.canPseudoLegallyMoveTo( f6 ) );
+
+        assertEquals( 1, whitePawn.getLegalMoves().size() );
+
+        assertFalse( whitePawn.canLegallyMoveTo( e6 ) );
+        assertTrue( whitePawn.canLegallyMoveTo( f6 ) );
+    }
+
+    @Test
+    void developedPosition_whitePawn_enPassantCaptureIsNotLegalAfterOneMoveDelay()
+    {
+        makeMove( e2, e4 );
+        makeMove( a7, a6 );
+        makeMove( e4, e5 );
+        makeMove( d7, d5 );
+        makeMove( g1, f3 );
+        makeMove( g8, f6 );
+
+        PieceHelper whitePawn = e5.getPieceHelper();
+
+        assertFalse( whitePawn.canPseudoLegallyMoveTo( d6 ) );
+
+        assertFalse( whitePawn.canLegallyMoveTo( d6 ) );
+    }
+
+    @Test
+    void developedPosition_whitePawn_enPassantCaptureIsIllegalWhenItExposesKingToRook()
+    {
+        makeMove( e2, e3 );
+        makeMove( a7, a5 );
+        makeMove( f2, f4 );
+        makeMove( a5, a4 );
+        makeMove( d2, d4 );
+        makeMove( a8, a5 );
+        makeMove( d4, d5 );
+        makeMove( h7, h6 );
+        makeMove( e1, f2 );
+        makeMove( g7, g6 );
+        makeMove( f2, f3 );
+        makeMove( g6, g5 );
+        makeMove( f3, e4 );
+        makeMove( h6, h5 );
+        makeMove( e4, e5 );
+        makeMove( c7, c5 );
+
+        PieceHelper whitePawn = d5.getPieceHelper();
+
+        assertEquals( 2, whitePawn.getPseudoLegalMoves().size() );
+
+        assertTrue( whitePawn.canPseudoLegallyMoveTo( c6 ) );
+        assertTrue( whitePawn.canPseudoLegallyMoveTo( d6 ) );
+
+        assertEquals( 1, whitePawn.getLegalMoves().size() );
+
+        assertFalse( whitePawn.canLegallyMoveTo( c6 ) );
+        assertTrue( whitePawn.canLegallyMoveTo( d6 ) );
+    }
+
+    // Castling
+
+    @Test
+    void developedPosition_whiteKing_canCastleKingsideWhenPathIsClearAndSafe()
+    {
+        makeMove( g1, f3 );
+        makeMove( g8, f6 );
+        makeMove( g2, g3 );
+        makeMove( g7, g6 );
+        makeMove( f1, g2 );
+        makeMove( f8, g7 );
+
+        PieceHelper whiteKing = e1.getPieceHelper();
+
+        assertTrue( whiteKing.canPseudoLegallyMoveTo( g1 ) );
+
+        assertTrue( whiteKing.canLegallyMoveTo( g1 ) );
+    }
+
+    @Test
+    void developedPosition_whiteKing_cannotCastleKingsideThroughControlledSquare()
+    {
+        makeMove( e2, e4 );
+        makeMove( b7, b6 );
+        makeMove( g1, f3 );
+        makeMove( c8, a6 );
+        makeMove( g2, g3 );
+        makeMove( g8, f6 );
+        makeMove( f1, g2 );
+        makeMove( h7, h6 );
+
+        PieceHelper whiteKing = e1.getPieceHelper();
+
+        assertTrue( whiteKing.canPseudoLegallyMoveTo( g1 ) );
+
+        assertFalse( whiteKing.canLegallyMoveTo( g1 ) );
+    }
+
+    @Test
+    void developedPosition_whiteKing_cannotCastleKingsideWhileInCheck()
+    {
+        makeMove( d2, d3 );
+        makeMove( e7, e5 );
+        makeMove( g1, f3 );
+        makeMove( g8, f6 );
+        makeMove( g2, g3 );
+        makeMove( a7, a6 );
+        makeMove( f1, g2 );
+        makeMove( f8, b4 );
+
+        PieceHelper whiteKing = e1.getPieceHelper();
+
+        assertTrue( whiteKing.canPseudoLegallyMoveTo( g1 ) );
+
+        assertFalse( whiteKing.canLegallyMoveTo( g1 ) );
+    }
+
+    // King safety
+
+    @Test
+    void developedPosition_whiteKing_cannotCaptureProtectedCheckingPiece()
+    {
+        makeMove( d2, d3 );
+        makeMove( a7, a5 );
+        makeMove( e1, d2 );
+        makeMove( e7, e5 );
+        makeMove( d2, c3 );
+        makeMove( f8, b4 );
+
+        PieceHelper whiteKing = c3.getPieceHelper();
+
+        assertTrue( whiteKing.canPseudoLegallyMoveTo( b4 ) );
+
+        assertFalse( whiteKing.canLegallyMoveTo( b4 ) );
     }
 }

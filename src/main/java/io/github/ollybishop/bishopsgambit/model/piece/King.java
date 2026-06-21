@@ -2,6 +2,7 @@ package io.github.ollybishop.bishopsgambit.model.piece;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import io.github.ollybishop.bishopsgambit.model.Board;
 import io.github.ollybishop.bishopsgambit.model.Player;
@@ -33,6 +34,7 @@ public class King extends Piece
 
         Square square = getSquare( board );
 
+        // Standard moves
         for ( int dx : new int[] { -1, 0, 1 } )
         {
             for ( int dy : new int[] { -1, 0, 1 } )
@@ -54,20 +56,19 @@ public class King extends Piece
     }
 
     @Override
-    public List<Square> getLegalMoves( Board board )
+    List<Square> getPseudoLegalMoves( Board board )
     {
-        if ( isUnderAttack( board ) )
-            return super.getLegalMoves( board );
+        List<Square> pseudoLegalMoves = super.getPseudoLegalMoves( board );
 
-        List<Square> legalMoves = new ArrayList<>( super.getLegalMoves( board ) );
+        Square kingSquare = getSquare( board );
 
+        // Castling moves
         for ( int dx : new int[] { -1, 1 } )
         {
             Rook rook = getPlayer().getRook( dx );
 
             if ( board.isCastlingAllowed( rook ) )
             {
-                Square kingSquare = getSquare( board );
                 Square rookSquare = rook.getSquare( board );
 
                 // One square adjacent to king (rook moves here)
@@ -79,15 +80,47 @@ public class King extends Piece
                 // One square adjacent to rook (same as kingDestination when castling kingside)
                 Square rookAdjacent = board.getSquare( rookSquare, -dx, 0 );
 
+                // If there is a clear path between the king and rook
                 if ( kingAdjacent.isEmpty() &&
                      kingDestination.isEmpty() &&
-                     rookAdjacent.isEmpty() &&
-                     !kingAdjacent.isControlledByOpponentOf( getPlayer(), board ) &&
-                     !kingDestination.isControlledByOpponentOf( getPlayer(), board ) )
-                    legalMoves.add( kingDestination );
+                     rookAdjacent.isEmpty() )
+                    pseudoLegalMoves.add( kingDestination );
             }
         }
 
-        return legalMoves;
+        return pseudoLegalMoves;
+    }
+
+    @Override
+    public List<Square> getLegalMoves( Board board )
+    {
+        Square kingSquare = getSquare( board );
+        boolean kingIsInCheck = kingSquare.isControlledByOpponentOf( getPlayer(), board );
+
+        // Castling moves are legal only if the king does not start in, pass through or land in check
+        Predicate<Square> castlingMoveIsLegal = kingDestination ->
+        {
+            if ( movedTwoSquaresHorizontally( kingSquare, kingDestination ) )
+            {
+                if ( kingIsInCheck )
+                    return false;
+
+                int dx = Integer.signum( kingDestination.fileDiff( kingSquare ) );
+
+                // One square adjacent to king (rook moves here)
+                Square kingAdjacent = board.getSquare( kingSquare, dx, 0 );
+
+                // If king passes through or lands in check
+                if ( kingAdjacent.isControlledByOpponentOf( getPlayer(), board ) ||
+                     kingDestination.isControlledByOpponentOf( getPlayer(), board ) )
+                    return false;
+            }
+
+            return true;
+        };
+
+        return super.getLegalMoves( board ).stream()
+                                           .filter( castlingMoveIsLegal )
+                                           .toList();
     }
 }

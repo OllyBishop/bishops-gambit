@@ -5,6 +5,8 @@ import static io.github.ollybishop.bishopsgambit.testutil.TestAssertions.assertT
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.AfterEach;
@@ -12,7 +14,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 
+import io.github.ollybishop.bishopsgambit.model.Board;
 import io.github.ollybishop.bishopsgambit.model.Player;
+import io.github.ollybishop.bishopsgambit.model.Square;
+import io.github.ollybishop.bishopsgambit.model.piece.Pawn;
 import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 import io.github.ollybishop.bishopsgambit.testutil.SquareHelper;
 
@@ -23,27 +28,39 @@ class GameTest
     // ============================================================================================
 
     private final SquareHelper a1 = new SquareHelper( () -> game, 'a', '1' );
+    private final SquareHelper a4 = new SquareHelper( () -> game, 'a', '4' );
+    private final SquareHelper a5 = new SquareHelper( () -> game, 'a', '5' );
     private final SquareHelper a8 = new SquareHelper( () -> game, 'a', '8' );
 
     private final SquareHelper b7 = new SquareHelper( () -> game, 'b', '7' );
 
     private final SquareHelper c1 = new SquareHelper( () -> game, 'c', '1' );
+    private final SquareHelper c4 = new SquareHelper( () -> game, 'c', '4' );
+    private final SquareHelper c5 = new SquareHelper( () -> game, 'c', '5' );
     private final SquareHelper c8 = new SquareHelper( () -> game, 'c', '8' );
 
     private final SquareHelper d1 = new SquareHelper( () -> game, 'd', '1' );
+    private final SquareHelper d4 = new SquareHelper( () -> game, 'd', '4' );
+    private final SquareHelper d5 = new SquareHelper( () -> game, 'd', '5' );
     private final SquareHelper d8 = new SquareHelper( () -> game, 'd', '8' );
 
     private final SquareHelper e1 = new SquareHelper( () -> game, 'e', '1' );
+    private final SquareHelper e4 = new SquareHelper( () -> game, 'e', '4' );
+    private final SquareHelper e5 = new SquareHelper( () -> game, 'e', '5' );
     private final SquareHelper e7 = new SquareHelper( () -> game, 'e', '7' );
     private final SquareHelper e8 = new SquareHelper( () -> game, 'e', '8' );
 
     private final SquareHelper f1 = new SquareHelper( () -> game, 'f', '1' );
+    private final SquareHelper f5 = new SquareHelper( () -> game, 'f', '5' );
     private final SquareHelper f8 = new SquareHelper( () -> game, 'f', '8' );
 
     private final SquareHelper g1 = new SquareHelper( () -> game, 'g', '1' );
+    private final SquareHelper g4 = new SquareHelper( () -> game, 'g', '4' );
     private final SquareHelper g8 = new SquareHelper( () -> game, 'g', '8' );
 
     private final SquareHelper h1 = new SquareHelper( () -> game, 'h', '1' );
+    private final SquareHelper h4 = new SquareHelper( () -> game, 'h', '4' );
+    private final SquareHelper h5 = new SquareHelper( () -> game, 'h', '5' );
     private final SquareHelper h7 = new SquareHelper( () -> game, 'h', '7' );
     private final SquareHelper h8 = new SquareHelper( () -> game, 'h', '8' );
 
@@ -133,20 +150,62 @@ class GameTest
 
     // ============================================================================================
 
+    private void assertAllEnPassantPawns( int[] plies, SquareHelper[] expectedSquares )
+    {
+        if ( plies.length != expectedSquares.length )
+            throw new IllegalArgumentException( "Arrays must have the same length." );
+
+        // Indexed by ply number: { 0, 1, ..., game.getNumberOfPliesPlayed() }
+        SquareHelper[] expectedSquaresByPly = new SquareHelper[ game.getNumberOfPliesPlayed() + 1 ];
+
+        for ( int i = 0; i < plies.length; i++ )
+        {
+            int ply = plies[ i ];
+
+            if ( ply < 0 || ply >= expectedSquaresByPly.length )
+                throw new IllegalArgumentException( "Ply out of range: " + ply );
+
+            expectedSquaresByPly[ ply ] = expectedSquares[ i ];
+        }
+
+        for ( int ply = 0; ply < expectedSquaresByPly.length; ply++ )
+        {
+            assertEnPassantPawn( ply, expectedSquaresByPly[ ply ] );
+        }
+    }
+
+    private void assertEnPassantPawn( int ply, SquareHelper expectedSquare )
+    {
+        Board board = game.getBoard( ply );
+        Pawn enPassantPawn = board.getEnPassantPawn();
+
+        if ( expectedSquare == null )
+        {
+            assertNull( enPassantPawn );
+        }
+        else
+        {
+            Square square = board.getSquare( expectedSquare.getFile(), expectedSquare.getRank() );
+            assertSame( square.getPiece(), enPassantPawn );
+        }
+    }
+
+    // ============================================================================================
+
     @BeforeEach
-    void printName( TestInfo testInfo )
+    void printTestName( TestInfo testInfo )
     {
         System.out.println( "Running test " + testInfo.getDisplayName() + "..." );
     }
 
     @BeforeEach
-    void newGame()
+    void createNewGame()
     {
         game = new Game();
     }
 
     @AfterEach
-    void printBoard()
+    void printFinalBoard()
     {
         game.getActiveBoard().print();
         System.out.println();
@@ -191,6 +250,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.CHECKMATE );
+
+        assertAllEnPassantPawns( new int[] { 2, 3 }, new SquareHelper[] { e5, g4 } );
     }
 
     @Test
@@ -210,6 +271,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.CHECKMATE );
+
+        assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, e5 } );
     }
 
     // ============================================================================================
@@ -243,6 +306,8 @@ class GameTest
         assertSameNotNull( blackKing, g8.getPiece() );
         assertSameNotNull( whiteKingsideRook, f1.getPiece() );
         assertSameNotNull( blackKingsideRook, f8.getPiece() );
+
+        assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, e5 } );
     }
 
     @Test
@@ -273,6 +338,8 @@ class GameTest
         assertSameNotNull( blackKing, c8.getPiece() );
         assertSameNotNull( whiteQueensideRook, d1.getPiece() );
         assertSameNotNull( blackQueensideRook, d8.getPiece() );
+
+        assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { d4, d5 } );
     }
 
     @Test
@@ -300,6 +367,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.DEFAULT );
+
+        assertAllEnPassantPawns( new int[] { 1 }, new SquareHelper[] { e4 } );
     }
 
     @Test
@@ -326,6 +395,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.DEFAULT );
+
+        assertAllEnPassantPawns( new int[] { 1, 5 }, new SquareHelper[] { e4, d4 } );
     }
 
     @Test
@@ -343,6 +414,8 @@ class GameTest
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e8g8" ),
                                  "The Black King occupying e8 cannot legally move to g8." );
+
+        assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { d4, e5 } );
     }
 
     @Test
@@ -360,6 +433,8 @@ class GameTest
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e8g8" ),
                                  "The Black King occupying e8 cannot legally move to g8." );
+
+        assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { g4, e5 } );
     }
 
     // ============================================================================================
@@ -385,6 +460,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.DEFAULT );
+
+        assertAllEnPassantPawns( new int[] { 1 }, new SquareHelper[] { d4 } );
     }
 
     @Test
@@ -407,6 +484,8 @@ class GameTest
         assertEquals( getStatus(), Game.Status.CHECK );
 
         assertDoesNotThrow( () -> makeMove( "e5d6" ) );
+
+        assertAllEnPassantPawns( new int[] { 1, 10 }, new SquareHelper[] { e4, d5 } );
     }
 
     // ============================================================================================
@@ -436,6 +515,8 @@ class GameTest
         assertTrue( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.STALEMATE );
+
+        assertAllEnPassantPawns( new int[] { 2, 6, 7 }, new SquareHelper[] { a5, h5, h4 } );
     }
 
     @Test
@@ -463,6 +544,8 @@ class GameTest
         assertTrue( isStalemated() );
         assertFalse( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.STALEMATE );
+
+        assertAllEnPassantPawns( new int[] { 1, 2, 5, 6, 8, 19, 20 }, new SquareHelper[] { d4, e5, a4, a5, f5, c4, c5 } );
     }
 
     // ============================================================================================
@@ -499,6 +582,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+
+        assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
 
     @Test
@@ -532,6 +617,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+
+        assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
 
     @Test
@@ -564,6 +651,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+
+        assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
 
     @Test
@@ -596,6 +685,8 @@ class GameTest
         assertFalse( isStalemated() );
         assertTrue( hasInsufficientMaterial() );
         assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+
+        assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
 
     // ============================================================================================
