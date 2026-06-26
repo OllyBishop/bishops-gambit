@@ -191,7 +191,7 @@ public class Game
      * @param to      the destination square for the piece
      * @param newType the new piece type (if promoting)
      * @return the new piece (if promoting); {@code null} otherwise
-     * @throws UnoccupiedSquareException if the <b>from</b> square is unoccupied
+     * @throws NoPieceOnSquareException  if the <b>from</b> square is unoccupied
      * @throws IllegalMoveException      if the piece cannot legally move to the <b>to</b> square
      * @throws InvalidPromotionException if <b>newType</b> is null and promotion is mandatory, or
      *                                   <b>newType</b> is non-null and either:
@@ -204,7 +204,7 @@ public class Game
     public Piece makeMove( Square from, Square to, Piece.Type newType )
     {
         if ( !from.isOccupied() )
-            throw new UnoccupiedSquareException( from );
+            throw new NoPieceOnSquareException( from );
 
         if ( !getActiveBoard().isLegalMove( from, to ) )
             throw new IllegalMoveException( from, to );

@@ -101,27 +101,27 @@ class GameTest
 
     // ============================================================================================
 
-    private boolean isInCheck()
+    private boolean isActivePlayerInCheck()
     {
         return game.getActivePlayer().isInCheck( game.getActiveBoard() );
     }
 
-    private boolean isCheckmated()
+    private boolean isActivePlayerCheckmated()
     {
         return game.getActivePlayer().isCheckmated( game.getActiveBoard() );
     }
 
-    private boolean isStalemated()
+    private boolean isActivePlayerStalemated()
     {
         return game.getActivePlayer().isStalemated( game.getActiveBoard() );
     }
 
-    private boolean hasInsufficientMaterial()
+    private boolean boardHasInsufficientMaterial()
     {
         return game.getActiveBoard().hasInsufficientMaterial();
     }
 
-    private Game.Status getStatus()
+    private Game.Status getGameStatus()
     {
         return game.getStatus();
     }
@@ -216,19 +216,19 @@ class GameTest
     // ============================================================================================
 
     @Test
-    void fromSquareUnoccupied_unoccupiedSquareException()
+    void moveFromEmptySquare_throwsNoPieceOnSquareException()
     {
-        assertThrowsWithMessage( UnoccupiedSquareException.class,
+        assertThrowsWithMessage( NoPieceOnSquareException.class,
                                  () -> makeMove( "e3e4" ),
-                                 "Cannot make a move from the unoccupied square e3." );
+                                 "Cannot move a piece from empty square e3." );
     }
 
     @Test
-    void toSquareOccupied_byFriendlyPiece_illegalMoveException()
+    void moveToSquareOccupiedByFriendlyPiece_throwsIllegalMoveException()
     {
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1e2" ),
-                                 "The White King occupying e1 cannot legally move to e2." );
+                                 "The White King on e1 cannot legally move to e2." );
     }
 
     // ============================================================================================
@@ -245,11 +245,11 @@ class GameTest
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertTrue( isInCheck() );
-        assertTrue( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.CHECKMATE );
+        assertTrue( isActivePlayerInCheck() );
+        assertTrue( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.CHECKMATE );
 
         assertAllEnPassantPawns( new int[] { 2, 3 }, new SquareHelper[] { e5, g4 } );
     }
@@ -266,11 +266,11 @@ class GameTest
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 1, getMaterialDifference() );
 
-        assertTrue( isInCheck() );
-        assertTrue( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.CHECKMATE );
+        assertTrue( isActivePlayerInCheck() );
+        assertTrue( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.CHECKMATE );
 
         assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, e5 } );
     }
@@ -296,11 +296,11 @@ class GameTest
         assertEquals( 30, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.DEFAULT );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.DEFAULT );
 
         assertSameNotNull( whiteKing, g1.getPiece() );
         assertSameNotNull( blackKing, g8.getPiece() );
@@ -328,11 +328,11 @@ class GameTest
         assertEquals( 30, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.DEFAULT );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.DEFAULT );
 
         assertSameNotNull( whiteKing, c1.getPiece() );
         assertSameNotNull( blackKing, c8.getPiece() );
@@ -343,64 +343,64 @@ class GameTest
     }
 
     @Test
-    void kingsideCastling_fSquareOccupied_byEnemyKnight_illegalMoveException()
+    void kingsideCastling_fSquareOccupied_byEnemyKnight_throwsIllegalMoveException()
     {
         makeMove( "e2e4", "g8f6" );
         makeMove( "g1f3", "f6g4" );
         makeMove( "f1c4", "g4e3" );
         makeMove( "d2d3", "e3f1" );
 
-        Piece blackKnight = f1.getPiece();
-        assertEquals( blackKnight.getColour(), Player.Colour.BLACK );
-        assertEquals( blackKnight.getType(), Piece.Type.KNIGHT );
+        Piece blackKingsideKnight = f1.getPiece();
+        assertEquals( blackKingsideKnight.getColour(), Player.Colour.BLACK );
+        assertEquals( blackKingsideKnight.getType(), Piece.Type.KNIGHT );
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
-                                 "The White King occupying e1 cannot legally move to g1." );
+                                 "The White King on e1 cannot legally move to g1." );
 
         assertEquals( 8, getNumberOfPliesPlayed() );
         assertEquals( 37, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.DEFAULT );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.DEFAULT );
 
         assertAllEnPassantPawns( new int[] { 1 }, new SquareHelper[] { e4 } );
     }
 
     @Test
-    void kingsideCastling_fSquareOccupied_byEnemyBishop_illegalMoveException()
+    void kingsideCastling_fSquareOccupied_byEnemyBishop_throwsIllegalMoveException()
     {
         makeMove( "e2e4", "b7b6" );
         makeMove( "g1f3", "c8a6" );
         makeMove( "d2d4", "a6f1" );
 
-        Piece blackBishop = f1.getPiece();
-        assertEquals( blackBishop.getColour(), Player.Colour.BLACK );
-        assertEquals( blackBishop.getType(), Piece.Type.BISHOP );
+        Piece blackQueensideBishop = f1.getPiece();
+        assertEquals( blackQueensideBishop.getColour(), Player.Colour.BLACK );
+        assertEquals( blackQueensideBishop.getType(), Piece.Type.BISHOP );
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e1g1" ),
-                                 "The White King occupying e1 cannot legally move to g1." );
+                                 "The White King on e1 cannot legally move to g1." );
 
         assertEquals( 6, getNumberOfPliesPlayed() );
         assertEquals( 32, getNumberOfLegalMoves() );
         assertEquals( -3, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.DEFAULT );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.DEFAULT );
 
         assertAllEnPassantPawns( new int[] { 1, 5 }, new SquareHelper[] { e4, d4 } );
     }
 
     @Test
-    void kingsideCastling_fSquareControlled_byEnemyPawn_illegalMoveException()
+    void kingsideCastling_fSquareControlled_byEnemyPawn_throwsIllegalMoveException()
     {
         makeMove( "d2d4", "g8f6" );
         makeMove( "d4d5", "e7e5" );
@@ -413,13 +413,13 @@ class GameTest
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e8g8" ),
-                                 "The Black King occupying e8 cannot legally move to g8." );
+                                 "The Black King on e8 cannot legally move to g8." );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { d4, e5 } );
     }
 
     @Test
-    void kingsideCastling_gSquareControlled_byEnemyPawn_illegalMoveException()
+    void kingsideCastling_gSquareControlled_byEnemyPawn_throwsIllegalMoveException()
     {
         makeMove( "g2g4", "g8f6" );
         makeMove( "g4g5", "e7e5" );
@@ -432,7 +432,7 @@ class GameTest
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "e8g8" ),
-                                 "The Black King occupying e8 cannot legally move to g8." );
+                                 "The Black King on e8 cannot legally move to g8." );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { g4, e5 } );
     }
@@ -442,30 +442,30 @@ class GameTest
     // ============================================================================================
 
     @Test
-    void enPassant_illegalMoveException()
+    void enPassantCaptureAfterSingleSquarePawnMove_throwsIllegalMoveException()
     {
         makeMove( "d2d4", "e7e6" );
         makeMove( "d4d5", "e6e5" );
 
         assertThrowsWithMessage( IllegalMoveException.class,
                                  () -> makeMove( "d5e6" ),
-                                 "The White Pawn occupying d5 cannot legally move to e6." );
+                                 "The White Pawn on d5 cannot legally move to e6." );
 
         assertEquals( 4, getNumberOfPliesPlayed() );
         assertEquals( 29, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.DEFAULT );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.DEFAULT );
 
         assertAllEnPassantPawns( new int[] { 1 }, new SquareHelper[] { d4 } );
     }
 
     @Test
-    void enPassant_onlyLegalMove_inCheck()
+    void enPassantCaptureOfCheckingPawn_isOnlyLegalMove()
     {
         makeMove( "e2e4", "e7e6" );
         makeMove( "e4e5", "d8h4" );
@@ -477,11 +477,11 @@ class GameTest
         assertEquals( 1, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertTrue( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.CHECK );
+        assertTrue( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.CHECK );
 
         assertDoesNotThrow( () -> makeMove( "e5d6" ) );
 
@@ -510,11 +510,11 @@ class GameTest
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 10, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertTrue( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.STALEMATE );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertTrue( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.STALEMATE );
 
         assertAllEnPassantPawns( new int[] { 2, 6, 7 }, new SquareHelper[] { a5, h5, h4 } );
     }
@@ -539,11 +539,11 @@ class GameTest
         assertEquals( 0, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertTrue( isStalemated() );
-        assertFalse( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.STALEMATE );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertTrue( isActivePlayerStalemated() );
+        assertFalse( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.STALEMATE );
 
         assertAllEnPassantPawns( new int[] { 1, 2, 5, 6, 8, 19, 20 }, new SquareHelper[] { d4, e5, a4, a5, f5, c4, c5 } );
     }
@@ -577,11 +577,11 @@ class GameTest
         assertEquals( 8, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertTrue( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.INSUFFICIENT_MATERIAL );
 
         assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
@@ -612,11 +612,11 @@ class GameTest
         assertEquals( 8, getNumberOfLegalMoves() );
         assertEquals( 3, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertTrue( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.INSUFFICIENT_MATERIAL );
 
         assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
@@ -646,11 +646,11 @@ class GameTest
         assertEquals( 17, getNumberOfLegalMoves() );
         assertEquals( -3, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertTrue( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.INSUFFICIENT_MATERIAL );
 
         assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
@@ -680,11 +680,11 @@ class GameTest
         assertEquals( 15, getNumberOfLegalMoves() );
         assertEquals( 0, getMaterialDifference() );
 
-        assertFalse( isInCheck() );
-        assertFalse( isCheckmated() );
-        assertFalse( isStalemated() );
-        assertTrue( hasInsufficientMaterial() );
-        assertEquals( getStatus(), Game.Status.INSUFFICIENT_MATERIAL );
+        assertFalse( isActivePlayerInCheck() );
+        assertFalse( isActivePlayerCheckmated() );
+        assertFalse( isActivePlayerStalemated() );
+        assertTrue( boardHasInsufficientMaterial() );
+        assertEquals( getGameStatus(), Game.Status.INSUFFICIENT_MATERIAL );
 
         assertAllEnPassantPawns( new int[] { 1, 2 }, new SquareHelper[] { e4, d5 } );
     }
@@ -770,13 +770,13 @@ class GameTest
         makeMove( "c6b7", "f3g2" );
         makeMove( "b7a8q", "g2h1q" );
 
-        Piece whiteQueen = a8.getPiece();
-        assertEquals( whiteQueen.getColour(), Player.Colour.WHITE );
-        assertEquals( whiteQueen.getType(), Piece.Type.QUEEN );
+        Piece whitePromotedQueen = a8.getPiece();
+        assertEquals( whitePromotedQueen.getColour(), Player.Colour.WHITE );
+        assertEquals( whitePromotedQueen.getType(), Piece.Type.QUEEN );
 
-        Piece blackQueen = h1.getPiece();
-        assertEquals( blackQueen.getColour(), Player.Colour.BLACK );
-        assertEquals( blackQueen.getType(), Piece.Type.QUEEN );
+        Piece blackPromotedQueen = h1.getPiece();
+        assertEquals( blackPromotedQueen.getColour(), Player.Colour.BLACK );
+        assertEquals( blackPromotedQueen.getType(), Piece.Type.QUEEN );
     }
 
     @Test
@@ -788,13 +788,13 @@ class GameTest
         makeMove( "c6b7", "f3g2" );
         makeMove( "b7a8r", "g2h1r" );
 
-        Piece whiteRook = a8.getPiece();
-        assertEquals( whiteRook.getColour(), Player.Colour.WHITE );
-        assertEquals( whiteRook.getType(), Piece.Type.ROOK );
+        Piece whitePromotedRook = a8.getPiece();
+        assertEquals( whitePromotedRook.getColour(), Player.Colour.WHITE );
+        assertEquals( whitePromotedRook.getType(), Piece.Type.ROOK );
 
-        Piece blackRook = h1.getPiece();
-        assertEquals( blackRook.getColour(), Player.Colour.BLACK );
-        assertEquals( blackRook.getType(), Piece.Type.ROOK );
+        Piece blackPromotedRook = h1.getPiece();
+        assertEquals( blackPromotedRook.getColour(), Player.Colour.BLACK );
+        assertEquals( blackPromotedRook.getType(), Piece.Type.ROOK );
     }
 
     @Test
@@ -806,13 +806,13 @@ class GameTest
         makeMove( "c6b7", "f3g2" );
         makeMove( "b7a8b", "g2h1b" );
 
-        Piece whiteBishop = a8.getPiece();
-        assertEquals( whiteBishop.getColour(), Player.Colour.WHITE );
-        assertEquals( whiteBishop.getType(), Piece.Type.BISHOP );
+        Piece whitePromotedBishop = a8.getPiece();
+        assertEquals( whitePromotedBishop.getColour(), Player.Colour.WHITE );
+        assertEquals( whitePromotedBishop.getType(), Piece.Type.BISHOP );
 
-        Piece blackBishop = h1.getPiece();
-        assertEquals( blackBishop.getColour(), Player.Colour.BLACK );
-        assertEquals( blackBishop.getType(), Piece.Type.BISHOP );
+        Piece blackPromotedBishop = h1.getPiece();
+        assertEquals( blackPromotedBishop.getColour(), Player.Colour.BLACK );
+        assertEquals( blackPromotedBishop.getType(), Piece.Type.BISHOP );
     }
 
     @Test
@@ -824,17 +824,17 @@ class GameTest
         makeMove( "c6b7", "f3g2" );
         makeMove( "b7a8n", "g2h1n" );
 
-        Piece whiteKnight = a8.getPiece();
-        assertEquals( whiteKnight.getColour(), Player.Colour.WHITE );
-        assertEquals( whiteKnight.getType(), Piece.Type.KNIGHT );
+        Piece whitePromotedKnight = a8.getPiece();
+        assertEquals( whitePromotedKnight.getColour(), Player.Colour.WHITE );
+        assertEquals( whitePromotedKnight.getType(), Piece.Type.KNIGHT );
 
-        Piece blackKnight = h1.getPiece();
-        assertEquals( blackKnight.getColour(), Player.Colour.BLACK );
-        assertEquals( blackKnight.getType(), Piece.Type.KNIGHT );
+        Piece blackPromotedKnight = h1.getPiece();
+        assertEquals( blackPromotedKnight.getColour(), Player.Colour.BLACK );
+        assertEquals( blackPromotedKnight.getType(), Piece.Type.KNIGHT );
     }
 
     @Test
-    void pawnPromotion_newPieceTypePawn_invalidPromotionException()
+    void pawnPromotion_newPieceTypePawn_throwsInvalidPromotionException()
     {
         makeMove( "c2c4", "f7f5" );
         makeMove( "c4c5", "f5f4" );
@@ -848,7 +848,7 @@ class GameTest
     }
 
     @Test
-    void pawnPromotion_newPieceTypeKing_invalidPromotionException()
+    void pawnPromotion_newPieceTypeKing_throwsInvalidPromotionException()
     {
         makeMove( "c2c4", "f7f5" );
         makeMove( "c4c5", "f5f4" );
@@ -862,7 +862,7 @@ class GameTest
     }
 
     @Test
-    void pawnPromotion_newPieceTypeNull_invalidPromotionException()
+    void pawnPromotion_newPieceTypeNull_throwsInvalidPromotionException()
     {
         makeMove( "c2c4", "f7f5" );
         makeMove( "c4c5", "f5f4" );
@@ -876,7 +876,7 @@ class GameTest
     }
 
     @Test
-    void pawnPromotion_promotingPieceNotAPawn_invalidPromotionException()
+    void pawnPromotion_promotingPieceNotAPawn_throwsInvalidPromotionException()
     {
         makeMove( "g2g3", "g7g6" );
         makeMove( "f1g2", "b7b6" );
@@ -888,7 +888,7 @@ class GameTest
     }
 
     @Test
-    void pawnPromotion_promotionSquareNotOnLastRank_invalidPromotionException()
+    void pawnPromotion_promotionSquareNotOnLastRank_throwsInvalidPromotionException()
     {
         // Attempt to promote a pawn without moving it to the last rank
         assertThrowsWithMessage( InvalidPromotionException.class,
