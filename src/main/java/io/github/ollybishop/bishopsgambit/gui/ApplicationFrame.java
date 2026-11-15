@@ -180,7 +180,7 @@ public class ApplicationFrame extends JFrame
 
     private Square getSquare( SquareComponent squareComponent )
     {
-        return getActiveBoard().get( squareComponent.getIndex() );
+        return getActiveBoard().getSquare( squareComponent.getIndex() );
     }
 
     private SquareComponent getSquareComponent( Square square )
@@ -675,13 +675,13 @@ public class ApplicationFrame extends JFrame
         if ( toSquare == null )
             board = getBoard( boardIndex );
         else
-            board = getActiveBoard().cloneAndMove( getSquare( fromSquare ), getSquare( toSquare ) );
+            board = getActiveBoard().copyAndMove( getSquare( fromSquare ), getSquare( toSquare ) );
 
         for ( PieceComponent pieceComponent : pieceComponents )
         {
             SquareComponent squareComponent = getSquareComponent( board, pieceComponent.getPiece() );
 
-            // The piece is no longer on the board, so ensure it is in the appropriate captured pieces pane
+            // The piece is no longer on the board, so display it in the appropriate captured pieces pane
             if ( squareComponent == null )
             {
                 switch ( pieceComponent.getPiece().getColour() )

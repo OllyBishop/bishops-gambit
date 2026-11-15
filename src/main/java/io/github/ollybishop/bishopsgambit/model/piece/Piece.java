@@ -26,7 +26,7 @@ public abstract class Piece
     /**
      * The player that owns this piece.
      * <p>
-     * This is the same player whose piece list, returned by {@link Player#getPieces()}, contains this piece.
+     * This is the same player whose piece set, returned by {@link Player#getPieces()}, contains this piece.
      */
     private final Player player;
 
@@ -71,13 +71,13 @@ public abstract class Piece
         this.startFile = startFile;
         this.startRank = startRank;
 
-        getPlayer().getPieces().add( this );
+        player.registerPiece( this );
     }
 
     @Override
     public String toString()
     {
-        return "%s %s".formatted( getColour(), getType() );
+        return getColour() + " " + getType();
     }
 
     public char toChar()
@@ -153,7 +153,7 @@ public abstract class Piece
                                            .toList();
     }
 
-    public Square getStartSquare( Board board )
+    public Square getStartingSquare( Board board )
     {
         return board.getSquare( startFile, startRank );
     }

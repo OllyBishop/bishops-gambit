@@ -1,7 +1,9 @@
 package io.github.ollybishop.bishopsgambit.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 import io.github.ollybishop.bishopsgambit.model.piece.Bishop;
 import io.github.ollybishop.bishopsgambit.model.piece.King;
@@ -15,7 +17,7 @@ public class Player
 {
     private final Colour colour;
 
-    private final List<Piece> pieces = new ArrayList<>();
+    private final Set<Piece> pieces = new HashSet<>();
 
     private final Rook queensideRook;
     private final Rook kingsideRook;
@@ -83,9 +85,33 @@ public class Player
         };
     }
 
-    public List<Piece> getPieces()
+    /**
+     * Returns an unmodifiable view of all pieces registered to this player, including captured pieces.
+     * <p>
+     * The view reflects subsequent piece registrations.
+     *
+     * @return an unmodifiable view of this player's registered pieces
+     */
+    public Set<Piece> getPieces()
     {
-        return this.pieces;
+        return Collections.unmodifiableSet( pieces );
+    }
+
+    /**
+     * Registers the given piece as belonging to this player. Registering an already registered piece has no effect.
+     *
+     * @param piece the piece to register
+     * @throws NullPointerException     if {@code piece} is null
+     * @throws IllegalArgumentException if {@code piece} belongs to another player
+     */
+    public void registerPiece( Piece piece )
+    {
+        Objects.requireNonNull( piece );
+
+        if ( piece.getPlayer() != this )
+            throw new IllegalArgumentException( "The piece being registered must belong to this player" );
+
+        pieces.add( piece );
     }
 
     Rook getQueensideRook()
@@ -131,7 +157,7 @@ public class Player
     }
 
     /**
-     * Returns a boolean indicating whether this player is in check.
+     * Returns whether this player is in check.
      * 
      * @param board the chessboard
      * @return {@code true} if this player is in check; {@code false} otherwise
@@ -142,7 +168,7 @@ public class Player
     }
 
     /**
-     * Returns a boolean indicating whether this player is checkmated.
+     * Returns whether this player is checkmated.
      * 
      * @param board the chessboard
      * @return {@code true} if this player is checkmated; {@code false} otherwise
@@ -153,7 +179,7 @@ public class Player
     }
 
     /**
-     * Returns a boolean indicating whether this player is stalemated.
+     * Returns whether this player is stalemated.
      * 
      * @param board the chessboard
      * @return {@code true} if this player is stalemated; {@code false} otherwise
@@ -164,21 +190,21 @@ public class Player
     }
 
     /**
-     * Calculates the number of legal moves this player can make.
+     * Returns the number of legal moves this player can make.
      * 
      * @param board the chessboard
      * @return the number of legal moves this player can make
      */
     public int getNumberOfLegalMoves( Board board )
     {
-        return getPieces().stream()
-                          .filter( piece -> board.containsPiece( piece ) )
-                          .mapToInt( piece -> piece.getLegalMoves( board ).size() )
-                          .sum();
+        return pieces.stream()
+                     .filter( piece -> board.containsPiece( piece ) )
+                     .mapToInt( piece -> piece.getLegalMoves( board ).size() )
+                     .sum();
     }
 
     /**
-     * Returns a boolean indicating whether this player has any legal moves.
+     * Returns whether this player has no legal moves.
      * 
      * @param board the chessboard
      * @return {@code true} if this player has no legal moves; {@code false} otherwise

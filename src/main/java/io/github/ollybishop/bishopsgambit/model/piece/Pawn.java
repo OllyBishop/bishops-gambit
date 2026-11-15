@@ -42,8 +42,8 @@ public class Pawn extends Piece
 
             Square twoRanksForward = board.getSquare( square, 0, 2 * dy );
 
-            // twoRanksForward is always non-null when the pawn is on its start square
-            if ( square == getStartSquare( board ) && twoRanksForward.isEmpty() )
+            // twoRanksForward is non-null when the pawn is on its starting square
+            if ( square == getStartingSquare( board ) && twoRanksForward.isEmpty() )
                 candidateSquares.add( twoRanksForward );
         }
 

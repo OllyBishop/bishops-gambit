@@ -1,7 +1,9 @@
 package io.github.ollybishop.bishopsgambit.game;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import io.github.ollybishop.bishopsgambit.model.Board;
 import io.github.ollybishop.bishopsgambit.model.Player;
@@ -32,19 +34,21 @@ public class Game
     {
         System.out.println( "New game started." );
 
-        Board board = new Board();
-        board.assignPieces( white );
-        board.assignPieces( black );
-        addBoard( board );
+        Set<Piece> pieces = new HashSet<>();
+        pieces.addAll( white.getPieces() );
+        pieces.addAll( black.getPieces() );
+
+        addBoard( Board.createStartingBoard( pieces ) );
     }
 
     /**
-     * Adds the given <b>board</b> to the board state history after a ply has been played.
+     * Adds the given {@code board} to the board state history and updates the game status.
      * <p>
-     * The board state history allows previous positions to be viewed and may be used to support undoing moves. The number of
-     * stored board states also determines which player's turn it is.
+     * The board state history contains the initial position followed by the board state after each ply. It allows previous
+     * positions to be viewed and may be used to support undoing moves. The number of stored board states also determines which
+     * player's turn it is.
      * 
-     * @param board the new board state after the ply
+     * @param board the board state to add
      */
     private void addBoard( Board board )
     {
@@ -147,16 +151,16 @@ public class Game
     private Object[] getMoveInfo( String uci, Board board )
     {
         if ( uci == null )
-            throw new IllegalArgumentException( "UCI string cannot be null." );
+            throw new IllegalArgumentException( "UCI string cannot be null" );
 
         if ( uci.length() < 4 || uci.length() > 5 )
-            throw new IllegalArgumentException( "UCI string must be 4 or 5 characters in length." );
+            throw new IllegalArgumentException( "UCI string must be 4 or 5 characters in length" );
 
         if ( !Board.isValidSquare( uci.charAt( 0 ), uci.charAt( 1 ) ) )
-            throw new IllegalArgumentException( "First & second characters in UCI string must represent a valid square." );
+            throw new IllegalArgumentException( "First and second characters in UCI string must represent a valid square" );
 
         if ( !Board.isValidSquare( uci.charAt( 2 ), uci.charAt( 3 ) ) )
-            throw new IllegalArgumentException( "Third & fourth characters in UCI string must represent a valid square." );
+            throw new IllegalArgumentException( "Third and fourth characters in UCI string must represent a valid square" );
 
         Square from = board.getSquare( uci.charAt( 0 ), uci.charAt( 1 ) );
         Square to = board.getSquare( uci.charAt( 2 ), uci.charAt( 3 ) );
@@ -171,17 +175,17 @@ public class Game
             case 'r' -> Piece.Type.ROOK;
             case 'q' -> Piece.Type.QUEEN;
 
-            default -> throw new IllegalArgumentException( "Fifth character in UCI string must represent a valid piece." );
+            default -> throw new IllegalArgumentException( "Fifth character in UCI string must represent a valid piece" );
         };
 
         return new Object[] { from, to, newType };
     }
 
     /**
-     * Validates the requested move, then clones the board returned by {@link Game#getActiveBoard()} and moves the piece
-     * occupying {@code from} to {@code to}. Also handles the following special moves, if applicable:
+     * Validates the requested move and applies it to a copy of the active board. Adds the resulting board to the game's board
+     * state history, making it the new active board. Also handles the following special moves if applicable:
      * <ul>
-     * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
+     * <li>Castling: Moves the appropriate rook to the square adjacent to the king.</li>
      * <li>En passant: Removes the captured pawn.</li>
      * <li>Promotion: Replaces the pawn with a new piece of the given type.</li>
      * </ul>
@@ -216,14 +220,14 @@ public class Game
         if ( !activeBoard.isLegalMove( from, to ) )
             throw IllegalMoveException.illegalPieceMove( from, to );
 
-        Board newBoard = activeBoard.cloneAndMove( from, to );
+        Board newBoard = activeBoard.copyAndMove( from, to );
 
         Piece newPiece;
 
         if ( newType == null )
         {
             if ( piece.canPromote( to ) )
-                throw new InvalidPromotionException( "Promotion is mandatory, but no new piece type was specified." );
+                throw new InvalidPromotionException( "Promotion is mandatory, but no new piece type was specified" );
 
             newPiece = null;
         }
@@ -231,19 +235,19 @@ public class Game
         {
             if ( !( piece instanceof Pawn ) )
             {
-                String message = "The promoting piece (%s) must be a Pawn.".formatted( piece );
+                String message = "The promoting piece (" + piece + ") must be a Pawn";
                 throw new InvalidPromotionException( message );
             }
 
             if ( !to.isOnLastRank( activePlayer ) )
             {
-                String message = "The promotion square (%s) must be on %s's last rank.".formatted( to, activePlayer );
+                String message = "The promotion square (" + to + ") must be on " + activePlayer + "'s last rank";
                 throw new InvalidPromotionException( message );
             }
 
             if ( !newType.isValidPromotionType() )
             {
-                String message = "The new piece type (%s) must be one of Knight, Bishop, Rook or Queen.".formatted( newType );
+                String message = "The new piece type (" + newType + ") must be one of Knight, Bishop, Rook or Queen";
                 throw new InvalidPromotionException( message );
             }
 
