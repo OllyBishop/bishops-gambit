@@ -6,6 +6,6 @@ class NoPieceOnSquareException extends IllegalStateException
 {
     NoPieceOnSquareException( Square from )
     {
-        super( "Cannot move a piece from empty square %s.".formatted( from ) );
+        super( "Cannot move a piece from empty square " + from );
     }
 }

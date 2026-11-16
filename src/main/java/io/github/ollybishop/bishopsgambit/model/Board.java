@@ -2,7 +2,12 @@ package io.github.ollybishop.bishopsgambit.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import io.github.ollybishop.bishopsgambit.game.Game;
 import io.github.ollybishop.bishopsgambit.model.piece.Bishop;
 import io.github.ollybishop.bishopsgambit.model.piece.King;
 import io.github.ollybishop.bishopsgambit.model.piece.Knight;
@@ -10,8 +15,10 @@ import io.github.ollybishop.bishopsgambit.model.piece.Pawn;
 import io.github.ollybishop.bishopsgambit.model.piece.Piece;
 import io.github.ollybishop.bishopsgambit.model.piece.Rook;
 
-public class Board extends ArrayList<Square>
+public class Board
 {
+    private final List<Square> squares = new ArrayList<>( 64 );
+
     // Castling rights
     private boolean whiteQueensideCastlingAllowed = true;
     private boolean whiteKingsideCastlingAllowed = true;
@@ -45,37 +52,70 @@ public class Board extends ArrayList<Square>
         return enPassantPawn;
     }
 
-    /**
-     * Constructs a chessboard containing 64 unoccupied squares.
-     */
-    public Board()
+    private Board()
     {
-        for ( char file = 'a'; file <= 'h'; file++ )
-            for ( char rank = '1'; rank <= '8'; rank++ )
-                add( new Square( file, rank ) );
     }
 
     /**
-     * Returns a list of all pieces currently on the board.
+     * Creates a chessboard containing 64 squares and assigns each of the given {@code pieces} to its starting square.
      * 
-     * @return a list of all pieces currently on the board
+     * @param pieces the pieces to be assigned
+     * @return a new board with all given pieces assigned to their starting squares
+     * @throws NullPointerException     if {@code pieces} is null or contains null
+     * @throws IllegalArgumentException if multiple pieces have the same starting square
      */
-    public List<Piece> getPieces()
+    public static Board createStartingBoard( Set<Piece> pieces )
+    {
+        Objects.requireNonNull( pieces, "Set of pieces must not be null" );
+
+        Board board = new Board();
+
+        // Create 64 unoccupied squares
+        for ( char file = 'a'; file <= 'h'; file++ )
+        {
+            for ( char rank = '1'; rank <= '8'; rank++ )
+            {
+                board.squares.add( new Square( file, rank ) );
+            }
+        }
+
+        // Assign all pieces to their starting squares
+        for ( Piece piece : pieces )
+        {
+            Objects.requireNonNull( piece, "Set of pieces must not contain null values" );
+
+            Square startingSquare = piece.getStartingSquare( board );
+
+            if ( startingSquare.isOccupied() )
+            {
+                throw new IllegalArgumentException( String.format(
+                    "Tried to assign %s to its starting square '%s', but it is already occupied by %s",
+                    piece, startingSquare, startingSquare.getPiece() ) );
+            }
+
+            startingSquare.setPiece( piece );
+        }
+
+        return board;
+    }
+
+    public Stream<Square> stream()
+    {
+        return squares.stream();
+    }
+
+    /**
+     * Returns an unmodifiable snapshot of all pieces currently on the board.
+     * <p>
+     * The snapshot does not reflect subsequent changes to the board.
+     *
+     * @return an unmodifiable set of all pieces currently on the board
+     */
+    public Set<Piece> getPieces()
     {
         return stream().filter( Square::isOccupied )
                        .map( Square::getPiece )
-                       .toList();
-    }
-
-    /**
-     * Assigns each of the given player's pieces to its start square.
-     * 
-     * @param player the player whose pieces are to be assigned
-     */
-    public void assignPieces( Player player )
-    {
-        for ( Piece piece : player.getPieces() )
-            piece.getStartSquare( this ).setPiece( piece );
+                       .collect( Collectors.toUnmodifiableSet() );
     }
 
     /**
@@ -91,6 +131,18 @@ public class Board extends ArrayList<Square>
     }
 
     /**
+     * Returns the square at the given index, using the ordering defined by {@link Square#getIndex(char, char)}.
+     * 
+     * @param index the square index, from 0 to 63
+     * @return the square at the given index
+     * @throws IndexOutOfBoundsException if {@code index} is outside the range 0 to 63
+     */
+    public Square getSquare( int index )
+    {
+        return squares.get( index );
+    }
+
+    /**
      * Finds the square with the given file and rank.
      * 
      * @param file the file of the square to be found
@@ -100,7 +152,7 @@ public class Board extends ArrayList<Square>
     public Square getSquare( char file, char rank )
     {
         if ( isValidSquare( file, rank ) )
-            return get( Square.getIndex( file, rank ) );
+            return getSquare( Square.getIndex( file, rank ) );
 
         return null;
     }
@@ -118,24 +170,60 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Clones this board and moves the piece occupying {@code from} to {@code to}. Also handles the following special moves, if
-     * applicable:
+     * Creates a shallow copy of this board that shares its square instances with the original.
+     * <p>
+     * New board states should be created by copying an existing board and replacing squares in the copy (see
+     * {@link Board#copyAndMove(Square, Square)}). The shared square instances should <b>never</b> be modified directly.
+     * 
+     * @return a shallow copy of this board
+     */
+    private Board copy()
+    {
+        Board newBoard = new Board();
+
+        newBoard.squares.addAll( squares );
+
+        newBoard.whiteQueensideCastlingAllowed = whiteQueensideCastlingAllowed;
+        newBoard.whiteKingsideCastlingAllowed = whiteKingsideCastlingAllowed;
+        newBoard.blackQueensideCastlingAllowed = blackQueensideCastlingAllowed;
+        newBoard.blackKingsideCastlingAllowed = blackKingsideCastlingAllowed;
+
+        newBoard.enPassantPawn = enPassantPawn;
+
+        return newBoard;
+    }
+
+    /**
+     * Creates a shallow copy of this board and, in the copy, moves the piece occupying {@code from} to {@code to}. Also handles
+     * the following special moves if applicable:
      * <ul>
-     * <li>Castling: Moves the corresponding rook to the square adjacent to the king.</li>
+     * <li>Castling: Moves the appropriate rook to the square adjacent to the king.</li>
      * <li>En passant: Removes the captured pawn.</li>
      * </ul>
+     * <p>
+     * Castling rights and en passant state in the copy are updated accordingly. This board remains unchanged.
+     * <p>
+     * This method does not check the legality of the requested move. Promotion is handled by
+     * {@link Game#makeMove(Square, Square, Piece.Type)}.
      * 
      * @param from the square containing the piece to be moved
      * @param to   the destination square
-     * @return a clone of this board with the move applied
+     * @return a copy of this board with the move applied
      */
-    public Board cloneAndMove( Square from, Square to )
+    public Board copyAndMove( Square from, Square to )
     {
-        Board newBoard = (Board) clone();
+        Board newBoard = copy();
         newBoard.move( from, to );
         return newBoard;
     }
 
+    /**
+     * Applies the move from {@code from} to {@code to} on this board, handling castling and en passant if applicable. Updates
+     * castling rights and en passant state accordingly.
+     * 
+     * @param from the square containing the piece to be moved
+     * @param to   the destination square
+     */
     private void move( Square from, Square to )
     {
         movePiece( from, to );
@@ -168,13 +256,13 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Moves the piece occupying the <b>from</b> square to the <b>to</b> square.
+     * Moves the piece occupying {@code from} to {@code to} by replacing both squares on this board.
      * <p>
-     * To preserve board states, the given squares are cloned and the piece occupying the original <b>from</b> square is
-     * assigned to the new <i>to</i> square. The new <i>from</i> square is left unoccupied.
+     * The replacement for {@code from} is unoccupied, and the replacement for {@code to} contains the piece from the original
+     * {@code from} square. The original square instances remain unchanged, preserving any board states that share them.
      * 
      * @param from the square containing the piece to be moved
-     * @param to   the destination square for the piece
+     * @param to   the destination square
      */
     private void movePiece( Square from, Square to )
     {
@@ -186,16 +274,20 @@ public class Board extends ArrayList<Square>
     }
 
     /**
-     * Replaces the square <b>s1</b> on this board with the square <b>s2</b>.
+     * Replaces {@code oldSquare} on this board with {@code newSquare}.
      * 
-     * @param s1 the old square
-     * @param s2 the new square
+     * @param oldSquare the square to be replaced
+     * @param newSquare the replacement square
+     * @throws IllegalArgumentException if {@code oldSquare} does not belong to this board
      */
-    private void replace( Square s1, Square s2 )
+    private void replace( Square oldSquare, Square newSquare )
     {
-        int index = indexOf( s1 );
-        remove( index );
-        add( index, s2 );
+        int index = squares.indexOf( oldSquare );
+
+        if ( index == -1 )
+            throw new IllegalArgumentException( "The square to be replaced (" + oldSquare + ") does not belong to this board" );
+
+        squares.set( index, newSquare );
     }
 
     public Piece promote( Pawn pawn, Piece.Type newType )
@@ -276,7 +368,7 @@ public class Board extends ArrayList<Square>
 
     public boolean moveWouldLeavePlayerInCheck( Player player, Square from, Square to )
     {
-        return player.isInCheck( cloneAndMove( from, to ) );
+        return player.isInCheck( copyAndMove( from, to ) );
     }
 
     /**
@@ -295,41 +387,28 @@ public class Board extends ArrayList<Square>
 
     public boolean hasInsufficientMaterial()
     {
-        // Get all non-king pieces currently on the board
+        // Get all pieces on the board except kings
         List<Piece> pieces = getPieces().stream()
                                         .filter( piece -> !( piece instanceof King ) )
                                         .toList();
 
-        switch ( pieces.size() )
+        return switch ( pieces.size() )
         {
             // King versus king
-            case 0:
-                return true;
+            case 0 -> true;
 
             // King and knight/bishop versus king
-            case 1:
-                return pieces.get( 0 ) instanceof Knight ||
-                       pieces.get( 0 ) instanceof Bishop;
+            case 1 -> pieces.get( 0 ) instanceof Knight ||
+                      pieces.get( 0 ) instanceof Bishop;
 
             // King and bishop versus king and bishop with the bishops on the same colour
-            case 2:
-                if ( pieces.get( 0 ) instanceof Bishop &&
-                     pieces.get( 1 ) instanceof Bishop )
-                {
-                    Bishop first = (Bishop) pieces.get( 0 );
-                    Bishop second = (Bishop) pieces.get( 1 );
+            case 2 -> pieces.get( 0 ) instanceof Bishop first &&
+                      pieces.get( 1 ) instanceof Bishop second &&
+                      first.getColour() != second.getColour() &&
+                      first.getSquareShade() == second.getSquareShade();
 
-                    boolean differentPlayers = first.getColour() != second.getColour();
-                    boolean sameSquareShade = first.getSquareShade() == second.getSquareShade();
-
-                    return differentPlayers && sameSquareShade;
-                }
-
-                return false;
-
-            default:
-                return false;
-        }
+            default -> false;
+        };
     }
 
     public void print()

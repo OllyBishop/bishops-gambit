@@ -30,6 +30,13 @@ public class Square
         return this.piece;
     }
 
+    /**
+     * Assigns the given piece to this square.
+     * <p>
+     * This method should only be called by {@link Board}, and only on squares that are not shared between board states.
+     * 
+     * @param piece the piece to assign, or {@code null} to leave the square empty
+     */
     void setPiece( Piece piece )
     {
         this.piece = piece;
@@ -38,7 +45,7 @@ public class Square
     @Override
     public String toString()
     {
-        return "%s%s".formatted( getFile(), getRank() );
+        return "" + file + rank;
     }
 
     /**

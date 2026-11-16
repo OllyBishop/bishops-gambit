@@ -5,6 +5,7 @@ import static io.github.ollybishop.bishopsgambit.testutil.TestAssertions.assertT
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,45 +26,60 @@ class GameTest
 {
     private Game game;
 
-    // =========================================================================================
-
     private final SquareHelper a1 = new SquareHelper( () -> game, 'a', '1' );
+    private final SquareHelper a2 = new SquareHelper( () -> game, 'a', '2' );
     private final SquareHelper a4 = new SquareHelper( () -> game, 'a', '4' );
     private final SquareHelper a5 = new SquareHelper( () -> game, 'a', '5' );
+    private final SquareHelper a7 = new SquareHelper( () -> game, 'a', '7' );
     private final SquareHelper a8 = new SquareHelper( () -> game, 'a', '8' );
 
+    private final SquareHelper b1 = new SquareHelper( () -> game, 'b', '1' );
+    private final SquareHelper b2 = new SquareHelper( () -> game, 'b', '2' );
     private final SquareHelper b7 = new SquareHelper( () -> game, 'b', '7' );
+    private final SquareHelper b8 = new SquareHelper( () -> game, 'b', '8' );
 
     private final SquareHelper c1 = new SquareHelper( () -> game, 'c', '1' );
+    private final SquareHelper c2 = new SquareHelper( () -> game, 'c', '2' );
     private final SquareHelper c4 = new SquareHelper( () -> game, 'c', '4' );
     private final SquareHelper c5 = new SquareHelper( () -> game, 'c', '5' );
+    private final SquareHelper c7 = new SquareHelper( () -> game, 'c', '7' );
     private final SquareHelper c8 = new SquareHelper( () -> game, 'c', '8' );
 
     private final SquareHelper d1 = new SquareHelper( () -> game, 'd', '1' );
+    private final SquareHelper d2 = new SquareHelper( () -> game, 'd', '2' );
     private final SquareHelper d4 = new SquareHelper( () -> game, 'd', '4' );
     private final SquareHelper d5 = new SquareHelper( () -> game, 'd', '5' );
+    private final SquareHelper d7 = new SquareHelper( () -> game, 'd', '7' );
     private final SquareHelper d8 = new SquareHelper( () -> game, 'd', '8' );
 
     private final SquareHelper e1 = new SquareHelper( () -> game, 'e', '1' );
+    private final SquareHelper e2 = new SquareHelper( () -> game, 'e', '2' );
     private final SquareHelper e4 = new SquareHelper( () -> game, 'e', '4' );
     private final SquareHelper e5 = new SquareHelper( () -> game, 'e', '5' );
     private final SquareHelper e7 = new SquareHelper( () -> game, 'e', '7' );
     private final SquareHelper e8 = new SquareHelper( () -> game, 'e', '8' );
 
     private final SquareHelper f1 = new SquareHelper( () -> game, 'f', '1' );
+    private final SquareHelper f2 = new SquareHelper( () -> game, 'f', '2' );
     private final SquareHelper f5 = new SquareHelper( () -> game, 'f', '5' );
+    private final SquareHelper f7 = new SquareHelper( () -> game, 'f', '7' );
     private final SquareHelper f8 = new SquareHelper( () -> game, 'f', '8' );
 
     private final SquareHelper g1 = new SquareHelper( () -> game, 'g', '1' );
+    private final SquareHelper g2 = new SquareHelper( () -> game, 'g', '2' );
     private final SquareHelper g4 = new SquareHelper( () -> game, 'g', '4' );
+    private final SquareHelper g7 = new SquareHelper( () -> game, 'g', '7' );
     private final SquareHelper g8 = new SquareHelper( () -> game, 'g', '8' );
 
     private final SquareHelper h1 = new SquareHelper( () -> game, 'h', '1' );
+    private final SquareHelper h2 = new SquareHelper( () -> game, 'h', '2' );
     private final SquareHelper h4 = new SquareHelper( () -> game, 'h', '4' );
     private final SquareHelper h5 = new SquareHelper( () -> game, 'h', '5' );
     private final SquareHelper h7 = new SquareHelper( () -> game, 'h', '7' );
     private final SquareHelper h8 = new SquareHelper( () -> game, 'h', '8' );
 
+    // =========================================================================================
+    // Helpers
     // =========================================================================================
 
     private void makeMove( String uci )
@@ -149,6 +165,17 @@ class GameTest
     }
 
     // =========================================================================================
+    // Assertions
+    // =========================================================================================
+
+    private void assertPieceColourAndType( SquareHelper square, Player.Colour colour, Piece.Type type )
+    {
+        Piece piece = square.getPiece();
+
+        assertNotNull( piece, "Expected a piece on '" + square + "'" );
+        assertEquals( colour, piece.getColour(), "Incorrect piece colour on '" + square + "'" );
+        assertEquals( type, piece.getType(), "Incorrect piece type on '" + square + "'" );
+    }
 
     private void assertAllEnPassantPawns( int[] plies, SquareHelper[] expectedSquares )
     {
@@ -191,6 +218,8 @@ class GameTest
     }
 
     // =========================================================================================
+    // Test Lifecycle
+    // =========================================================================================
 
     @BeforeEach
     void printTestName( TestInfo testInfo )
@@ -212,6 +241,65 @@ class GameTest
     }
 
     // =========================================================================================
+    // Game Initialisation
+    // =========================================================================================
+
+    @Test
+    void newGame_initialBoardHasCorrectStartingPosition()
+    {
+        Board initialBoard = game.getActiveBoard();
+
+        // Check there are 32 occupied squares on the board
+        assertEquals( 32, initialBoard.stream().filter( Square::isOccupied ).count() );
+
+        // Check there are 32 unique pieces on the board
+        assertEquals( 32, initialBoard.getPieces().size() );
+
+        assertPieceColourAndType( a1, Player.Colour.WHITE, Piece.Type.ROOK );
+        assertPieceColourAndType( b1, Player.Colour.WHITE, Piece.Type.KNIGHT );
+        assertPieceColourAndType( c1, Player.Colour.WHITE, Piece.Type.BISHOP );
+        assertPieceColourAndType( d1, Player.Colour.WHITE, Piece.Type.QUEEN );
+        assertPieceColourAndType( e1, Player.Colour.WHITE, Piece.Type.KING );
+        assertPieceColourAndType( f1, Player.Colour.WHITE, Piece.Type.BISHOP );
+        assertPieceColourAndType( g1, Player.Colour.WHITE, Piece.Type.KNIGHT );
+        assertPieceColourAndType( h1, Player.Colour.WHITE, Piece.Type.ROOK );
+
+        assertPieceColourAndType( a2, Player.Colour.WHITE, Piece.Type.PAWN );
+        assertPieceColourAndType( b2, Player.Colour.WHITE, Piece.Type.PAWN );
+        assertPieceColourAndType( c2, Player.Colour.WHITE, Piece.Type.PAWN );
+        assertPieceColourAndType( d2, Player.Colour.WHITE, Piece.Type.PAWN );
+        assertPieceColourAndType( e2, Player.Colour.WHITE, Piece.Type.PAWN );
+        assertPieceColourAndType( f2, Player.Colour.WHITE, Piece.Type.PAWN );
+        assertPieceColourAndType( g2, Player.Colour.WHITE, Piece.Type.PAWN );
+        assertPieceColourAndType( h2, Player.Colour.WHITE, Piece.Type.PAWN );
+
+        assertPieceColourAndType( a7, Player.Colour.BLACK, Piece.Type.PAWN );
+        assertPieceColourAndType( b7, Player.Colour.BLACK, Piece.Type.PAWN );
+        assertPieceColourAndType( c7, Player.Colour.BLACK, Piece.Type.PAWN );
+        assertPieceColourAndType( d7, Player.Colour.BLACK, Piece.Type.PAWN );
+        assertPieceColourAndType( e7, Player.Colour.BLACK, Piece.Type.PAWN );
+        assertPieceColourAndType( f7, Player.Colour.BLACK, Piece.Type.PAWN );
+        assertPieceColourAndType( g7, Player.Colour.BLACK, Piece.Type.PAWN );
+        assertPieceColourAndType( h7, Player.Colour.BLACK, Piece.Type.PAWN );
+
+        assertPieceColourAndType( a8, Player.Colour.BLACK, Piece.Type.ROOK );
+        assertPieceColourAndType( b8, Player.Colour.BLACK, Piece.Type.KNIGHT );
+        assertPieceColourAndType( c8, Player.Colour.BLACK, Piece.Type.BISHOP );
+        assertPieceColourAndType( d8, Player.Colour.BLACK, Piece.Type.QUEEN );
+        assertPieceColourAndType( e8, Player.Colour.BLACK, Piece.Type.KING );
+        assertPieceColourAndType( f8, Player.Colour.BLACK, Piece.Type.BISHOP );
+        assertPieceColourAndType( g8, Player.Colour.BLACK, Piece.Type.KNIGHT );
+        assertPieceColourAndType( h8, Player.Colour.BLACK, Piece.Type.ROOK );
+    }
+
+    @Test
+    void newGame_hasNoPliesPlayedAndWhiteToMove()
+    {
+        assertEquals( 0, game.getNumberOfPliesPlayed() );
+        assertEquals( Player.Colour.WHITE, game.getActivePlayer().getColour() );
+    }
+
+    // =========================================================================================
     // Invalid Moves
     // =========================================================================================
 
@@ -221,7 +309,7 @@ class GameTest
         assertThrowsWithMessage(
             NoPieceOnSquareException.class,
             () -> makeMove( "e3e4" ),
-            "Cannot move a piece from empty square e3." );
+            "Cannot move a piece from empty square e3" );
     }
 
     @Test
@@ -230,7 +318,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "e7e5" ),
-            "Black Pawn cannot be moved because it is White's turn." );
+            "Black Pawn cannot be moved because it is White's turn" );
     }
 
     @Test
@@ -241,7 +329,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "d2d4" ),
-            "White Pawn cannot be moved because it is Black's turn." );
+            "White Pawn cannot be moved because it is Black's turn" );
     }
 
     @Test
@@ -250,7 +338,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "e1e2" ),
-            "White King cannot legally move from e1 to e2." );
+            "White King cannot legally move from e1 to e2" );
     }
 
     // =========================================================================================
@@ -379,7 +467,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "e1g1" ),
-            "White King cannot legally move from e1 to g1." );
+            "White King cannot legally move from e1 to g1" );
 
         assertEquals( 8, getNumberOfPliesPlayed() );
         assertEquals( 37, getNumberOfLegalMoves() );
@@ -408,7 +496,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "e1g1" ),
-            "White King cannot legally move from e1 to g1." );
+            "White King cannot legally move from e1 to g1" );
 
         assertEquals( 6, getNumberOfPliesPlayed() );
         assertEquals( 32, getNumberOfLegalMoves() );
@@ -438,7 +526,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "e8g8" ),
-            "Black King cannot legally move from e8 to g8." );
+            "Black King cannot legally move from e8 to g8" );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { d4, e5 } );
     }
@@ -458,7 +546,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "e8g8" ),
-            "Black King cannot legally move from e8 to g8." );
+            "Black King cannot legally move from e8 to g8" );
 
         assertAllEnPassantPawns( new int[] { 1, 4 }, new SquareHelper[] { g4, e5 } );
     }
@@ -476,7 +564,7 @@ class GameTest
         assertThrowsWithMessage(
             IllegalMoveException.class,
             () -> makeMove( "d5e6" ),
-            "White Pawn cannot legally move from d5 to e6." );
+            "White Pawn cannot legally move from d5 to e6" );
 
         assertEquals( 4, getNumberOfPliesPlayed() );
         assertEquals( 29, getNumberOfLegalMoves() );
@@ -872,7 +960,7 @@ class GameTest
         assertThrowsWithMessage(
             InvalidPromotionException.class,
             () -> makeMove( b7, a8, Piece.Type.PAWN ),
-            "The new piece type (Pawn) must be one of Knight, Bishop, Rook or Queen." );
+            "The new piece type (Pawn) must be one of Knight, Bishop, Rook or Queen" );
     }
 
     @Test
@@ -887,7 +975,7 @@ class GameTest
         assertThrowsWithMessage(
             InvalidPromotionException.class,
             () -> makeMove( b7, a8, Piece.Type.KING ),
-            "The new piece type (King) must be one of Knight, Bishop, Rook or Queen." );
+            "The new piece type (King) must be one of Knight, Bishop, Rook or Queen" );
     }
 
     @Test
@@ -902,7 +990,7 @@ class GameTest
         assertThrowsWithMessage(
             InvalidPromotionException.class,
             () -> makeMove( "b7a8" ),
-            "Promotion is mandatory, but no new piece type was specified." );
+            "Promotion is mandatory, but no new piece type was specified" );
     }
 
     @Test
@@ -915,7 +1003,7 @@ class GameTest
         assertThrowsWithMessage(
             InvalidPromotionException.class,
             () -> makeMove( "g2a8q" ),
-            "The promoting piece (White Bishop) must be a Pawn." );
+            "The promoting piece (White Bishop) must be a Pawn" );
     }
 
     @Test
@@ -925,6 +1013,6 @@ class GameTest
         assertThrowsWithMessage(
             InvalidPromotionException.class,
             () -> makeMove( "c2c4q" ),
-            "The promotion square (c4) must be on White's last rank." );
+            "The promotion square (c4) must be on White's last rank" );
     }
 }

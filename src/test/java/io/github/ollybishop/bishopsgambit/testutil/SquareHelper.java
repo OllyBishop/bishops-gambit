@@ -32,6 +32,12 @@ public class SquareHelper
         return rank;
     }
 
+    @Override
+    public String toString()
+    {
+        return "" + file + rank;
+    }
+
     public Square getSquare()
     {
         return gameSupplier.get().getActiveBoard().getSquare( file, rank );
