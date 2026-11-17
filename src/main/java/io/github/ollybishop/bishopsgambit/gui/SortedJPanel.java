@@ -16,8 +16,11 @@ class SortedJPanel extends JPanel
     protected final void addImpl( Component comp, Object constraints, int index )
     {
         if ( !( comp instanceof Sortable ) )
-            throw new IllegalArgumentException( comp.getClass().getSimpleName() +
-                                                " must implement Sortable to be added to a SortedJPanel." );
+        {
+            throw new IllegalArgumentException( String.format(
+                "%s must implement Sortable to be added to a SortedJPanel",
+                comp.getClass().getSimpleName() ) );
+        }
 
         if ( comp.getParent() == this )
             return;

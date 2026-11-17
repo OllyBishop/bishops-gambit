@@ -20,7 +20,7 @@ public class Bishop extends Piece
 
     public Square.Shade getSquareShade()
     {
-        return this.squareShade;
+        return squareShade;
     }
 
     @Override

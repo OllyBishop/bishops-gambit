@@ -12,7 +12,7 @@ class PieceComponent extends JLabel implements Sortable
 
     Piece getPiece()
     {
-        return this.piece;
+        return piece;
     }
 
     PieceComponent( Piece piece )

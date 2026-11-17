@@ -22,7 +22,7 @@ public class Game
 
     public Status getStatus()
     {
-        return this.status;
+        return status;
     }
 
     private void setStatus( Status status )
@@ -235,20 +235,23 @@ public class Game
         {
             if ( !( piece instanceof Pawn ) )
             {
-                String message = "The promoting piece (" + piece + ") must be a Pawn";
-                throw new InvalidPromotionException( message );
+                throw new InvalidPromotionException( String.format(
+                    "The promoting piece (%s) must be a Pawn",
+                    piece ) );
             }
 
             if ( !to.isOnLastRank( activePlayer ) )
             {
-                String message = "The promotion square (" + to + ") must be on " + activePlayer + "'s last rank";
-                throw new InvalidPromotionException( message );
+                throw new InvalidPromotionException( String.format(
+                    "The promotion square '%s' must be on %s's last rank",
+                    to, activePlayer ) );
             }
 
             if ( !newType.isValidPromotionType() )
             {
-                String message = "The new piece type (" + newType + ") must be one of Knight, Bishop, Rook or Queen";
-                throw new InvalidPromotionException( message );
+                throw new InvalidPromotionException( String.format(
+                    "The new piece type (%s) must be one of Knight, Bishop, Rook or Queen",
+                    newType ) );
             }
 
             newPiece = newBoard.promote( (Pawn) piece, newType );
@@ -264,14 +267,14 @@ public class Game
 
     public boolean isGameOver()
     {
-        return getStatus() == Status.CHECKMATE ||
-               getStatus() == Status.STALEMATE ||
-               getStatus() == Status.INSUFFICIENT_MATERIAL;
+        return status == Status.CHECKMATE ||
+               status == Status.STALEMATE ||
+               status == Status.INSUFFICIENT_MATERIAL;
     }
 
     public String getGameOverMessage()
     {
-        return switch ( getStatus() )
+        return switch ( status )
         {
             case CHECKMATE -> getActivePlayer().getColour().opposite() + " wins by checkmate.";
             case STALEMATE -> "Game drawn by stalemate.";

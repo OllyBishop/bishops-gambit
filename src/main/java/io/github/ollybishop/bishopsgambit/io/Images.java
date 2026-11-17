@@ -98,7 +98,7 @@ public class Images
     public static Icon createIcon( Player.Colour colour, Piece.Type type, int scale )
     {
         if ( scale == 0 )
-            throw new IllegalArgumentException( "Scale must be non-zero." );
+            throw new IllegalArgumentException( "Scale must be non-zero" );
 
         Image image = getImage( colour, type );
 

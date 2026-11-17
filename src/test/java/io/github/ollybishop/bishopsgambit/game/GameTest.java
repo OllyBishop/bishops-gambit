@@ -180,7 +180,7 @@ class GameTest
     private void assertAllEnPassantPawns( int[] plies, SquareHelper[] expectedSquares )
     {
         if ( plies.length != expectedSquares.length )
-            throw new IllegalArgumentException( "Arrays must have the same length." );
+            throw new IllegalArgumentException( "Arrays must have the same length" );
 
         // Indexed by ply number: { 0, 1, ..., game.getNumberOfPliesPlayed() }
         SquareHelper[] expectedSquaresByPly = new SquareHelper[ game.getNumberOfPliesPlayed() + 1 ];

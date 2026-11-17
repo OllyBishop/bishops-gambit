@@ -17,17 +17,17 @@ public class Square
 
     public char getFile()
     {
-        return this.file;
+        return file;
     }
 
     public char getRank()
     {
-        return this.rank;
+        return rank;
     }
 
     public Piece getPiece()
     {
-        return this.piece;
+        return piece;
     }
 
     /**
@@ -55,7 +55,7 @@ public class Square
      */
     Square copyWithoutPiece()
     {
-        return new Square( getFile(), getRank() );
+        return new Square( file, rank );
     }
 
     /**
@@ -65,7 +65,7 @@ public class Square
      */
     public boolean isEmpty()
     {
-        return getPiece() == null;
+        return piece == null;
     }
 
     /**
@@ -86,7 +86,7 @@ public class Square
      */
     public boolean isOccupiedBy( Player player )
     {
-        return isOccupied() && getPiece().getPlayer() == player;
+        return isOccupied() && piece.getPlayer() == player;
     }
 
     /**
@@ -98,7 +98,7 @@ public class Square
      */
     public boolean isOccupiedByOpponentOf( Player player )
     {
-        return isOccupied() && getPiece().getPlayer() != player;
+        return isOccupied() && piece.getPlayer() != player;
     }
 
     /**
@@ -121,19 +121,19 @@ public class Square
     {
         return switch ( player.getColour() )
         {
-            case WHITE -> getRank() == '8';
-            case BLACK -> getRank() == '1';
+            case WHITE -> rank == '8';
+            case BLACK -> rank == '1';
         };
     }
 
     public int fileDiff( Square square )
     {
-        return getFile() - square.getFile();
+        return file - square.getFile();
     }
 
     public int rankDiff( Square square )
     {
-        return getRank() - square.getRank();
+        return rank - square.getRank();
     }
 
     public static Shade getShade( char file, char rank )
@@ -143,7 +143,7 @@ public class Square
 
     public int getIndex()
     {
-        return getIndex( getFile(), getRank() );
+        return getIndex( file, rank );
     }
 
     public static int getIndex( char file, char rank )

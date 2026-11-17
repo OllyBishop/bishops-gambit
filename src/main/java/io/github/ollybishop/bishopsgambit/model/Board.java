@@ -89,7 +89,7 @@ public class Board
             if ( startingSquare.isOccupied() )
             {
                 throw new IllegalArgumentException( String.format(
-                    "Tried to assign %s to its starting square '%s', but it is already occupied by %s",
+                    "Cannot assign %s to starting square '%s' because it is already occupied by %s",
                     piece, startingSquare, startingSquare.getPiece() ) );
             }
 
@@ -161,6 +161,7 @@ public class Board
     {
         char file = (char) ( origin.getFile() + dx );
         char rank = (char) ( origin.getRank() + dy );
+
         return getSquare( file, rank );
     }
 

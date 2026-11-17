@@ -40,7 +40,7 @@ public abstract class Piece
 
     public Player.Colour getColour()
     {
-        return getPlayer().getColour();
+        return player.getColour();
     }
 
     /**
@@ -50,7 +50,7 @@ public abstract class Piece
      */
     public int getPlayerSign()
     {
-        return getPlayer().getSign();
+        return player.getSign();
     }
 
     public Board.Side getBoardSide()
@@ -145,7 +145,6 @@ public abstract class Piece
      */
     public List<Square> getLegalMoves( Board board )
     {
-        Player player = getPlayer();
         Square from = getSquare( board );
 
         return getPseudoLegalMoves( board ).stream()
@@ -179,7 +178,7 @@ public abstract class Piece
      */
     public boolean isUnderAttack( Board board )
     {
-        return getSquare( board ).isControlledByOpponentOf( getPlayer(), board );
+        return getSquare( board ).isControlledByOpponentOf( player, board );
     }
 
     /**
@@ -196,7 +195,7 @@ public abstract class Piece
 
     public boolean canPromote( Square square )
     {
-        return this instanceof Pawn && square.isOnLastRank( getPlayer() );
+        return this instanceof Pawn && square.isOnLastRank( player );
     }
 
     public boolean movedTwoSquaresForward( Square from, Square to )
@@ -238,7 +237,7 @@ public abstract class Piece
         @Override
         public String toString()
         {
-            return this.str;
+            return str;
         }
 
         public boolean isValidPromotionType()

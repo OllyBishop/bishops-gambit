@@ -55,17 +55,17 @@ public class Player
         new Bishop( this, 'c', backRank );
         new Bishop( this, 'f', backRank );
 
-        this.queensideRook = new Rook( this, 'a', backRank );
-        this.kingsideRook = new Rook( this, 'h', backRank );
+        queensideRook = new Rook( this, 'a', backRank );
+        kingsideRook = new Rook( this, 'h', backRank );
 
         new Queen( this, 'd', backRank );
 
-        this.king = new King( this, 'e', backRank );
+        king = new King( this, 'e', backRank );
     }
 
     public Colour getColour()
     {
-        return this.colour;
+        return colour;
     }
 
     /**
@@ -78,7 +78,7 @@ public class Player
      */
     public int getSign()
     {
-        return switch ( getColour() )
+        return switch ( colour )
         {
             case WHITE -> 1;
             case BLACK -> -1;
@@ -116,12 +116,12 @@ public class Player
 
     Rook getQueensideRook()
     {
-        return this.queensideRook;
+        return queensideRook;
     }
 
     Rook getKingsideRook()
     {
-        return this.kingsideRook;
+        return kingsideRook;
     }
 
     /**
@@ -137,23 +137,23 @@ public class Player
     public Rook getRook( int castlingDirection )
     {
         if ( castlingDirection < 0 )
-            return getQueensideRook();
+            return queensideRook;
 
         if ( castlingDirection > 0 )
-            return getKingsideRook();
+            return kingsideRook;
 
-        throw new IllegalArgumentException( "Castling direction must be non-zero." );
+        throw new IllegalArgumentException( "Castling direction must be non-zero" );
     }
 
     public King getKing()
     {
-        return this.king;
+        return king;
     }
 
     @Override
     public String toString()
     {
-        return getColour().toString();
+        return colour.toString();
     }
 
     /**
@@ -164,7 +164,7 @@ public class Player
      */
     public boolean isInCheck( Board board )
     {
-        return getKing().isUnderAttack( board );
+        return king.isUnderAttack( board );
     }
 
     /**
@@ -229,7 +229,7 @@ public class Player
         @Override
         public String toString()
         {
-            return this.str;
+            return str;
         }
 
         public Colour opposite()

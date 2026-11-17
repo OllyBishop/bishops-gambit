@@ -16,8 +16,6 @@ class PieceTest
 {
     private Game game;
 
-    // =========================================================================================
-
     private final SquareHelper a1 = new SquareHelper( () -> game, 'a', '1' );
     private final SquareHelper a2 = new SquareHelper( () -> game, 'a', '2' );
     private final SquareHelper a3 = new SquareHelper( () -> game, 'a', '3' );
@@ -91,6 +89,8 @@ class PieceTest
     private final SquareHelper h8 = new SquareHelper( () -> game, 'h', '8' );
 
     // =========================================================================================
+    // Helpers
+    // =========================================================================================
 
     private void makeMove( SquareHelper from, SquareHelper to )
     {
@@ -102,6 +102,8 @@ class PieceTest
         game.makeMove( from.getSquare(), to.getSquare(), newType );
     }
 
+    // =========================================================================================
+    // Test Lifecycle
     // =========================================================================================
 
     @BeforeEach

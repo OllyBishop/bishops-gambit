@@ -13,13 +13,15 @@ class IllegalMoveException extends IllegalArgumentException
 
     static IllegalMoveException wrongPlayer( Piece piece, Player activePlayer )
     {
-        String message = piece + " cannot be moved because it is " + activePlayer + "'s turn";
-        return new IllegalMoveException( message );
+        return new IllegalMoveException( String.format(
+            "%s cannot be moved because it is %s's turn",
+            piece, activePlayer ) );
     }
 
     static IllegalMoveException illegalPieceMove( Square from, Square to )
     {
-        String message = from.getPiece() + " cannot legally move from " + from + " to " + to;
-        return new IllegalMoveException( message );
+        return new IllegalMoveException( String.format(
+            "%s cannot legally move from '%s' to '%s'",
+            from.getPiece(), from, to ) );
     }
 }

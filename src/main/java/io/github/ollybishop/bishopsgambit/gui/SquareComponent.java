@@ -45,12 +45,12 @@ class SquareComponent extends JLayeredPane
 
     char getFile()
     {
-        return this.file;
+        return file;
     }
 
     char getRank()
     {
-        return this.rank;
+        return rank;
     }
 
     SquareComponent( char file, char rank )
@@ -60,22 +60,22 @@ class SquareComponent extends JLayeredPane
 
         Square.Shade squareShade = Square.getShade( file, rank );
 
-        this.defaultBackground = squareShade == Square.Shade.DARK ? DARK_SQUARE_BG : LIGHT_SQUARE_BG;
-        this.defaultForeground = squareShade == Square.Shade.DARK ? LIGHT_SQUARE_BG : DARK_SQUARE_BG;
+        defaultBackground = squareShade == Square.Shade.DARK ? DARK_SQUARE_BG : LIGHT_SQUARE_BG;
+        defaultForeground = squareShade == Square.Shade.DARK ? LIGHT_SQUARE_BG : DARK_SQUARE_BG;
 
-        this.fileLabel = new JLabel( String.valueOf( file ) );
+        fileLabel = new JLabel( String.valueOf( file ) );
         fileLabel.setVerticalAlignment( SwingConstants.BOTTOM );
         fileLabel.setHorizontalAlignment( SwingConstants.RIGHT );
         fileLabel.setForeground( defaultForeground );
         fileLabel.setFont( ROBOTO_MEDIUM );
 
-        this.rankLabel = new JLabel( String.valueOf( rank ) );
+        rankLabel = new JLabel( String.valueOf( rank ) );
         rankLabel.setVerticalAlignment( SwingConstants.TOP );
         rankLabel.setHorizontalAlignment( SwingConstants.LEFT );
         rankLabel.setForeground( defaultForeground );
         rankLabel.setFont( ROBOTO_MEDIUM );
 
-        this.moveMarker = new MoveMarker();
+        moveMarker = new MoveMarker();
 
         add( fileLabel, DEFAULT_LAYER );
         add( rankLabel, DEFAULT_LAYER );
@@ -179,15 +179,17 @@ class SquareComponent extends JLayeredPane
         int modalCount = getComponentCountInLayer( MODAL_LAYER );
 
         if ( defaultCount + paletteCount + modalCount < totalCount )
+        {
             System.err.println( String.format(
                 "Square '%s%s' contains %d components, but its expected layers contain only %d (%d default, %d palette, %d modal)",
-                getFile(),
-                getRank(),
+                file,
+                rank,
                 totalCount,
                 defaultCount + paletteCount + modalCount,
                 defaultCount,
                 paletteCount,
                 modalCount ) );
+        }
     }
 
     private class MoveMarker extends JComponent
